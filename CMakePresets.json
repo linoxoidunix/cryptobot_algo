@@ -1,0 +1,54 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "configure_dbg",
+            "displayName": "GCC Debug",
+            "description": "Using compilers: C = /usr/bin/g++",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "configure_release",
+            "displayName": "GCC Release",
+            "description": "Using compilers: C = /usr/bin/g++",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build_dbg",
+            "configurePreset": "configure_dbg"
+        },
+        {
+            "name": "build_release",
+            "configurePreset": "configure_release"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "tests",
+            "configurePreset": "configure_release",
+            "output": {
+                "outputOnFailure": true
+            },
+            "execution": {
+                "noTestsAction": "error",
+                "stopOnFailure": true
+            }
+        }
+    ]
+}
