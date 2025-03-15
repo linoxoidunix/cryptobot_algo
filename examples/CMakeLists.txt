@@ -5,6 +5,7 @@ project(${PROJECT_NAME})
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 file(GLOB SRC
      "*.cpp"
@@ -16,7 +17,8 @@ add_executable (${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-aot_algo
+aos
+aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 )

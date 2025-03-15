@@ -1,6 +1,10 @@
+#pragma once
+
 #include <deque>
 #include <unordered_map>
 
+#include "aos/common/ref_counted.h"
+namespace aos {
 /**
  * @brief Interface for computing histograms.
  *
@@ -11,8 +15,10 @@
  * where `int` represents the bin indices and `T` represents the values
  * associated with those bins (e.g., frequency, density, etc.).
  */
-template <typename T>
-class IHistogramCalculator {
+template <typename T, template <typename> class MemoryPool>
+class IHistogramCalculator
+    : public common::RefCounted<MemoryPool,
+                                aos::IHistogramCalculator<T, MemoryPool>> {
   public:
     virtual ~IHistogramCalculator() = default;
 
@@ -29,4 +35,7 @@ class IHistogramCalculator {
      */
     virtual std::unordered_map<int, T> ComputeHistogram(
         const std::deque<T>& data, int bins) = 0;
+    virtual std::unordered_map<int, T> ComputeHistogram(
+        const std::deque<T>& data, T min, T max, int bins) = 0;
 };
+};  // namespace aos
