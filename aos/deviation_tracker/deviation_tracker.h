@@ -24,7 +24,7 @@ class DeviationTracker
         if (!status) return {false, T{}};
         return {true, value - avg};
     }
-    std::pair<bool, bool> IsDeviationAboveThreshold(
+    std::pair<bool, bool> IsDeviationRatioAboveThreshold(
         const HashT& hash_asset, const T& value,
         double given_threshold) const override {
         auto [status, avg] = avg_tracker_->GetAvg(hash_asset);
@@ -44,6 +44,35 @@ class DeviationTracker
         // Сравниваем отклонение с порогом
         return {true, threshold > given_threshold};
     }
+
+    std::pair<bool, T> GetDeviationRatio(const HashT& hash_asset,
+                                         const T& value) const override {
+        auto [status, avg] = avg_tracker_->GetAvg(hash_asset);
+        if (!status || avg == T{0}) return {false, T{}};
+        return {true, (value - avg) / avg};
+    }
+
+    std::pair<bool, T> GetDeviationPercent(const HashT& hash_asset,
+                                           const T& value) const override {
+        auto [status, avg] = avg_tracker_->GetAvg(hash_asset);
+        if (!status || avg == T{0}) return {false, T{}};
+        return {true, (value - avg) / avg * 100};
+    }
+
+    std::pair<bool, T> GetDeviationRatioAbs(const HashT& hash_asset,
+                                            const T& value) const override {
+        auto [status, avg] = avg_tracker_->GetAvg(hash_asset);
+        if (!status || avg == T{0}) return {false, T{}};
+        return {true, std::abs((value - avg)) / std::abs(avg)};
+    }
+
+    std::pair<bool, T> GetDeviationPercentAbs(const HashT& hash_asset,
+                                              const T& value) const override {
+        auto [status, avg] = avg_tracker_->GetAvg(hash_asset);
+        if (!status || avg == T{0}) return {false, T{}};
+        return {true, std::abs(value - avg) / std::abs(avg) * 100};
+    }
+
     ~DeviationTracker() override { logi("{}", "DeviationTracker dtor"); };
 
   private:

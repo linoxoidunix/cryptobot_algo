@@ -1,5 +1,8 @@
 #pragma once
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics.hpp>
 #include <map>
+#include <unordered_map>
 
 #include "aos/min_tracker/i_min_tracker.h"
 #include "aot/Logger.h"
@@ -101,6 +104,5 @@ class MinTrackerBuilder {
     common::MemoryPoolNotThreadSafety<MinTracker<HashT, T>>&
         pool_;  // Пул памяти
 };
-
 };  // namespace impl
 };  // namespace aos

@@ -34,8 +34,8 @@ class IHistogramCalculator
      *         the value is the data type T (e.g., frequency, density).
      */
     virtual std::unordered_map<int, T> ComputeHistogram(
-        const std::deque<T>& data, int bins) = 0;
+        const std::deque<T>& data, int bins) const = 0;
     virtual std::unordered_map<int, T> ComputeHistogram(
-        const std::deque<T>& data, T min, T max, int bins) = 0;
+        const std::deque<T>& data, T min, T max, int bins) const = 0;
 };
 };  // namespace aos

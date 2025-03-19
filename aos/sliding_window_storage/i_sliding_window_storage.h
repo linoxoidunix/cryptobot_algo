@@ -23,4 +23,17 @@ class ISlidingWindowStorage
     virtual bool HasEnoughData(const HashT& hash_asset) const           = 0;
     virtual ~ISlidingWindowStorage() = default;
 };
+
+// 📌 Расширенный интерфейс с поддержкой наблюдателей (OCP - открыт для
+// расширения)
+template <typename HashT, typename T>
+class IObservable {
+  public:
+    virtual void AddObserverBeforeAdd(
+        std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+    virtual void AddObserverAfterAdd(
+        std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+    virtual ~IObservable() = default;
+};
+
 };  // namespace aos

@@ -22,7 +22,7 @@ class RefCounted {
                 auto *pool = static_cast<MemoryPool<T> *>(p->memory_pool_);
                 pool->Deallocate(static_cast<T *>(p));
             } else {
-                delete p;  // Без пула просто удаляем объект
+                // delete p;  // Без пула просто удаляем объект
             }
         }
     }

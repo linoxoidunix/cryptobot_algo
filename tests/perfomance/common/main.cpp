@@ -6,6 +6,7 @@
 
 #include "aos/histogram/histogram_calculator.h"
 #include "aos/joint_histogram/joint_histogram_calculator.h"
+#include "aos/min_tracker/min_tracker.h"
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 
@@ -37,46 +38,48 @@
 
 // BENCHMARK(BM_MutualInformation);
 
-constexpr int kDataSize = 100;  // Количество элементов в данных
-constexpr int kBins     = 10;   // Количество бинов
+// constexpr int kDataSize = 100;  // Количество элементов в данных
+// constexpr int kBins     = 10;   // Количество бинов
 
-// Функция для генерации случайных данных
-std::deque<double> GenerateRandomData(int size) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(0.0, 100.0);
+// // Функция для генерации случайных данных
+// std::deque<double> GenerateRandomData(int size) {
+//     std::random_device rd;
+//     std::mt19937 gen(rd());
+//     std::uniform_real_distribution<double> dist(0.0, 100.0);
 
-    std::deque<double> data(size);
-    for (auto& val : data) {
-        val = dist(gen);
-    }
-    return data;
-}
+//     std::deque<double> data(size);
+//     for (auto& val : data) {
+//         val = dist(gen);
+//     }
+//     return data;
+// }
 
-// Глобальный объект данных, чтобы избежать накладных расходов генерации
-static std::deque<double> data = GenerateRandomData(kDataSize);
+// // Глобальный объект данных, чтобы избежать накладных расходов генерации
+// static std::deque<double> data = GenerateRandomData(kDataSize);
 
-// Бенчмарк для ComputeHistogram с вычислением min/max
-static void BM_ComputeHistogram_AutoMinMax(benchmark::State& state) {
-    aos::impl::HistogramCalculator<double> calculator;
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(calculator.ComputeHistogram(data, kBins));
-    }
-}
-BENCHMARK(BM_ComputeHistogram_AutoMinMax);
+// // Бенчмарк для ComputeHistogram с вычислением min/max
+// static void BM_ComputeHistogram_AutoMinMax(benchmark::State& state) {
+//     aos::impl::HistogramCalculator<double> calculator;
+//     for (auto _ : state) {
+//         benchmark::DoNotOptimize(calculator.ComputeHistogram(data, kBins));
+//     }
+// }
+// BENCHMARK(BM_ComputeHistogram_AutoMinMax);
 
-// Бенчмарк для ComputeHistogram с переданными min/max
-static void BM_ComputeHistogram_ManualMinMax(benchmark::State& state) {
-    aos::impl::HistogramCalculator<double> calculator;
-    double min_val = *std::min_element(data.begin(), data.end());
-    double max_val = *std::max_element(data.begin(), data.end());
+// // Бенчмарк для ComputeHistogram с переданными min/max
+// static void BM_ComputeHistogram_ManualMinMax(benchmark::State& state) {
+//     aos::impl::HistogramCalculator<double> calculator;
+//     double min_val = *std::min_element(data.begin(), data.end());
+//     double max_val = *std::max_element(data.begin(), data.end());
 
-    for (auto _ : state) {
-        benchmark::DoNotOptimize(
-            calculator.ComputeHistogram(data, min_val, max_val, kBins));
-    }
-}
-BENCHMARK(BM_ComputeHistogram_ManualMinMax);
+//     for (auto _ : state) {
+//         benchmark::DoNotOptimize(
+//             calculator.ComputeHistogram(data, min_val, max_val, kBins));
+//     }
+// }
+// BENCHMARK(BM_ComputeHistogram_ManualMinMax);
+
+// Define the types for testing
 
 int main(int argc, char** argv) {
     benchmark::Initialize(&argc, argv);

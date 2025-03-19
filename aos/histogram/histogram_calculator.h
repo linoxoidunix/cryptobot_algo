@@ -16,7 +16,7 @@ class HistogramCalculator
     : public aos::IHistogramCalculator<T, common::MemoryPoolNotThreadSafety> {
   public:
     std::unordered_map<int, T> ComputeHistogram(const std::deque<T>& data,
-                                                int bins) override {
+                                                int bins) const override {
         std::unordered_map<int, T> histogram;
         T min_val   = *std::min_element(data.begin(), data.end());
         T max_val   = *std::max_element(data.begin(), data.end());
@@ -35,7 +35,8 @@ class HistogramCalculator
         return histogram;
     }
     virtual std::unordered_map<int, T> ComputeHistogram(
-        const std::deque<T>& data, T min_val, T max_val, int bins) override {
+        const std::deque<T>& data, T min_val, T max_val,
+        int bins) const override {
         std::unordered_map<int, T> histogram;
         T bin_width = (max_val - min_val) / bins;
 

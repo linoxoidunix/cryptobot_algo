@@ -58,11 +58,11 @@ class IJointHistogramCalculator
      */
     virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
     ComputeJointHistogram(const std::deque<T>& x, const std::deque<T>& y,
-                          int bins) = 0;
+                          int bins) const = 0;
 
     virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
     ComputeJointHistogram(const std::deque<T>& x, T x_min_value, T x_max_value,
                           const std::deque<T>& y, T y_min_value, T y_max_value,
-                          int bins) = 0;
+                          int bins) const = 0;
 };
 };  // namespace aos
