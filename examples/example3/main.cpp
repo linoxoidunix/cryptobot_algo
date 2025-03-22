@@ -101,8 +101,8 @@ int main() {
     }
 
     rtmi.Block();
-    // Убираем указатели
-    // std::this_thread::sleep_for(std::chrono::seconds(10));
+    //  Убираем указатели
+    std::this_thread::sleep_for(std::chrono::seconds(20));
     mi_calculator         = nullptr;
     hist_calculator       = nullptr;
     joint_hist_calculator = nullptr;

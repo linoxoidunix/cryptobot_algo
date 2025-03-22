@@ -14,13 +14,14 @@
 #include "aot/common/mem_pool.h"
 
 int main() {
-    aos::impl::SlidingWindowStorageFactory factory;
+    boost::asio::thread_pool thread_pool;
+    aos::impl::SlidingWindowStorageFactory factory(thread_pool);
     auto [sliding_window_storage, mi_calculator, deviation_tracker,
           market_triplet_manager] = factory.Create();
 
     market_triplet_manager->Connect(1, 2);
 
-    sliding_window_storage->AddObserverBeforeAdd(
+    sliding_window_storage->AddPartitialObserverBeforeAdd(
         [&sliding_window_storage](const size_t hash, const double& value) {
             auto deviation_ratio =
                 sliding_window_storage->GetDeviationRatio(hash, value);
@@ -32,13 +33,13 @@ int main() {
             return true;
         });
 
-    sliding_window_storage->AddObserverAfterAdd(
+    sliding_window_storage->AddPartitialObserverAfterAdd(
         [](const size_t hash, const double& value) {
             logi("After adding hash:{} value:{}", hash, value);
             return true;
         });
 
-    sliding_window_storage->AddObserverAfterAdd(
+    sliding_window_storage->AddMainObserverAfterAdd(
         [&mi_calculator, &sliding_window_storage, &market_triplet_manager](
             const size_t hash_asset, const double& value) {
             if (!market_triplet_manager->HasPair(hash_asset)) return false;
@@ -65,11 +66,13 @@ int main() {
         sliding_window_storage->AddData(hash_second_asset, data.second);
         // i++;
     }
+    sliding_window_storage->Wait();
 
     // Убираем указатели
     // std::this_thread::sleep_for(std::chrono::seconds(10));
     // mi_calculator                 = nullptr;
     // hist_calculator               = nullptr;
     // joint_hist_calculator         = nullptr;
+
     return 0;
 }

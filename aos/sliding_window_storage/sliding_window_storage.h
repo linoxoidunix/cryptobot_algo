@@ -1,7 +1,10 @@
 #include <list>
 #include <unordered_map>
 
+#include "aos/executer_provider/executor_provider.h"
+#include "aos/executer_provider/i_executor_provider.h"
 #include "aos/sliding_window_storage/i_sliding_window_storage.h"
+// #include "aos/uses_thread_pool/i_uses_thread_pool.h"
 #include "aot/common/mem_pool.h"
 
 namespace aos {
@@ -99,6 +102,8 @@ class SlidingWindowStorage
     std::pair<bool, T> GetMax(const HashT& hash_asset) const override {
         return max_tracker_->GetMax(hash_asset);
     };
+
+    void Wait() override {}
 
   private:
     int window_size_;
@@ -218,59 +223,80 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T>,
             min_tracker,
         boost::intrusive_ptr<
             aos::IMaxTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
-            max_tracker)
+            max_tracker,
+        boost::intrusive_ptr<
+            aos::IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety>>
+            executor_provider,
+        boost::asio::thread_pool& thread_pool)
         : aos::impl::SlidingWindowStorage<HashT, T>(window_size, avg_tracker,
                                                     deviation_tracker,
-                                                    min_tracker, max_tracker) {}
-
+                                                    min_tracker, max_tracker),
+          thread_pool_(thread_pool),
+          strand_(boost::asio::make_strand(thread_pool.get_executor())),
+          executor_provider_(executor_provider) {}
     ~SlidingWindowStorageObservable() override {
         logi("{}", "SlidingWindowStorageObservable dtor");
     }
 
     void AddData(const HashT asset, const T& value) override {
-        // auto it = strands_.find(asset);
-        // if (it == strands_.end()) {
-        //     it = strands_
-        //              .emplace(asset,
-        //                       boost::asio::strand<
-        //                           boost::asio::thread_pool::executor_type>(
-        //                           thread_pool_.get_executor()))
-        //              .first;
-        // }
-        // auto& strand = it->second;
-
+        logi("Add hash:{} value:{} to strand", asset, value);
         // Запускаем наблюдателей перед добавлением
-        // boost::asio::defer(strand, [this, asset, value]() {
-        for (const auto& observer : before_add_) {
-            observer(asset, value);
-        }
-        //});
-
-        SlidingWindowStorage<HashT, T>::AddData(asset, value);
-
-        // Запускаем наблюдателей после добавления
-        // boost::asio::defer(strand, [this, asset, value]() {
-        for (const auto& observer : after_add_) {
-            observer(asset, value);
-        }
-        //});
+        boost::asio::post(strand_, [this, asset, value]() {
+            std::queue<HashT> assets;
+            assets.push(asset);
+            auto begin = before_add_.begin();
+            while (!assets.empty()) {
+                if (begin == before_add_.end()) {
+                    logi("no registered cb found");
+                    break;
+                }
+                size_t size = assets.size();
+                for (size_t i = 0; i < size; i++) {
+                    auto front_hash = assets.front();
+                    (*begin)(assets, front_hash, value);
+                    assets.pop();
+                }
+                begin = std::next(begin);
+            }
+            logi("Start add hash:{} value:{} to sliding window", asset, value);
+            SlidingWindowStorage<HashT, T>::AddData(asset, value);
+        });
     }
     void AddObserverBeforeAdd(
-        std::function<bool(const HashT hasht, const T& value)> observer)
-        override {
+        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+                           const T& value)>
+            observer) override {
         before_add_.push_back(observer);
     };
     void AddObserverAfterAdd(
-        std::function<bool(const HashT hasht, const T& value)> observer)
-        override {
-        after_add_.push_back(observer);
+        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+                           const T& value)>
+            observer) override {
+        // after_add_.push_back(observer);
     };
 
+    void Wait() override {
+        std::promise<void> promise;
+        std::future<void> future = promise.get_future();
+
+        boost::asio::dispatch(strand_, [&promise]() {
+            promise.set_value();  // Завершаем ожидание, когда все задачи на
+                                  // strand выполнены
+        });
+
+        future.wait();  // Блокируем текущий поток до завершения всех задач в
+    }
+
   private:
-    std::list<std::function<bool(const HashT hasht, const T& value)>>
+    std::list<std::function<void(std::queue<HashT>& queue, const HashT hasht,
+                                 const T& value)>>
         before_add_;
-    std::list<std::function<bool(const HashT hasht, const T& value)>>
-        after_add_;
+    boost::asio::thread_pool& thread_pool_;  // Пул потоков
+    boost::asio::strand<boost::asio::thread_pool::executor_type>
+        strand_;  // Strand для последовательного выполнения
+    boost::intrusive_ptr<
+        aos::IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety>>
+        executor_provider_;
 };
 
 template <typename HashT, typename T>
@@ -278,8 +304,9 @@ class SlidingWindowStorageObservableBuilder {
   public:
     explicit SlidingWindowStorageObservableBuilder(
         common::MemoryPoolNotThreadSafety<
-            SlidingWindowStorageObservable<HashT, T>>& pool)
-        : pool_(pool) {}
+            SlidingWindowStorageObservable<HashT, T>>& pool,
+        boost::asio::thread_pool& thread_pool)
+        : pool_(pool), thread_pool_(thread_pool) {}
 
     SlidingWindowStorageObservableBuilder& SetWindowSize(int window_size) {
         window_size_ = window_size;
@@ -318,10 +345,18 @@ class SlidingWindowStorageObservableBuilder {
         return *this;
     }
 
+    SlidingWindowStorageObservableBuilder& SetExecutorProvider(
+        boost::intrusive_ptr<
+            aos::IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety>>
+            executor_provider) {
+        executor_provider_ = executor_provider;
+        return *this;
+    }
+
     boost::intrusive_ptr<SlidingWindowStorageObservable<HashT, T>> Build() {
-        auto* obj =
-            pool_.Allocate(window_size_, avg_tracker_, deviation_tracker_,
-                           min_tracker_, max_tracker_);
+        auto* obj = pool_.Allocate(
+            window_size_, avg_tracker_, deviation_tracker_, min_tracker_,
+            max_tracker_, executor_provider_, thread_pool_);
         obj->SetMemoryPool(&pool_);
         return boost::intrusive_ptr<SlidingWindowStorageObservable<HashT, T>>(
             obj);
@@ -343,9 +378,16 @@ class SlidingWindowStorageObservableBuilder {
     boost::intrusive_ptr<
         aos::IMaxTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
         max_tracker_;
+    boost::intrusive_ptr<
+        aos::IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety>>
+        executor_provider_;
+    boost::asio::thread_pool& thread_pool_;
 };
 
 struct SlidingWindowStorageFactory {
+    SlidingWindowStorageFactory(boost::asio::thread_pool& _thread_pool)
+        : thread_pool(_thread_pool) {}
+    boost::asio::thread_pool& thread_pool;
     common::MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double>>
         hc_pool{2};
     common::MemoryPoolNotThreadSafety<
@@ -368,7 +410,8 @@ struct SlidingWindowStorageFactory {
         min_pool{2};
     common::MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double>>
         max_pool{2};
-
+    common::MemoryPoolNotThreadSafety<aos::impl::ExecutorProvider<size_t>>
+        exec_prov_pool{2};
     auto Create() {
         auto hist_calculator =
             aos::impl::HistogramCalculator<double>::Create(hc_pool);
@@ -392,14 +435,22 @@ struct SlidingWindowStorageFactory {
 
         auto market_triplet_manager =
             aos::impl::MarketTripletManager<size_t>::Create(mt_pool);
+
+        auto executor_provider =
+            aos::impl::ExecutorProviderBuilder<std::size_t>(exec_prov_pool,
+                                                            thread_pool)
+                .build();
+
         auto sliding_window_storage =
             aos::impl::SlidingWindowStorageObservableBuilder<std::size_t,
-                                                             double>(sw_pool)
+                                                             double>(
+                sw_pool, thread_pool)
                 .SetWindowSize(5)
                 .SetDeviationTracker(deviation_tracker)
                 .SetMinTracker(minimum_tracker)
                 .SetMaxTracker(maximum_tracker)
                 .SetAvgTracker(avg_tracker)
+                .SetExecutorProvider(executor_provider)
                 .Build();
         return std::make_tuple(
             std::move(sliding_window_storage), std::move(mi_calculator),

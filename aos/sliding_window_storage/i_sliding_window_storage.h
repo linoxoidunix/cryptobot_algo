@@ -1,7 +1,9 @@
 #pragma once
-#include <deque>
+#include <queue>
 
 #include "aos/avg_tracker/i_avg_tracker.h"
+#include "aos/common/common.h"
+#include "aos/common/i_waitable.h"
 #include "aos/common/ref_counted.h"
 #include "aos/deviation_tracker/i_deviation_tracker.h"
 #include "aos/max_tracker/i_max_tracker.h"
@@ -13,6 +15,7 @@ template <typename HashT, typename T, template <typename> class MemoryPool>
 class ISlidingWindowStorage
     : public common::RefCounted<MemoryPool,
                                 ISlidingWindowStorage<HashT, T, MemoryPool>>,
+      public common::IWaitable,
       public IAvgAble<HashT, T>,
       public IDeviationAble<HashT, T>,
       public IMinAble<HashT, T>,
@@ -29,10 +32,22 @@ class ISlidingWindowStorage
 template <typename HashT, typename T>
 class IObservable {
   public:
+    // virtual void AddMainObserverBeforeAdd(
+    //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+    // virtual void AddMainObserverAfterAdd(
+    //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+    // virtual void AddPartitialObserverBeforeAdd(
+    //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+    // virtual void AddPartitialObserverAfterAdd(
+    //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
     virtual void AddObserverBeforeAdd(
-        std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+                           const T& value)>
+            observer) = 0;
     virtual void AddObserverAfterAdd(
-        std::function<bool(const HashT hasht, const T& value)> observer) = 0;
+        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+                           const T& value)>
+            observer)      = 0;
     virtual ~IObservable() = default;
 };
 
