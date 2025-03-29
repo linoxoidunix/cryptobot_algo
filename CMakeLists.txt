@@ -53,6 +53,29 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(benchmark)
+
+FetchContent_Declare(
+    magic_enum
+    GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
+    GIT_TAG        master
+)
+FetchContent_MakeAvailable(magic_enum)
+
+FetchContent_Declare(
+    concurrentqueue
+    GIT_REPOSITORY https://github.com/cameron314/concurrentqueue.git
+    GIT_TAG        master
+    OVERRIDE_FIND_PACKAGE
+)
+FetchContent_MakeAvailable(concurrentqueue)
+
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+
 # # Загружаем Dlib
 # FetchContent_Declare(
 #     dlib

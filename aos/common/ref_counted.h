@@ -1,7 +1,10 @@
 #pragma once
+#define BOOST_INTRUSIVE_PTR_DEBUG
 #include <atomic>
 #include <boost/intrusive_ptr.hpp>
 #include <iostream>
+
+#include "aot/Logger.h"
 
 namespace common {
 template <template <typename> class MemoryPool, typename T>
@@ -22,6 +25,7 @@ class RefCounted {
                 auto *pool = static_cast<MemoryPool<T> *>(p->memory_pool_);
                 pool->Deallocate(static_cast<T *>(p));
             } else {
+                logi("no found memory pool to dealocate");
                 // delete p;  // Без пула просто удаляем объект
             }
         }

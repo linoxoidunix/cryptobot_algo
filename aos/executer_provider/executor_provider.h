@@ -1,6 +1,7 @@
 #include <atomic>
 
 #include "aos/executer_provider/i_executor_provider.h"
+#include "aot/common/mem_pool.h"
 #include "unordered_map"
 
 namespace aos {

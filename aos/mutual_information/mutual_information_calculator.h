@@ -125,7 +125,7 @@ class MutualInformationCalculator
         return boost::intrusive_ptr<MutualInformationCalculator<HashT, T>>(obj);
     }
     ~MutualInformationCalculator() override {
-        std::cout << "MutualInformationCalculator dtor\n";
+        logi("MutualInformationCalculator dtor");
     }
 
   private:

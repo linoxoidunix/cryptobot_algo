@@ -21,28 +21,26 @@ int main() {
 
     market_triplet_manager->Connect(1, 2);
 
-    sliding_window_storage->AddPartitialObserverBeforeAdd(
-        [&sliding_window_storage](const size_t hash, const double& value) {
-            auto deviation_ratio =
+    sliding_window_storage->AddActionsToBuy(
+        [&sliding_window_storage](std::queue<size_t>& queue, const size_t hash,
+                                  const double& value) {
+            auto [status_deviation_ratio, deviation_ratio] =
                 sliding_window_storage->GetDeviationRatio(hash, value);
             auto deviation = sliding_window_storage->GetDeviation(hash, value);
             logi(
                 "Before adding hash:{} value:{} deviation_ratio:{} "
                 "deviation:{}",
                 hash, value, deviation_ratio, deviation);
-            return true;
+            if (deviation_ratio > 0.001) {
+                queue.push(hash);
+            }
         });
 
-    sliding_window_storage->AddPartitialObserverAfterAdd(
-        [](const size_t hash, const double& value) {
-            logi("After adding hash:{} value:{}", hash, value);
-            return true;
-        });
-
-    sliding_window_storage->AddMainObserverAfterAdd(
+    sliding_window_storage->AddActionsToBuy(
         [&mi_calculator, &sliding_window_storage, &market_triplet_manager](
-            const size_t hash_asset, const double& value) {
-            if (!market_triplet_manager->HasPair(hash_asset)) return false;
+            std::queue<size_t>& queue, const size_t hash_asset,
+            const double& value) {
+            if (!market_triplet_manager->HasPair(hash_asset)) return;
             for (const auto& paired_asset :
                  market_triplet_manager->GetPairs(hash_asset)) {
                 auto [status, mi] = mi_calculator->ComputeMutualInformation(
@@ -50,9 +48,18 @@ int main() {
                 if (!status) continue;
                 logi("Mutual Information ({} ↔ {}):{}", hash_asset,
                      paired_asset, mi);
+                if (mi > 2) {
+                    queue.push(paired_asset);
+                }
             }
-            return true;
         });
+
+    sliding_window_storage->AddActionsToBuy([](std::queue<size_t>& queue,
+                                               const size_t hash_asset,
+                                               const double& value) {
+        logi("Need buy hash:{} value:{}", hash_asset, value);
+    });
+
     std::vector<std::pair<double, double>> incoming_data = {
         {29300.25, 29290.10}, {29350.50, 29340.35}, {29400.75, 29380.20},
         {29450.00, 29430.15}, {29500.25, 29488.05}, {29550.50, 29520.40},

@@ -13,7 +13,9 @@
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 #include "aos/sliding_window_storage/sliding_window_storage.h"
+#include "aot/bus/bus.h"
 #include "aot/common/mem_pool.h"
+#include "aot/strategy/market_order_book.h"
 
 std::atomic<size_t> current_index{0};
 
@@ -45,6 +47,26 @@ int main() {
           market_triplet_manager] = factory.Create();
 
     market_triplet_manager->Connect(1, 2);
+
+    aot::CoBus bus(thread_pool);
+    Trading::OrderBookComponent order_book_spot_component(
+        boost::asio::make_strand(thread_pool), bus, 1000,
+        common::MarketType::kSpot);
+    common::TradingPair trading_pair{2, 1};
+    order_book_spot_component.AddOrderBook(common::ExchangeId::kBinance,
+                                           trading_pair);
+
+    Exchange::MEMarketUpdate2Pool me_market_update_pool(123);
+    auto ptr = me_market_update_pool.Allocate(
+        &me_market_update_pool, common::ExchangeId::kBinance,
+        common::TradingPair{2, 1}, Exchange::MarketUpdateType::DEFAULT, 1,
+        common::Side::kAsk, 10000, 123);
+    Exchange::BusEventMEMarketUpdate2Pool pool_bus(123);
+    auto bus_ptr = pool_bus.Allocate(
+        &pool_bus, boost::intrusive_ptr<Exchange::MEMarketUpdate2>(ptr));
+
+    order_book_spot_component.AsyncHandleEvent(
+        boost::intrusive_ptr<Exchange::BusEventMEMarketUpdate2>(bus_ptr));
 
     sliding_window_storage->AddActionsToBuy(
         [&sliding_window_storage](std::queue<size_t>& queue, const size_t hash,
@@ -88,11 +110,32 @@ int main() {
             }
         });
 
-    sliding_window_storage->AddActionsToBuy([](std::queue<size_t>& queue,
-                                               const size_t hash_asset,
-                                               const double& value) {
-        logi("Need buy hash:{} value:{}", hash_asset, value);
-    });
+    auto strand = boost::asio::make_strand(thread_pool);
+    sliding_window_storage->AddActionsToBuy(
+        [&strand, &order_book_spot_component](std::queue<size_t>& queue,
+                                              const size_t hash_asset,
+                                              const double& value) {
+            logi("Need buy hash:{} value:{}", hash_asset, value);
+
+            boost::asio::co_spawn(
+                strand,
+                [exchange_id  = common::ExchangeId::kBinance,
+                 trading_pair = common::TradingPair{2, 1},
+                 &order_book_spot_component,
+                 level = 0]() -> boost::asio::awaitable<void> {
+                    auto [price, qty] =
+                        co_await order_book_spot_component
+                            .AsyncGetPriceAndQtyAtLevelAsk(exchange_id,
+                                                           trading_pair, level);
+
+                    logi("Need buy {} Fetched Price: {}, Qty: {}", trading_pair,
+                         price, qty);
+                    co_return;
+                },
+                boost::asio::detached);  // Запускаем без ожидания завершения
+
+            logi("Корутина запущена, продолжаем выполнение кода.");
+        });
 
     sliding_window_storage->AddActionsToSell(
         [&sliding_window_storage](std::queue<size_t>& queue, const size_t hash,
@@ -178,6 +221,18 @@ int main() {
     }
     sliding_window_storage->Wait();
 
+    std::promise<void> promise;
+    std::future<void> future = promise.get_future();
+    boost::asio::co_spawn(
+        strand,
+        [&promise]() -> boost::asio::awaitable<void> {
+            co_await boost::asio::this_coro::executor;  // Ждем выполнения всех
+                                                        // задач в strand
+            promise.set_value();  // Сообщаем, что все завершилось
+            co_return;
+        },
+        boost::asio::detached);
+    future.get();
     // for (const auto& data : incoming_data) {
     //     sliding_window_storage->AddData(hash_first_asset, data.first);
     //     sliding_window_storage->AddData(hash_second_asset, data.second);

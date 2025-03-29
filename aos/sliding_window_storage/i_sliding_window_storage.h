@@ -40,12 +40,12 @@ class IObservable {
     //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
     // virtual void AddPartitialObserverAfterAdd(
     //     std::function<bool(const HashT hasht, const T& value)> observer) = 0;
-    virtual void AddObserverBeforeAdd(
-        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+    virtual void AddActionsToBuy(
+        std::function<void(std::queue<HashT>& queue_to_buy, const HashT hasht,
                            const T& value)>
             observer) = 0;
-    virtual void AddObserverAfterAdd(
-        std::function<void(std::queue<HashT>& queue, const HashT hasht,
+    virtual void AddActionsToSell(
+        std::function<void(std::queue<HashT>& queue_to_sell, const HashT hasht,
                            const T& value)>
             observer)      = 0;
     virtual ~IObservable() = default;

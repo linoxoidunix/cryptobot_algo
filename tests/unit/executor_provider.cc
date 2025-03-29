@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <memory>
+
 // Helper function to initialize the parser manager
 
 class ExecutorProviderTest : public ::testing::Test {
@@ -9,14 +11,14 @@ class ExecutorProviderTest : public ::testing::Test {
     void SetUp() override {
         thread_pool_ = std::make_unique<boost::asio::thread_pool>(
             4);  // Используем 4 потока
-        provider_ =
-            std::make_unique<aos::impl::ExecutorProvider>(*thread_pool_);
+        provider_ = std::make_unique<aos::impl::ExecutorProvider<size_t>>(
+            *thread_pool_);
     }
 
     void TearDown() override { thread_pool_->join(); }
 
     std::unique_ptr<boost::asio::thread_pool> thread_pool_;
-    std::unique_ptr<aos::impl::ExecutorProvider> provider_;
+    std::unique_ptr<aos::impl::ExecutorProvider<size_t>> provider_;
 };
 
 TEST_F(ExecutorProviderTest, CreateStrandForNewAsset) {

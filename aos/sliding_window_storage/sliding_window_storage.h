@@ -242,37 +242,53 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T>,
         logi("Add hash:{} value:{} to strand", asset, value);
         // Запускаем наблюдателей перед добавлением
         boost::asio::post(strand_, [this, asset, value]() {
-            std::queue<HashT> assets;
-            assets.push(asset);
-            auto begin = before_add_.begin();
-            while (!assets.empty()) {
-                if (begin == before_add_.end()) {
+            std::queue<HashT> assets_to_buy;
+            std::queue<HashT> assets_to_sell;
+            assets_to_buy.push(asset);
+            auto begin = actions_to_buy_.begin();
+            while (!assets_to_buy.empty()) {
+                if (begin == actions_to_buy_.end()) {
                     logi("no registered cb found");
                     break;
                 }
-                size_t size = assets.size();
+                size_t size = assets_to_buy.size();
                 for (size_t i = 0; i < size; i++) {
-                    auto front_hash = assets.front();
-                    (*begin)(assets, front_hash, value);
-                    assets.pop();
+                    auto front_hash = assets_to_buy.front();
+                    (*begin)(assets_to_buy, front_hash, value);
+                    assets_to_buy.pop();
                 }
                 begin = std::next(begin);
             }
+
+            begin = actions_to_sell_.begin();
+            assets_to_sell.push(asset);
+            while (!assets_to_sell.empty()) {
+                if (begin == actions_to_sell_.end()) {
+                    logi("no registered cb found");
+                    break;
+                }
+                size_t size = assets_to_sell.size();
+                for (size_t i = 0; i < size; i++) {
+                    auto front_hash = assets_to_sell.front();
+                    (*begin)(assets_to_sell, front_hash, value);
+                    assets_to_sell.pop();
+                }
+                begin = std::next(begin);
+            }
+
             logi("Start add hash:{} value:{} to sliding window", asset, value);
             SlidingWindowStorage<HashT, T>::AddData(asset, value);
         });
     }
-    void AddObserverBeforeAdd(
-        std::function<void(std::queue<HashT>& queue, const HashT hasht,
-                           const T& value)>
-            observer) override {
-        before_add_.push_back(observer);
+    void AddActionsToBuy(std::function<void(std::queue<HashT>& queue_to_buy,
+                                            const HashT hasht, const T& value)>
+                             observer) override {
+        actions_to_buy_.push_back(observer);
     };
-    void AddObserverAfterAdd(
-        std::function<void(std::queue<HashT>& queue, const HashT hasht,
-                           const T& value)>
-            observer) override {
-        // after_add_.push_back(observer);
+    void AddActionsToSell(std::function<void(std::queue<HashT>& queue_to_sell,
+                                             const HashT hasht, const T& value)>
+                              observer) override {
+        actions_to_sell_.push_back(observer);
     };
 
     void Wait() override {
@@ -288,9 +304,12 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T>,
     }
 
   private:
-    std::list<std::function<void(std::queue<HashT>& queue, const HashT hasht,
-                                 const T& value)>>
-        before_add_;
+    std::list<std::function<void(std::queue<HashT>& queue_to_buy,
+                                 const HashT hasht, const T& value)>>
+        actions_to_buy_;
+    std::list<std::function<void(std::queue<HashT>& queue_to_sell,
+                                 const HashT hasht, const T& value)>>
+        actions_to_sell_;
     boost::asio::thread_pool& thread_pool_;  // Пул потоков
     boost::asio::strand<boost::asio::thread_pool::executor_type>
         strand_;  // Strand для последовательного выполнения
