@@ -15,8 +15,16 @@ namespace impl {
 template <typename Price, typename Qty, typename Uid>
 class OrderManager
     : public IOrderSubmitterNoPool<Price, Qty, Uid>,
+      public IOrderSubmiCancelNoPool<Uid>,
       public IOrderManager<Price, Qty, common::MemoryPoolNotThreadSafety, Uid>,
       public IOrderStatusProvider {
+    boost::intrusive_ptr<
+        IOrderSubmitter<Price, Qty, common::MemoryPoolNotThreadSafety, Uid>>
+        order_submitter_;
+    boost::intrusive_ptr<IUIDManager<Uid, common::MemoryPoolNotThreadSafety>>
+        uid_manager_;
+    std::unordered_map<Uid, OrderData<Price, Qty>> orders_;
+
   public:
     explicit OrderManager(
         boost::intrusive_ptr<
@@ -27,17 +35,6 @@ class OrderManager
             uid_manager)
         : order_submitter_(order_submitter), uid_manager_(uid_manager) {};
     ~OrderManager() override { logi("{}", "OrderManager dtor"); };
-    void SubmitOrder(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price price, Qty qty,
-                     common::Side side, TimeInForce tif, OrderRouting routing,
-                     Uid uid) override {
-        order_submitter_->SubmitOrder(exchange_id, trading_pair, price, qty,
-                                      side, tif, routing, uid);
-    };
-    virtual void SubmitCancelOrder(common::ExchangeId exchange_id,
-                                   OrderRouting routing, Uid uid) {
-        order_submitter_->SubmitCancelOrder(exchange_id, routing, uid);
-    }
 
     bool PlaceOrder(common::ExchangeId exchange_id,
                     common::TradingPair trading_pair, Price price, Qty qty,
@@ -90,12 +87,17 @@ class OrderManager
     };
 
   private:
-    boost::intrusive_ptr<
-        IOrderSubmitter<Price, Qty, common::MemoryPoolNotThreadSafety, Uid>>
-        order_submitter_;
-    boost::intrusive_ptr<IUIDManager<Uid, common::MemoryPoolNotThreadSafety>>
-        uid_manager_;
-    std::unordered_map<Uid, OrderData<Price, Qty>> orders_;
+    void SubmitOrder(common::ExchangeId exchange_id,
+                     common::TradingPair trading_pair, Price price, Qty qty,
+                     common::Side side, TimeInForce tif, OrderRouting routing,
+                     Uid uid) override {
+        order_submitter_->SubmitOrder(exchange_id, trading_pair, price, qty,
+                                      side, tif, routing, uid);
+    };
+    void SubmitCancelOrder(common::ExchangeId exchange_id, OrderRouting routing,
+                           Uid uid) override {
+        order_submitter_->SubmitCancelOrder(exchange_id, routing, uid);
+    }
 };
 };  // namespace impl
 };  // namespace aos
