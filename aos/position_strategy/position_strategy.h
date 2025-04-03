@@ -23,9 +23,9 @@ class NetPositionStrategy
         avg_price                = total_value / net_qty;
     }
 
-    INetPositionStrategy<Price, Qty, MemoryPool>::RealizedPnl Remove(
-        common::ExchangeId exchange_id, common::TradingPair trading_pair,
-        Price& avg_price, Qty& net_qty, Price price, Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id,
+                common::TradingPair trading_pair, Price& avg_price,
+                Qty& net_qty, Price price, Qty qty) const override {
         auto realized_pnl = RealizedPnlCalculator<Price, Qty>::Calculate(
             avg_price, net_qty, price, qty);
         net_qty   -= qty;
@@ -33,7 +33,6 @@ class NetPositionStrategy
                          ? (avg_price * (net_qty + qty) - price * qty) / net_qty
                          : 0;
         pnl_realized_storage_->Add(exchange_id, trading_pair, realized_pnl);
-        return realized_pnl;
     }
     ~NetPositionStrategy() override {}
 };
@@ -60,10 +59,9 @@ class HedgedPositionStrategy
         avg_price[idx]           = total_value / net_qty[idx];
     }
 
-    IHedgePositionStrategy<Price, Qty, MemoryPool>::RealizedPnl Remove(
-        common::ExchangeId exchange_id, common::TradingPair trading_pair,
-        Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
-        Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id,
+                common::TradingPair trading_pair, Price (&avg_price)[2],
+                Qty (&net_qty)[2], Price price, Qty qty) const override {
         const int idx     = (qty > 0);
         auto realized_pnl = RealizedPnlCalculator<Price, Qty>::Calculate(
             avg_price[idx], net_qty[idx], price, qty);
@@ -83,7 +81,6 @@ class HedgedPositionStrategy
         avg_price[1 - idx] = (remaining)
                                  ? (total_value_new_side / net_qty[1 - idx])
                                  : avg_price[1 - idx];
-        return realized_pnl;
     }
 
     ~HedgedPositionStrategy() override {}

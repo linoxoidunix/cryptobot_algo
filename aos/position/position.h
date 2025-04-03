@@ -29,11 +29,11 @@ class NetPosition {
     }
 
     // Удалить количество по заданной цене
-    RealizedPnl RemovePosition(common::ExchangeId exchange_id,
-                               common::TradingPair trading_pair, Price price,
-                               Qty qty) {
-        return strategy_->Remove(exchange_id, trading_pair, avg_price_,
-                                 net_qty_, price, qty);
+    void RemovePosition(common::ExchangeId exchange_id,
+                        common::TradingPair trading_pair, Price price,
+                        Qty qty) {
+        strategy_->Remove(exchange_id, trading_pair, avg_price_, net_qty_,
+                          price, qty);
     }
 
     // Получить чистую позицию
@@ -68,11 +68,11 @@ class HedgePosition {
     }
 
     // Удалить количество по заданной цене
-    RealizedPnl RemovePosition(common::ExchangeId exchange_id,
-                               common::TradingPair trading_pair, Price price,
-                               Qty qty) {
-        return strategy_->Remove(exchange_id, trading_pair, avg_price_,
-                                 net_qty_, price, qty);
+    void RemovePosition(common::ExchangeId exchange_id,
+                        common::TradingPair trading_pair, Price price,
+                        Qty qty) {
+        strategy_->Remove(exchange_id, trading_pair, avg_price_, net_qty_,
+                          price, qty);
     }
 
     // // Получить чистую позицию

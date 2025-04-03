@@ -103,16 +103,21 @@ TEST_F(HedgedPositionStrategyTest, AddAndRemoveBasic) {
     EXPECT_DOUBLE_EQ(net_qty[1], 10.0);
 
     // Продаем 5 контрактов по цене 110 (фиксируем прибыль)
-    auto pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price,
-                                net_qty, 110.0, 5.0);
-    EXPECT_DOUBLE_EQ(pnl, 5.0 * (110.0 - 100.0));  // 5 * 10 = 50
-    EXPECT_DOUBLE_EQ(avg_price[1], 90.0);          //(100 * 10 - 110*5)/5
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     110.0, 5.0);
+    auto [status1, pnl1] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status1, true);
+    EXPECT_DOUBLE_EQ(pnl1, 5.0 * (110.0 - 100.0));  // 5 * 10 = 50
+    EXPECT_DOUBLE_EQ(avg_price[1], 90.0);           //(100 * 10 - 110*5)/5
     EXPECT_DOUBLE_EQ(net_qty[1], 5.0);
 
     // Продаем оставшиеся 5 контрактов по 90 (убыток)
-    pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price,
-                           net_qty, 90.0, 5.0);
-    EXPECT_DOUBLE_EQ(pnl, 5.0 * (90.0 - 90.0));  // 5 * (-10) = -50
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     90.0, 5.0);
+    auto [status2, pnl2] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_DOUBLE_EQ(pnl2, 50);  // (90-90)*5 + previous 50
     EXPECT_DOUBLE_EQ(avg_price[1], 0);
     EXPECT_DOUBLE_EQ(net_qty[1], 0.0);
 
@@ -123,9 +128,11 @@ TEST_F(HedgedPositionStrategyTest, AddAndRemoveBasic) {
     EXPECT_DOUBLE_EQ(net_qty[0], -10.0);
 
     // Покупаем 10 контрактов по 90 (фиксируем прибыль на шорте)
-    pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price,
-                           net_qty, 90.0, -10.0);
-    EXPECT_DOUBLE_EQ(pnl, 10.0 * (95.0 - 90.0));  // 10 * 5 = 50
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     90.0, -10.0);
+    auto [status3, pnl3] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_DOUBLE_EQ(pnl3, 100);  // 10 * 5 = 50 + previous 50
     EXPECT_DOUBLE_EQ(net_qty[0], 0.0);
 }
 
@@ -138,8 +145,10 @@ TEST_F(HedgedPositionStrategyTest, FlipPosition) {
                   100.0, 10.0);
 
     // Продажа 15 по 110 (переворот в шорт)
-    auto pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price,
-                                net_qty, 110.0, 15.0);
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     110.0, 15.0);
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
     EXPECT_DOUBLE_EQ(pnl, 10.0 * (110.0 - 100.0));  // 10 * 10 = 100
     EXPECT_DOUBLE_EQ(net_qty[1], 0.0);
     EXPECT_DOUBLE_EQ(net_qty[0], 5.0);

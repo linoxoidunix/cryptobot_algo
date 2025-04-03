@@ -42,24 +42,28 @@ TEST_F(NetPositionStrategyTest, AddPositionIncreasesNetQtyAndAveragesPrice) {
 }
 
 TEST_F(NetPositionStrategyTest, RemovePositionRealizedPnlForLong) {
-    double avg_price  = 100.0;
-    double net_qty    = 3.0;
-    auto realized_pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1},
-                                         avg_price, net_qty, 120.0, 1.0);
-
-    EXPECT_DOUBLE_EQ(realized_pnl,
-                     20.0);          // PNL для лонга: (120 - 100) * 1.0 = 20.0
+    double avg_price = 100.0;
+    double net_qty   = 3.0;
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     120.0, 1.0);
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status, true);
+    EXPECT_DOUBLE_EQ(pnl, 20.0);     // PNL для лонга: (120 - 100) * 1.0 = 20.0
     EXPECT_DOUBLE_EQ(net_qty, 2.0);  // После удаления количество должно быть 2
     EXPECT_DOUBLE_EQ(avg_price, 90.0);  // Средняя цена остается 110.0
 }
 
 TEST_F(NetPositionStrategyTest, RemovePositionRealizedPnlForShort) {
-    double avg_price  = 120.0;
-    double net_qty    = -3.0;
-    auto realized_pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1},
-                                         avg_price, net_qty, 100.0, -1.0);
+    double avg_price = 120.0;
+    double net_qty   = -3.0;
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     100.0, -1.0);
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status, true);
 
-    EXPECT_DOUBLE_EQ(realized_pnl,
+    EXPECT_DOUBLE_EQ(pnl,
                      20.0);  // PNL для шорта: (120 - 100) * 1.0 = 20.0
     EXPECT_DOUBLE_EQ(net_qty,
                      -2.0);  // После удаления количество должно быть -2
@@ -67,38 +71,46 @@ TEST_F(NetPositionStrategyTest, RemovePositionRealizedPnlForShort) {
 }
 
 TEST_F(NetPositionStrategyTest, RemoveMoreThanNetQtyForLong) {
-    double avg_price  = 100.0;
-    double net_qty    = 3.0;
-    auto realized_pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1},
-                                         avg_price, net_qty, 120.0, 5.0);
+    double avg_price = 100.0;
+    double net_qty   = 3.0;
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     120.0, 5.0);
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status, true);
 
-    EXPECT_DOUBLE_EQ(realized_pnl,
+    EXPECT_DOUBLE_EQ(pnl,
                      60.0);           // PNL для лонга: (120 - 100) * 3 = 60.0
     EXPECT_DOUBLE_EQ(net_qty, -2.0);  // После удаления количество должно быть 0
     EXPECT_DOUBLE_EQ(avg_price, 150.0);  // Средняя цена должна быть сброшена
 }
 
 TEST_F(NetPositionStrategyTest, RemoveMoreThanNetQtyForShort) {
-    double avg_price  = 120.0;
-    double net_qty    = -3.0;
-    auto realized_pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1},
-                                         avg_price, net_qty, 100.0, -5.0);
-
-    EXPECT_DOUBLE_EQ(realized_pnl,
+    double avg_price = 120.0;
+    double net_qty   = -3.0;
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     100.0, -5.0);
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status, true);
+    EXPECT_DOUBLE_EQ(pnl,
                      60.0);          // PNL для шорта: (120 - 100) * 3 = 60.0
     EXPECT_DOUBLE_EQ(net_qty, 2.0);  // После удаления количество должно быть 0
     EXPECT_DOUBLE_EQ(avg_price, 70.0);  // Средняя цена должна быть сброшена
 }
 
 TEST_F(NetPositionStrategyTest, RemoveZeroQtyDoesNotChangePosition) {
-    double avg_price  = 100.0;
-    double net_qty    = 3.0;
-    auto realized_pnl = strategy->Remove(common::ExchangeId::kBinance, {2, 1},
-                                         avg_price, net_qty, 120.0, 0.0);
+    double avg_price = 100.0;
+    double net_qty   = 3.0;
+    strategy->Remove(common::ExchangeId::kBinance, {2, 1}, avg_price, net_qty,
+                     120.0, 0.0);
 
-    EXPECT_DOUBLE_EQ(realized_pnl, 0.0);  // Нет изменения в PNL
-    EXPECT_DOUBLE_EQ(net_qty, 3.0);       // Количество не изменилось
-    EXPECT_DOUBLE_EQ(avg_price, 100.0);   // Средняя цена не изменилась
+    auto [status, pnl] =
+        ptr->GetRealizedPnl(common::ExchangeId::kBinance, {2, 1});
+    EXPECT_EQ(status, true);
+    EXPECT_DOUBLE_EQ(pnl, 0.0);          // Нет изменения в PNL
+    EXPECT_DOUBLE_EQ(net_qty, 3.0);      // Количество не изменилось
+    EXPECT_DOUBLE_EQ(avg_price, 100.0);  // Средняя цена не изменилась
 }
 
 int main(int argc, char** argv) {
