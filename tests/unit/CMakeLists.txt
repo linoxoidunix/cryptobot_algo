@@ -20,3 +20,5 @@ cxx_executable_extended(${name} ${dir}/${name}.cc ${libs}  ${ARGN})
 endmacro()
 
 cxx_executable(executor_provider ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main )
+cxx_executable(hedge_position_strategy ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(net_position_strategy ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)

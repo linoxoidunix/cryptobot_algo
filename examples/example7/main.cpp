@@ -18,7 +18,8 @@ using Uid   = size_t;
 int main() {
     {
         boost::asio::thread_pool thread_pool;
-        aos::impl::BinanceExchangeContainer<double, double, size_t>
+        aos::impl::BinanceExchangeContainer<
+            Price, Qty, common::MemoryPoolNotThreadSafety, Uid>
             binance_exchange_container(1, thread_pool);
         auto binance_exchange_ptr = binance_exchange_container.Build();
 
@@ -28,9 +29,13 @@ int main() {
             pool(1);
 
         // Строим экземпляр FakeExchangeRegistry через
-        aos::impl::ExchangeRegistryBuilder<
-            Price, Qty, common::MemoryPoolNotThreadSafety, Uid>
-            builder(pool);
+        using MyExchangeRegistry =
+            aos::impl::ExchangeRegistry<Price, Qty,
+                                        common::MemoryPoolNotThreadSafety, Uid>;
+        using MyExchangeRegistryBuilder = aos::impl::ExchangeRegistryBuilder<
+            MyExchangeRegistry, Price, Qty, common::MemoryPoolNotThreadSafety,
+            Uid>;
+        MyExchangeRegistryBuilder builder(pool);
         auto registry = builder.Build();
 
         // Регистрируем обмен

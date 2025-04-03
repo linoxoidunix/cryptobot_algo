@@ -1,10 +1,11 @@
 #pragma once
+#include "aos/common/ref_counted.h"
+#include "aos/position_tracker/i_position_tracker.h"
 #include "aot/common/types.h"
-
 namespace aos {
 
-template <typename Qty>
-class IPositionStorageByPair {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class IPositionStorageByPair : public IPositionTracker<Price, Qty, MemoryPool> {
   public:
     virtual ~IPositionStorageByPair() = default;
 
@@ -12,11 +13,15 @@ class IPositionStorageByPair {
     virtual std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
 
-    virtual void AddPosition(common::ExchangeId exchange,
-                             common::TradingPair& tradingPair, Qty qty)     = 0;
+    // virtual void AddPosition(common::ExchangeId exchange,
+    //                          common::TradingPair tradingPair, Price price,
+    //                          Qty qty)                                       =
+    //                          0;
 
-    virtual bool RemovePosition(common::ExchangeId exchange,
-                                common::TradingPair& tradingPair, Qty qty)  = 0;
+    // virtual bool RemovePosition(common::ExchangeId exchange,
+    //                             common::TradingPair tradingPair, Price price,
+    //                             Qty qty)                                    =
+    //                             0;
 };
 
 }  // namespace aos

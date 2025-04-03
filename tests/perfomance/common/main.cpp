@@ -1,7 +1,10 @@
 #include <benchmark/benchmark.h>
 
+#include <execution>
 #include <memory>
 #include <random>
+#include <ranges>
+#include <span>
 #include <vector>
 
 #include "aos/histogram/histogram_calculator.h"
@@ -78,6 +81,52 @@
 //     }
 // }
 // BENCHMARK(BM_ComputeHistogram_ManualMinMax);
+
+// Глобальный вектор для тестов (чтобы избежать учета времени создания вектора)
+static std::vector<int> vec(1'000'000, 42);
+
+// 1. Итерация через указатели
+static void BM_RawPointers(benchmark::State& state) {
+    for (auto _ : state) {
+        for (int *it = vec.data(), *end = it + vec.size(); it != end; ++it) {
+            *it += 1;
+        }
+        benchmark::ClobberMemory();  // Чтобы компилятор не удалил цикл
+    }
+}
+BENCHMARK(BM_RawPointers);
+
+// 2. Итерация через std::ranges::for_each + unseq
+static void BM_RangesForEachUnseq(benchmark::State& state) {
+    for (auto _ : state) {
+        std::ranges::for_each(vec, [](int& x) { x += 1; });
+        benchmark::ClobberMemory();
+    }
+}
+BENCHMARK(BM_RangesForEachUnseq);
+
+// 3. Итерация через std::span
+static void BM_Span(benchmark::State& state) {
+    for (auto _ : state) {
+        std::span<int> sp = vec;
+        for (int& x : sp) {
+            x += 1;
+        }
+        benchmark::ClobberMemory();
+    }
+}
+BENCHMARK(BM_Span);
+
+// 4. Обычный range-based for через std::vector
+static void BM_StdVectorRangeFor(benchmark::State& state) {
+    for (auto _ : state) {
+        for (int& x : vec) {
+            x += 1;
+        }
+        benchmark::ClobberMemory();
+    }
+}
+BENCHMARK(BM_StdVectorRangeFor);
 
 // Define the types for testing
 
