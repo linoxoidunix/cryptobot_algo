@@ -14,8 +14,17 @@ class PositionStorageByPair
     using RealizedPnl = IRealizedPnlForTradingPair<Price, Qty>::RealizedPnl;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
-            return std::hash<int>()(static_cast<int>(key.first)) ^
-                   std::hash<std::string>()(key.second.ToString());
+            std::size_t hash_value = 0;
+
+            std::size_t h1 =
+                std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
+            std::size_t h2 =
+                common::TradingPairHash{}(key.second);  // TradingPair
+
+            boost::hash_combine(hash_value, h1);
+            boost::hash_combine(hash_value, h2);
+
+            return hash_value;
         }
     };
     std::unordered_map<Key, PositionT, KeyHash> storage_position_;

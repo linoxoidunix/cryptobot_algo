@@ -1,6 +1,7 @@
 #pragma once
 #include "aos/pnl/realized_calculator/pnl_realized_calculator.h"
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
+#include "aos/pnl/unrealized_storage/i_pnl_unrealized_storage.h"
 #include "aos/position_strategy/i_position_strategy.h"
 namespace aos {
 namespace impl {
@@ -9,18 +10,25 @@ class NetPositionStrategy
     : public INetPositionStrategy<Price, Qty, MemoryPool> {
     boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
         pnl_realized_storage_;
+    boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+        pnl_unrealized_storage_;
 
   public:
     NetPositionStrategy(
         boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
-            pnl_realized_storage)
-        : pnl_realized_storage_(pnl_realized_storage) {}
+            pnl_realized_storage,
+        boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+            pnl_unrealized_storage)
+        : pnl_realized_storage_(pnl_realized_storage),
+          pnl_unrealized_storage_(pnl_unrealized_storage) {}
     void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
              Price& avg_price, Qty& net_qty, Price price,
              Qty qty) const override {
         const Price total_value  = net_qty * avg_price + qty * price;
         net_qty                 += qty;
         avg_price                = total_value / net_qty;
+        pnl_unrealized_storage_->UpdatePosition(exchange_id, trading_pair,
+                                                avg_price, net_qty);
     }
 
     void Remove(common::ExchangeId exchange_id,
@@ -32,6 +40,8 @@ class NetPositionStrategy
         avg_price  = (net_qty != 0)
                          ? (avg_price * (net_qty + qty) - price * qty) / net_qty
                          : 0;
+        pnl_unrealized_storage_->UpdatePosition(exchange_id, trading_pair,
+                                                avg_price, net_qty);
         pnl_realized_storage_->Add(exchange_id, trading_pair, realized_pnl);
     }
     ~NetPositionStrategy() override {}
@@ -42,12 +52,17 @@ class HedgedPositionStrategy
     : public IHedgePositionStrategy<Price, Qty, MemoryPool> {
     boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
         pnl_realized_storage_;
+    boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+        pnl_unrealized_storage_;
 
   public:
     HedgedPositionStrategy(
         boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
-            pnl_realized_storage)
-        : pnl_realized_storage_(pnl_realized_storage) {}
+            pnl_realized_storage,
+        boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+            pnl_unrealized_storage)
+        : pnl_realized_storage_(pnl_realized_storage),
+          pnl_unrealized_storage_(pnl_unrealized_storage) {}
 
     void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
              Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
@@ -57,6 +72,8 @@ class HedgedPositionStrategy
         const Price total_value  = net_qty[idx] * avg_price[idx] + qty * price;
         net_qty[idx]            += qty;
         avg_price[idx]           = total_value / net_qty[idx];
+        pnl_unrealized_storage_->UpdatePosition(exchange_id, trading_pair,
+                                                avg_price[idx], net_qty[idx]);
     }
 
     void Remove(common::ExchangeId exchange_id,
@@ -75,12 +92,18 @@ class HedgedPositionStrategy
             (net_qty[idx] > 0)
                 ? (avg_price[idx] * net_qty[idx] - realized_pnl) / net_qty[idx]
                 : 0;
+        pnl_unrealized_storage_->UpdatePosition(exchange_id, trading_pair,
+                                                avg_price[idx], net_qty[idx]);
         net_qty[1 - idx] += remaining;
         const Price total_value_new_side =
             avg_price[1 - idx] * net_qty[1 - idx] + price * remaining;
         avg_price[1 - idx] = (remaining)
                                  ? (total_value_new_side / net_qty[1 - idx])
                                  : avg_price[1 - idx];
+        (remaining) ? pnl_unrealized_storage_->UpdatePosition(
+                          exchange_id, trading_pair, avg_price[1 - idx],
+                          net_qty[1 - idx])
+                    : void();
     }
 
     ~HedgedPositionStrategy() override {}
@@ -105,23 +128,27 @@ class PositionStrategyBuilder {
 };
 
 template <typename NetPositionStrategyT, typename NetPositionStrategyBuilderT,
-          typename Price, typename Qty, template <typename> typename MemoryPool>
+          typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename PnlRealizedStorageContainerT,
+          typename PnlUnRealizedStorageContainerT>
 class PositionStrategyContainer {
     MemoryPool<NetPositionStrategyT> pool_;
     using Builder = NetPositionStrategyBuilderT;
-    boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
-        pnl_realized_storage_;
+    PnlRealizedStorageContainerT pnl_realized_storage_container_;
+    PnlUnRealizedStorageContainerT pnl_unrealized_storage_container_;
 
   public:
-    explicit PositionStrategyContainer(
-        size_t size,
-        boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
-            pnl_realized_storage)
-        : pool_(size), pnl_realized_storage_(pnl_realized_storage) {}
+    explicit PositionStrategyContainer(size_t size)
+        : pool_(size),
+          pnl_realized_storage_container_(size),
+          pnl_unrealized_storage_container_(1) {}
 
     auto Build() {
         NetPositionStrategyBuilderT builder(pool_);
-        auto strategy = builder.Build(pnl_realized_storage_);
+        auto pnl_realized_storage   = pnl_realized_storage_container_.Build();
+        auto pnl_unrealized_storage = pnl_unrealized_storage_container_.Build();
+        auto strategy =
+            builder.Build(pnl_realized_storage, pnl_unrealized_storage);
         return strategy;
     }
 };

@@ -1,0 +1,1 @@
+find aos - type f - name "*.h" | sed 's/^/#include "/; s/$/"/' > includes.h

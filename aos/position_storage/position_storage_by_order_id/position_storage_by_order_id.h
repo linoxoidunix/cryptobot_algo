@@ -20,11 +20,17 @@ class PositionStorageByOrderId
 
     struct KeyHasher {
         std::size_t operator()(const Key& k) const {
-            std::size_t h1 = std::hash<common::ExchangeId>()(k.exchange);
-            std::size_t h2 = std::hash<std::string>()(k.tradingPair);
-            std::size_t h3 = std::hash<Uid>()(k.uid);
+            std::size_t hash_value = 0;
 
-            return h1 ^ (h2 << 1) ^ (h3 << 2);
+            std::size_t h1 = std::hash<common::ExchangeId>{}(k.exchange);
+            std::size_t h2 = common::TradingPairHash{}(k.tradingPair);
+            std::size_t h3 = std::hash<Uid>{}(k.uid);
+
+            boost::hash_combine(hash_value, h1);
+            boost::hash_combine(hash_value, h2);
+            boost::hash_combine(hash_value, h3);
+
+            return hash_value;
         }
     };
     std::unordered_map<Key, Qty, KeyHasher> positions_;

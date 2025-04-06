@@ -11,8 +11,15 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
     using Key = std::pair<common::ExchangeId, common::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
-            return std::hash<int>()(static_cast<int>(key.first)) ^
-                   std::hash<std::string>()(key.second.ToString());
+            std::size_t hash_value = 0;
+
+            std::size_t h1         = std::hash<common::ExchangeId>{}(key.first);
+            std::size_t h2         = common::TradingPairHash{}(key.second);
+
+            boost::hash_combine(hash_value, h1);
+            boost::hash_combine(hash_value, h2);
+
+            return hash_value;
         }
     };
     std::unordered_map<Key, Price, KeyHash> realized_pnl_;

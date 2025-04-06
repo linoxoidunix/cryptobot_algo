@@ -1,6 +1,8 @@
 #include <iostream>
 
 #include "aos/pnl/realized_storage/pnl_realized_storage.h"
+#include "aos/pnl/unrealized_calculator/pnl_unrealized_calculator.h"
+#include "aos/pnl/unrealized_storage/pnl_unrealized_storage.h"
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
 #include "aos/position_strategy/position_strategy.h"
@@ -12,10 +14,21 @@ int main() {
         using Price = double;
         using Qty   = double;
         using Uid   = size_t;
-        aos::impl::RealizedPnlStorageContainer<
-            Price, Qty, common::MemoryPoolNotThreadSafety>
-            realized_pnl_container{1};
-        auto realized_pnl = realized_pnl_container.Build();
+        using RealizedPnlStorageContainerT =
+            aos::impl::RealizedPnlStorageContainer<
+                Price, Qty, common::MemoryPoolNotThreadSafety>;
+        using UnRealizedPnlCalculatorContainerT =
+            aos::impl::UnRealizedPnlCalculatorContainer<
+                Price, Qty, common::MemoryPoolNotThreadSafety,
+                aos::impl::UnRealizedPnlCalculator<
+                    Price, Qty, common::MemoryPoolNotThreadSafety>>;
+        using UnrealizedPnlStorageContainerT =
+            aos::impl::UnRealizedPnlStorageContainer<
+                Price, Qty, common::MemoryPoolNotThreadSafety,
+                UnRealizedPnlCalculatorContainerT,
+                aos::impl::NetUnRealizedPnlStorage<
+                    Price, Qty, common::MemoryPoolNotThreadSafety>>;
+
         aos::impl::PositionStrategyContainer<
             aos::impl::NetPositionStrategy<Price, Qty,
                                            common::MemoryPoolNotThreadSafety>,
@@ -23,8 +36,9 @@ int main() {
                 aos::impl::NetPositionStrategy<
                     Price, Qty, common::MemoryPoolNotThreadSafety>,
                 Price, Qty, common::MemoryPoolNotThreadSafety>,
-            Price, Qty, common::MemoryPoolNotThreadSafety>
-            position_strategy_containter(1, realized_pnl);
+            Price, Qty, common::MemoryPoolNotThreadSafety,
+            RealizedPnlStorageContainerT, UnrealizedPnlStorageContainerT>
+            position_strategy_containter(1);
 
         auto position_strategy = position_strategy_containter.Build();
         using Position =

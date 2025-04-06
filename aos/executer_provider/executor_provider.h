@@ -1,3 +1,4 @@
+#pragma once
 #include <atomic>
 
 #include "aos/executer_provider/i_executor_provider.h"
