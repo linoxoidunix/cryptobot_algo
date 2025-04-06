@@ -1,0 +1,7 @@
+#!/bin/sh
+echo "#pragma once" > aos/aos.h
+echo "" >> aos/aos.h
+find aos -type f -name "*.h" | sed 's/^/#include "/; s/$/"/' >> aos/aos.h
+
+# Добавляем изменения файла aos/aos.h в staged
+git add aos/aos.h
