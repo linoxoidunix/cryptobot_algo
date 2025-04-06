@@ -1,1 +1,3 @@
-find aos - type f - name "*.h" | sed 's/^/#include "/; s/$/"/' > includes.h
+echo "#pragma once" > aos / aos.h echo "" >>
+        aos / aos.h find aos - type f - name "*.h" |
+    sed 's/^/#include "/; s/$/"/' >> aos / aos.h
