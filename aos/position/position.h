@@ -80,6 +80,8 @@ class HedgePosition {
         return net_qty_[0] + net_qty_[1];  // возвращает сумму по всем позициям
     }
 
+    bool IsEmpty() const { return net_qty_[0] == 0 && net_qty_[1] == 0; }
+
     Price GetAveragePrice() const {
         // Вычисление средней цены на основе количества и средней цены
         Price total_value =

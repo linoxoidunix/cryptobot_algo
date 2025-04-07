@@ -113,15 +113,38 @@ template <typename PositionStrategyT, typename Price, typename Qty,
           template <typename> typename MemoryPool>
 class PositionStrategyBuilder {
     MemoryPool<PositionStrategyT>& pool_;
+    boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
+        pnl_realized_storage_;
+    boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+        pnl_unrealized_storage_;
 
   public:
     using Strategy = PositionStrategyT;
     explicit PositionStrategyBuilder(MemoryPool<PositionStrategyT>& pool)
         : pool_(pool) {}
 
-    template <typename... Args>
-    auto Build(Args&&... args) {
-        auto* obj = pool_.Allocate(std::forward<Args>(args)...);
+    PositionStrategyBuilder& SetPnlRealizedStorage(
+        boost::intrusive_ptr<IPnlRealizedStorage<Price, Qty, MemoryPool>>
+            pnl_realized_storage) {
+        pnl_realized_storage_ = pnl_realized_storage;
+        return *this;
+    }
+    PositionStrategyBuilder& SetPnlUnRealizedStorage(
+        boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
+            pnl_unrealized_storage) {
+        pnl_unrealized_storage_ = pnl_unrealized_storage;
+        return *this;
+    }
+
+    auto Build() {
+        if (!pnl_realized_storage_) {
+            throw std::logic_error("PnlRealizedStorage not set in builder");
+        }
+        if (!pnl_unrealized_storage_) {
+            throw std::logic_error("PnlUnRealizedStorage not set in builder");
+        }
+        auto* obj =
+            pool_.Allocate(pnl_realized_storage_, pnl_unrealized_storage_);
         obj->SetMemoryPool(&pool_);
         return boost::intrusive_ptr<PositionStrategyT>(obj);
     }

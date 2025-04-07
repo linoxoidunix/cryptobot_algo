@@ -12,16 +12,6 @@ class IPositionStorageByPair : public IPositionTracker<Price, Qty, MemoryPool> {
     // Получить позицию для определенной торговой пары на указанной бирже
     virtual std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
-
-    // virtual void AddPosition(common::ExchangeId exchange,
-    //                          common::TradingPair tradingPair, Price price,
-    //                          Qty qty)                                       =
-    //                          0;
-
-    // virtual bool RemovePosition(common::ExchangeId exchange,
-    //                             common::TradingPair tradingPair, Price price,
-    //                             Qty qty)                                    =
-    //                             0;
 };
 
 }  // namespace aos

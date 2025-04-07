@@ -9,7 +9,7 @@
 #include "aos/order_manager/order_status_provider/order_status_provider.h"
 #include "aos/histogram/histogram_calculator.h"
 #include "aos/histogram/i_histogram_calculator.h"
-#include "aos/templates/templates.h"
+#include "aos/templates/template_builders.h"
 #include "aos/exchange/internal/binance_exchange.h"
 #include "aos/exchange/i_exchange.h"
 #include "aos/mutual_information/i_mutual_information_calculator.h"

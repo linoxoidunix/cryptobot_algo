@@ -81,38 +81,54 @@ class PositionStorageByPair
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
-          typename PositionT, typename StrategyT>
+          typename PositionStorageByPair, typename PositionT,
+          typename StrategyT>
 class PositionStorageBuilder {
-    MemoryPool<PositionT>& pool_;
+    MemoryPool<PositionStorageByPair>& pool_;
     boost::intrusive_ptr<StrategyT> strategy_;
 
   public:
-    explicit PositionStorageBuilder(MemoryPool<PositionT>& pool,
-                                    boost::intrusive_ptr<StrategyT> strategy)
-        : pool_(pool), strategy_(strategy) {}
+    explicit PositionStorageBuilder(MemoryPool<PositionStorageByPair>& pool)
+        : pool_(pool) {}
+
+    PositionStorageBuilder& SetPositionStrategy(
+        boost::intrusive_ptr<StrategyT> strategy) {
+        strategy_ = strategy;
+        return *this;
+    }
 
     auto Build() {
+        if (!strategy_) {
+            throw std::logic_error("Strategy not set in builder");
+        }
         auto* obj = pool_.Allocate(strategy_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<PositionT>(obj);
+        return boost::intrusive_ptr<
+            IPositionStorageByPair<Price, Qty, MemoryPool>>(obj);
     }
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
-          typename PositionT, typename StrategyT>
+          typename PositionStorageByPairT, typename PositionT,
+          typename StrategyT>
 class PositionStorageContainer {
-    MemoryPool<PositionT> pool_;
+    MemoryPool<PositionStorageByPairT> pool_;
     boost::intrusive_ptr<StrategyT> strategy_;
 
   public:
-    explicit PositionStorageContainer(size_t size,
-                                      boost::intrusive_ptr<StrategyT> strategy)
-        : pool_(size), strategy_(strategy) {}
+    explicit PositionStorageContainer(size_t size) : pool_(size) {}
 
+    PositionStorageContainer& SetPositionStrategy(
+        boost::intrusive_ptr<StrategyT> strategy) {
+        strategy_ = strategy;
+        return *this;
+    }
     auto Build() {
-        PositionStorageBuilder<Price, Qty, MemoryPool, PositionT, StrategyT>
-            builder(pool_, strategy_);
-        return builder.Build();
+        return PositionStorageBuilder<Price, Qty, MemoryPool,
+                                      PositionStorageByPairT, PositionT,
+                                      StrategyT>(pool_)
+            .SetPositionStrategy(strategy_)
+            .Build();
     }
 };
 

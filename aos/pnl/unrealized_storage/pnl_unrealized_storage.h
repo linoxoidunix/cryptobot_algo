@@ -249,8 +249,8 @@ class UnRealizedPnlStorageBuilder {
     }
 
     auto Build() {
-        assert(pnl_unrealized_calculator_ &&
-               "UnRealizedPnlCalculator must be set before Build()");
+        // assert(pnl_unrealized_calculator_ &&
+        //        "UnRealizedPnlCalculator must be set before Build()");
         if (!pnl_unrealized_calculator_) {
             throw std::logic_error(
                 "UnRealizedPnlCalculator not set in builder");

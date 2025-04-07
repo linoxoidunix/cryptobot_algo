@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
 #include "aos/pnl/realized_storage/pnl_realized_storage.h"
 #include "aos/pnl/unrealized_calculator/pnl_unrealized_calculator.h"
 #include "aos/pnl/unrealized_storage/pnl_unrealized_storage.h"
@@ -16,8 +17,11 @@ using Qty   = double;
 
 class NetPositionStrategyTest : public ::testing::Test {
   protected:
-    aos::impl::RealizedPnlStorageContainer<Price, Qty,
-                                           common::MemoryPoolNotThreadSafety>
+    using RealizedPnlStorageT =
+        aos::impl::RealizedPnlStorage<Price, Qty,
+                                      common::MemoryPoolNotThreadSafety>;
+    aos::impl::RealizedPnlStorageContainer<
+        Price, Qty, common::MemoryPoolNotThreadSafety, RealizedPnlStorageT>
         realized_container{1};
     using UnRealizedPnlCalculatorContainerT =
         aos::impl::UnRealizedPnlCalculatorContainer<
@@ -31,8 +35,8 @@ class NetPositionStrategyTest : public ::testing::Test {
             aos::impl::NetUnRealizedPnlStorage<
                 Price, Qty, common::MemoryPoolNotThreadSafety>>;
     UnrealizedPnlStorageContainerT unrealized_container{1};
-    boost::intrusive_ptr<aos::impl::RealizedPnlStorage<
-        Price, Qty, common::MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<
+        aos::IPnlRealizedStorage<Price, Qty, common::MemoryPoolNotThreadSafety>>
         ptr_realized_storage;
     boost::intrusive_ptr<aos::IPnlUnRealizedStorage<
         Price, Qty, common::MemoryPoolNotThreadSafety>>

@@ -48,14 +48,15 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
 };
 
 // === Билдер для RealizedPnlStorage ===
-template <typename Price, typename Qty, template <typename> typename MemoryPool>
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename RealizedPnlStorageT>
 class RealizedPnlStorageBuilder {
-    MemoryPool<RealizedPnlStorage<Price, Qty, MemoryPool>>& pool_;
+    MemoryPool<RealizedPnlStorageT>& pool_;
 
   public:
-    using StorageType = RealizedPnlStorage<Price, Qty, MemoryPool>;
+    using StorageType = IPnlRealizedStorage<Price, Qty, MemoryPool>;
 
-    explicit RealizedPnlStorageBuilder(MemoryPool<StorageType>& pool)
+    explicit RealizedPnlStorageBuilder(MemoryPool<RealizedPnlStorageT>& pool)
         : pool_(pool) {}
 
     auto Build() {
@@ -66,10 +67,12 @@ class RealizedPnlStorageBuilder {
 };
 
 // === Контейнер для RealizedPnlStorage ===
-template <typename Price, typename Qty, template <typename> typename MemoryPool>
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename RealizedPnlStorageT>
 class RealizedPnlStorageContainer {
-    MemoryPool<RealizedPnlStorage<Price, Qty, MemoryPool>> pool_;
-    using Builder = RealizedPnlStorageBuilder<Price, Qty, MemoryPool>;
+    MemoryPool<RealizedPnlStorageT> pool_;
+    using Builder =
+        RealizedPnlStorageBuilder<Price, Qty, MemoryPool, RealizedPnlStorageT>;
 
   public:
     explicit RealizedPnlStorageContainer(size_t size) : pool_(size) {}
