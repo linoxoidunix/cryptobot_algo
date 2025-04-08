@@ -14,9 +14,13 @@ int main() {
         using Price = double;
         using Qty   = double;
         using Uid   = size_t;
+        using RealizedPnlStorageT =
+            aos::impl::RealizedPnlStorage<Price, Qty,
+                                          common::MemoryPoolNotThreadSafety>;
         using RealizedPnlStorageContainerT =
             aos::impl::RealizedPnlStorageContainer<
-                Price, Qty, common::MemoryPoolNotThreadSafety>;
+                Price, Qty, common::MemoryPoolNotThreadSafety,
+                RealizedPnlStorageT>;
         using UnRealizedPnlCalculatorContainerT =
             aos::impl::UnRealizedPnlCalculatorContainer<
                 Price, Qty, common::MemoryPoolNotThreadSafety,

@@ -170,8 +170,9 @@ class PositionStrategyContainer {
         NetPositionStrategyBuilderT builder(pool_);
         auto pnl_realized_storage   = pnl_realized_storage_container_.Build();
         auto pnl_unrealized_storage = pnl_unrealized_storage_container_.Build();
-        auto strategy =
-            builder.Build(pnl_realized_storage, pnl_unrealized_storage);
+        auto strategy = builder.SetPnlRealizedStorage(pnl_realized_storage)
+                            .SetPnlUnRealizedStorage(pnl_unrealized_storage)
+                            .Build();
         return strategy;
     }
 };

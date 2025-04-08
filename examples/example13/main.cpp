@@ -21,9 +21,13 @@ int main() {
         using PositionStrategy =
             aos::impl::NetPositionStrategy<Price, Qty,
                                            common::MemoryPoolNotThreadSafety>;
+        using RealizedPnlStorageT =
+            aos::impl::RealizedPnlStorage<Price, Qty,
+                                          common::MemoryPoolNotThreadSafety>;
         using RealizedPnlStorageContainerT =
             aos::impl::RealizedPnlStorageContainer<
-                Price, Qty, common::MemoryPoolNotThreadSafety>;
+                Price, Qty, common::MemoryPoolNotThreadSafety,
+                RealizedPnlStorageT>;
 
         using UnRealizedPnlCalculatorContainerT =
             aos::impl::UnRealizedPnlCalculatorContainer<
@@ -54,9 +58,9 @@ int main() {
             aos::impl::PositionStorageByPair<Price, Qty,
                                              common::MemoryPoolNotThreadSafety,
                                              Position, PositionStrategy>,
-            PositionStrategy>
-            position_storage_container(1, position_strategy);
-
+            Position, PositionStrategy>
+            position_storage_container(1);
+        position_storage_container.SetPositionStrategy(position_strategy);
         auto position_storage = position_storage_container.Build();
 
         aos::impl::PositionTracker<Price, Qty,
