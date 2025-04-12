@@ -12,6 +12,14 @@ class IMaxAble {
     virtual ~IMaxAble()                                              = default;
 };
 
+template <typename HashT, typename T>
+class MaxTrackerInterface : public IMaxAble<HashT, T> {
+  public:
+    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
+    virtual ~MaxTrackerInterface()                                = default;
+};
+
 template <typename HashT, typename T, template <typename> class MemoryPool>
 class IMaxTracker
     : public common::RefCounted<MemoryPool, IMaxTracker<HashT, T, MemoryPool>>,

@@ -1,7 +1,62 @@
 #pragma once
+#include "aos/pnl/realized_calculator/i_pnl_realized_calculator.h"
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
 namespace aos {
 namespace impl {
+
+template <typename Price, typename Qty>
+class RealizedPnlStorageDefault
+    : public PnlRealizedStorageInterface<Price, Qty> {
+  private:
+    using RealizedPnl = PnlRealizedStorageInterface<Price, Qty>::RealizedPnl;
+
+    using Key         = std::pair<common::ExchangeId, common::TradingPair>;
+    struct KeyHash {
+        std::size_t operator()(const Key& key) const {
+            std::size_t hash_value = 0;
+
+            std::size_t h1         = std::hash<common::ExchangeId>{}(key.first);
+            std::size_t h2         = common::TradingPairHash{}(key.second);
+
+            boost::hash_combine(hash_value, h1);
+            boost::hash_combine(hash_value, h2);
+
+            return hash_value;
+        }
+    };
+    RealizedPnlCalculatorInterface<Price, Qty>& realized_pnl_calculator_;
+    std::unordered_map<Key, Price, KeyHash> realized_pnl_;
+
+  public:
+    RealizedPnlStorageDefault(
+        RealizedPnlCalculatorInterface<Price, Qty>& realized_pnl_calculator)
+        : realized_pnl_calculator_(realized_pnl_calculator) {};
+    RealizedPnl FixProfit(common::ExchangeId exchange,
+                          common::TradingPair tradingPair, Price avg_price,
+                          Qty net_qty, Price price, Qty qty) override {
+        auto pnl =
+            realized_pnl_calculator_.Calculate(avg_price, net_qty, price, qty);
+        Key key = {exchange, tradingPair};
+        auto old_pnl =
+            (realized_pnl_.contains(key)) ? realized_pnl_.at(key) : 0;
+        realized_pnl_[key] += pnl;
+        logi("Updated RealizedPnl for {}, {}. New pnl: {} Old pnl:{}", exchange,
+             tradingPair, realized_pnl_.at(key), old_pnl);
+        return pnl;
+    }
+
+    std::pair<bool, RealizedPnl> GetRealizedPnl(
+        common::ExchangeId exchange,
+        common::TradingPair tradingPair) const override {
+        Key key = {exchange, tradingPair};
+        auto it = realized_pnl_.find(key);
+        if (it == realized_pnl_.end()) {
+            return {false, Price{}};
+        }
+        return {true, it->second};
+    }
+    ~RealizedPnlStorageDefault() override {}
+};
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
   private:
@@ -45,6 +100,7 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
         }
         return {true, it->second};
     }
+    ~RealizedPnlStorage() override {}
 };
 
 // === Билдер для RealizedPnlStorage ===

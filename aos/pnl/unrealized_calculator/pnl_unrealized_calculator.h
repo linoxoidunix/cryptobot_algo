@@ -4,6 +4,31 @@
 
 namespace aos {
 namespace impl {
+
+template <typename Price, typename Qty>
+class UnRealizedPnlCalculatorDefault
+    : public UnRealizedPnlCalculatorInterface<Price, Qty> {
+    using UnRealizedPnl =
+        UnRealizedPnlCalculatorInterface<Price, Qty>::UnRealizedPnl;
+
+  public:
+    ~UnRealizedPnlCalculatorDefault() override {};
+    // Реализация метода Calculate для интерфейса
+    UnRealizedPnl Calculate(Price avg_price, Qty net_qty, Price bid,
+                            Price ask) override {
+        using UnRealizedPnl      = decltype(avg_price * net_qty);
+
+        const bool is_long       = net_qty > Qty{};
+        const Qty abs_qty        = is_long ? net_qty : -net_qty;
+
+        const Price market_price = is_long ? bid : ask;
+        const Price price_diff =
+            is_long ? (market_price - avg_price) : (avg_price - market_price);
+
+        return price_diff * abs_qty;
+    };
+};
+
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class UnRealizedPnlCalculator
     : public IUnRealizedPnlCalculator<Price, Qty, MemoryPool> {

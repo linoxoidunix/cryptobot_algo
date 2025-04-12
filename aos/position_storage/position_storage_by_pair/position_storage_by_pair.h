@@ -5,6 +5,80 @@
 #include "boost/intrusive_ptr.hpp"
 namespace aos {
 namespace impl {
+
+template <typename Price, typename Qty, typename PositionT>
+class PositionStorageByPairDefault
+    : public PositionStorageByPairInterface<Price, Qty, PositionT> {
+  private:
+    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    struct KeyHash {
+        std::size_t operator()(const Key& key) const {
+            std::size_t hash_value = 0;
+
+            std::size_t h1 =
+                std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
+            std::size_t h2 =
+                common::TradingPairHash{}(key.second);  // TradingPair
+
+            boost::hash_combine(hash_value, h1);
+            boost::hash_combine(hash_value, h2);
+
+            return hash_value;
+        }
+    };
+    std::unordered_map<Key, PositionT, KeyHash> storage_position_;
+    std::function<PositionT()>
+        position_factory_;  // 👈 теперь используем фабрику
+
+  public:
+    PositionStorageByPairDefault(std::function<PositionT()> position_factory)
+        : position_factory_(position_factory) {};
+    ~PositionStorageByPairDefault() override {};
+    std::optional<std::reference_wrapper<const PositionT>> GetPosition(
+        common::ExchangeId exchange,
+        common::TradingPair trading_pair) const override {
+        auto it = storage_position_.find({exchange, trading_pair});
+        if (it == storage_position_.end()) {
+            return std::nullopt;
+        }
+        return std::cref(it->second);  // const reference wrapper
+    }
+
+    void AddPosition(common::ExchangeId exchange,
+                     common::TradingPair trading_pair, Price price,
+                     Qty qty) override {
+        Key key = {exchange, trading_pair};
+        if (storage_position_.find(key) == storage_position_.end()) {
+            storage_position_.emplace(
+                key,
+                position_factory_());  // TODO: Передавать стратегию
+        }
+        storage_position_.at(key).AddPosition(exchange, trading_pair, price,
+                                              qty);
+        logi("Adding position: {}, {}, Price={}, Qty={}", exchange,
+             trading_pair, price, qty);
+    }
+
+    bool RemovePosition(common::ExchangeId exchange,
+                        common::TradingPair trading_pair, Price price,
+                        Qty qty) override {
+        Key key = {exchange, trading_pair};
+        if (storage_position_.find(key) == storage_position_.end()) {
+            // Do not create a position when trying to remove a non-existent
+            // one. Returning false indicates that there was nothing to remove.
+            return false;
+        }
+        storage_position_.at(key).RemovePosition(exchange, trading_pair, price,
+                                                 qty);
+        if (storage_position_.at(key).IsEmpty()) {
+            storage_position_.erase(key);
+        }
+        logi("Removing position: {}, {}, Price={}, Qty={}", exchange,
+             trading_pair, price, qty);
+        return true;
+    }
+};
+
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename PositionT, typename StrategyT>
 class PositionStorageByPair

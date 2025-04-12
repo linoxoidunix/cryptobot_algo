@@ -9,7 +9,118 @@
 
 namespace aos {
 namespace impl {
-// Updated SlidingWindowStorage class
+template <typename HashT, typename T>
+class SlidingWindowStorageDefault
+    : public aos::SlidingWindowStorageInterface<HashT, T> {
+    int window_size_;
+    std::unordered_map<HashT, std::deque<T>> data_;
+    AvgTrackerInterface<HashT, T>& avg_tracker_;
+    DeviationTrackerInterface<HashT, T>& deviation_tracker_;
+    MinTrackerInterface<HashT, T>& min_tracker_;
+    MaxTrackerInterface<HashT, T>& max_tracker_;
+
+  public:
+    explicit SlidingWindowStorageDefault(
+        int window_size, aos::AvgTrackerInterface<HashT, T>& avg_tracker,
+        aos::DeviationTrackerInterface<HashT, T>& deviation_tracker,
+        aos::MinTrackerInterface<HashT, T>& min_tracker,
+        aos::MaxTrackerInterface<HashT, T>& max_tracker)
+        : window_size_(window_size),
+          avg_tracker_(avg_tracker),
+          deviation_tracker_(deviation_tracker),
+          min_tracker_(min_tracker),
+          max_tracker_(max_tracker) {}
+
+    ~SlidingWindowStorageDefault() {
+        logi("{}", "SlidingWindowStorageDefault dtor");
+    }
+
+    void AddData(const HashT asset, const T& value) override {
+        auto& window = data_[asset];
+        window.emplace_back(value);
+
+        UpdateTrackersOnAdd(asset, value);
+
+        if (window.size() > window_size_) {
+            auto front_value = window.front();
+            window.pop_front();
+            UpdateTrackersOnRemove(asset, front_value);
+        }
+    }
+
+    const std::deque<T>& GetData(const HashT& hash_asset) const override {
+        return data_.at(hash_asset);
+    }
+
+    std::pair<bool, T> GetAvg(const HashT& hash_asset) const override {
+        return avg_tracker_->GetAvg(hash_asset);
+    }
+
+    std::pair<bool, T> GetDeviation(const HashT& hash_asset,
+                                    const T& value) const override {
+        return deviation_tracker_->GetDeviation(hash_asset, value);
+    }
+
+    std::pair<bool, bool> IsDeviationRatioAboveThreshold(
+        const HashT& hash_asset, const T& value,
+        double given_threshold) const override {
+        return deviation_tracker_->IsDeviationRatioAboveThreshold(
+            hash_asset, value, given_threshold);
+    }
+
+    std::pair<bool, T> GetDeviationRatio(const HashT& hash_asset,
+                                         const T& value) const override {
+        return deviation_tracker_->GetDeviationRatio(hash_asset, value);
+    }
+
+    std::pair<bool, T> GetDeviationPercent(const HashT& hash_asset,
+                                           const T& value) const override {
+        return deviation_tracker_->GetDeviationPercent(hash_asset, value);
+    }
+
+    std::pair<bool, T> GetDeviationRatioAbs(const HashT& hash_asset,
+                                            const T& value) const override {
+        return deviation_tracker_->GetDeviationRatioAbs(hash_asset, value);
+    }
+
+    std::pair<bool, T> GetDeviationPercentAbs(const HashT& hash_asset,
+                                              const T& value) const override {
+        return deviation_tracker_->GetDeviationPercentAbs(hash_asset, value);
+    }
+
+    bool HasEnoughData(const HashT& hash_asset) const override {
+        return data_.count(hash_asset) &&
+               data_.at(hash_asset).size() >= window_size_;
+    }
+
+    std::pair<bool, T> GetMin(const HashT& hash_asset) const override {
+        return min_tracker_->GetMin(hash_asset);
+    };
+
+    std::pair<bool, T> GetMax(const HashT& hash_asset) const override {
+        return max_tracker_->GetMax(hash_asset);
+    };
+
+    void Wait() override {}
+
+  private:
+    void UpdateTrackersOnAdd(const HashT& asset, const T& value) {
+        avg_tracker_->OnAdd(asset, value);
+        min_tracker_->OnAdd(asset, value);
+        max_tracker_->OnAdd(asset, value);
+        // deviation_tracker_->OnAdd(asset, value); // Раскомментировать, если
+        // необходимо
+    }
+
+    void UpdateTrackersOnRemove(const HashT& asset, const T& value) {
+        avg_tracker_->OnRemove(asset, value);
+        min_tracker_->OnRemove(asset, value);
+        max_tracker_->OnRemove(asset, value);
+        // deviation_tracker_->OnRemove(asset, value); // Раскомментировать,
+        // если необходимо
+    }
+};
+
 template <typename HashT, typename T>
 class SlidingWindowStorage
     : public aos::ISlidingWindowStorage<HashT, T,
@@ -204,6 +315,106 @@ class SlidingWindowStorageBuilder {
     boost::intrusive_ptr<
         aos::IMaxTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
         max_tracker_;
+};
+
+template <typename HashT, typename T>
+class SlidingWindowStorageDefaultObservable
+    : public SlidingWindowStorageDefault<HashT, T>,
+      public IObservable<HashT, T> {
+  public:
+    explicit SlidingWindowStorageDefaultObservable(
+        int window_size, AvgTrackerInterface<HashT, T>& avg_tracker,
+        DeviationTrackerInterface<HashT, T>& deviation_tracker,
+        MinTrackerInterface<HashT, T>& min_tracker,
+        MaxTrackerInterface<HashT, T>& max_tracker,
+        boost::asio::thread_pool& thread_pool)
+        : SlidingWindowStorageDefault<HashT, T>(window_size, avg_tracker,
+                                                deviation_tracker, min_tracker,
+                                                max_tracker),
+          thread_pool_(thread_pool),
+          strand_(boost::asio::make_strand(thread_pool.get_executor())) {}
+    ~SlidingWindowStorageDefaultObservable() override {
+        logi("{}", "SlidingWindowStorageDefaultObservable dtor");
+    }
+
+    void AddData(const HashT asset, const T& value) override {
+        logi("Add hash:{} value:{} to strand", asset, value);
+        // Запускаем наблюдателей перед добавлением
+        boost::asio::post(strand_, [this, asset, value]() {
+            std::queue<HashT> assets_to_buy;
+            std::queue<HashT> assets_to_sell;
+            assets_to_buy.push(asset);
+            auto begin = actions_to_buy_.begin();
+            while (!assets_to_buy.empty()) {
+                if (begin == actions_to_buy_.end()) {
+                    logi("no registered cb found");
+                    break;
+                }
+                size_t size = assets_to_buy.size();
+                for (size_t i = 0; i < size; i++) {
+                    auto front_hash = assets_to_buy.front();
+                    (*begin)(assets_to_buy, front_hash, value);
+                    assets_to_buy.pop();
+                }
+                begin = std::next(begin);
+            }
+
+            begin = actions_to_sell_.begin();
+            assets_to_sell.push(asset);
+            while (!assets_to_sell.empty()) {
+                if (begin == actions_to_sell_.end()) {
+                    logi("no registered cb found");
+                    break;
+                }
+                size_t size = assets_to_sell.size();
+                for (size_t i = 0; i < size; i++) {
+                    auto front_hash = assets_to_sell.front();
+                    (*begin)(assets_to_sell, front_hash, value);
+                    assets_to_sell.pop();
+                }
+                begin = std::next(begin);
+            }
+
+            logi("Start add hash:{} value:{} to sliding window", asset, value);
+            SlidingWindowStorage<HashT, T>::AddData(asset, value);
+        });
+    }
+    void AddActionsToBuy(std::function<void(std::queue<HashT>& queue_to_buy,
+                                            const HashT hasht, const T& value)>
+                             observer) override {
+        actions_to_buy_.push_back(observer);
+    };
+    void AddActionsToSell(std::function<void(std::queue<HashT>& queue_to_sell,
+                                             const HashT hasht, const T& value)>
+                              observer) override {
+        actions_to_sell_.push_back(observer);
+    };
+
+    void Wait() override {
+        std::promise<void> promise;
+        std::future<void> future = promise.get_future();
+
+        boost::asio::dispatch(strand_, [&promise]() {
+            promise.set_value();  // Завершаем ожидание, когда все задачи на
+                                  // strand выполнены
+        });
+
+        future.wait();  // Блокируем текущий поток до завершения всех задач в
+    }
+
+  private:
+    std::list<std::function<void(std::queue<HashT>& queue_to_buy,
+                                 const HashT hasht, const T& value)>>
+        actions_to_buy_;
+    std::list<std::function<void(std::queue<HashT>& queue_to_sell,
+                                 const HashT hasht, const T& value)>>
+        actions_to_sell_;
+    boost::asio::thread_pool& thread_pool_;  // Пул потоков
+    boost::asio::strand<boost::asio::thread_pool::executor_type>
+        strand_;  // Strand для последовательного выполнения
+    boost::intrusive_ptr<
+        aos::IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety>>
+        executor_provider_;
 };
 
 template <typename HashT, typename T>

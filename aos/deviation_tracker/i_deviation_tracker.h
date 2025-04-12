@@ -30,7 +30,13 @@ class IDeviationAble {
 
     virtual ~IDeviationAble() = default;
 };
-// 📌 Интерфейс хранилища данных (Liskov Substitution - L)
+
+template <typename HashT, typename T>
+class DeviationTrackerInterface : public IDeviationAble<HashT, T> {
+  public:
+    virtual ~DeviationTrackerInterface() = default;
+};
+
 template <typename HashT, typename T, template <typename> class MemoryPool>
 class IDeviationTracker
     : public common::RefCounted<MemoryPool,

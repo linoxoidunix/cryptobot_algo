@@ -21,4 +21,9 @@ endmacro()
 
 cxx_executable(executor_provider ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main )
 cxx_executable(hedge_position_strategy ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(hedge_position_strategy_default ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(hedge_position_storage_by_pair ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
 cxx_executable(net_position_strategy ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(net_position_strategy_default ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(net_position_storage_by_pair ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+

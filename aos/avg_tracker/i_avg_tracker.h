@@ -9,7 +9,15 @@ template <typename HashT, typename T>
 class IAvgAble {
   public:
     virtual std::pair<bool, T> GetAvg(const HashT& hash_asset) const = 0;
-    virtual ~IAvgAble()                                       = default;
+    virtual ~IAvgAble()                                              = default;
+};
+
+template <typename HashT, typename T>
+class AvgTrackerInterface : public IAvgAble<HashT, T> {
+  public:
+    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
+    virtual ~AvgTrackerInterface()                                = default;
 };
 
 template <typename HashT, typename T, template <typename> class MemoryPool>

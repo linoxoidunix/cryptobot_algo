@@ -4,6 +4,17 @@
 #include "aot/common/types.h"
 namespace aos {
 
+template <typename Price, typename Qty, typename PositionT>
+class PositionStorageByPairInterface
+    : public PositionTrackerInterface<Price, Qty> {
+  public:
+    virtual ~PositionStorageByPairInterface() = default;
+
+    // Получить позицию для определенной торговой пары на указанной бирже
+    virtual std::optional<std::reference_wrapper<const PositionT>> GetPosition(
+        common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
+};
+
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class IPositionStorageByPair : public IPositionTracker<Price, Qty, MemoryPool> {
   public:
