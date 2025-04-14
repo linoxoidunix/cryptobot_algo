@@ -5,6 +5,27 @@
 
 #include "aos/common/ref_counted.h"
 namespace aos {
+template <typename T>
+class HistogramCalculatorInterface {
+  public:
+    virtual ~HistogramCalculatorInterface() = default;
+
+    /**
+     * @brief Compute the histogram for the given data.
+     *
+     * This method computes a histogram for the input data, dividing it
+     * into the specified number of bins.
+     *
+     * @param data A deque containing the input data for the histogram.
+     * @param bins The number of bins to divide the data into.
+     * @return An unordered map where the key is the bin index (int) and
+     *         the value is the data type T (e.g., frequency, density).
+     */
+    virtual std::unordered_map<int, T> ComputeHistogram(
+        const std::deque<T>& data, int bins) const = 0;
+    virtual std::unordered_map<int, T> ComputeHistogram(
+        const std::deque<T>& data, T min, T max, int bins) const = 0;
+};
 /**
  * @brief Interface for computing histograms.
  *

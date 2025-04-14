@@ -7,7 +7,7 @@
 namespace aos {
 namespace impl {
 template <typename HashT, typename T>
-class Strategy {
+class Strategy : public StrategyInterface<HashT, T> {
     std::list<std::function<void(std::queue<HashT>& queue_to_buy,
                                  const HashT hasht, const T& value)>>
         actions_to_buy_;

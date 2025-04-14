@@ -21,10 +21,10 @@ class SlidingWindowStorageDefault
 
   public:
     explicit SlidingWindowStorageDefault(
-        int window_size, aos::AvgTrackerInterface<HashT, T>& avg_tracker,
-        aos::DeviationTrackerInterface<HashT, T>& deviation_tracker,
-        aos::MinTrackerInterface<HashT, T>& min_tracker,
-        aos::MaxTrackerInterface<HashT, T>& max_tracker)
+        int window_size, AvgTrackerInterface<HashT, T>& avg_tracker,
+        DeviationTrackerInterface<HashT, T>& deviation_tracker,
+        MinTrackerInterface<HashT, T>& min_tracker,
+        MaxTrackerInterface<HashT, T>& max_tracker)
         : window_size_(window_size),
           avg_tracker_(avg_tracker),
           deviation_tracker_(deviation_tracker),
@@ -53,39 +53,39 @@ class SlidingWindowStorageDefault
     }
 
     std::pair<bool, T> GetAvg(const HashT& hash_asset) const override {
-        return avg_tracker_->GetAvg(hash_asset);
+        return avg_tracker_.GetAvg(hash_asset);
     }
 
     std::pair<bool, T> GetDeviation(const HashT& hash_asset,
                                     const T& value) const override {
-        return deviation_tracker_->GetDeviation(hash_asset, value);
+        return deviation_tracker_.GetDeviation(hash_asset, value);
     }
 
     std::pair<bool, bool> IsDeviationRatioAboveThreshold(
         const HashT& hash_asset, const T& value,
         double given_threshold) const override {
-        return deviation_tracker_->IsDeviationRatioAboveThreshold(
+        return deviation_tracker_.IsDeviationRatioAboveThreshold(
             hash_asset, value, given_threshold);
     }
 
     std::pair<bool, T> GetDeviationRatio(const HashT& hash_asset,
                                          const T& value) const override {
-        return deviation_tracker_->GetDeviationRatio(hash_asset, value);
+        return deviation_tracker_.GetDeviationRatio(hash_asset, value);
     }
 
     std::pair<bool, T> GetDeviationPercent(const HashT& hash_asset,
                                            const T& value) const override {
-        return deviation_tracker_->GetDeviationPercent(hash_asset, value);
+        return deviation_tracker_.GetDeviationPercent(hash_asset, value);
     }
 
     std::pair<bool, T> GetDeviationRatioAbs(const HashT& hash_asset,
                                             const T& value) const override {
-        return deviation_tracker_->GetDeviationRatioAbs(hash_asset, value);
+        return deviation_tracker_.GetDeviationRatioAbs(hash_asset, value);
     }
 
     std::pair<bool, T> GetDeviationPercentAbs(const HashT& hash_asset,
                                               const T& value) const override {
-        return deviation_tracker_->GetDeviationPercentAbs(hash_asset, value);
+        return deviation_tracker_.GetDeviationPercentAbs(hash_asset, value);
     }
 
     bool HasEnoughData(const HashT& hash_asset) const override {
@@ -94,29 +94,29 @@ class SlidingWindowStorageDefault
     }
 
     std::pair<bool, T> GetMin(const HashT& hash_asset) const override {
-        return min_tracker_->GetMin(hash_asset);
+        return min_tracker_.GetMin(hash_asset);
     };
 
     std::pair<bool, T> GetMax(const HashT& hash_asset) const override {
-        return max_tracker_->GetMax(hash_asset);
+        return max_tracker_.GetMax(hash_asset);
     };
 
     void Wait() override {}
 
   private:
     void UpdateTrackersOnAdd(const HashT& asset, const T& value) {
-        avg_tracker_->OnAdd(asset, value);
-        min_tracker_->OnAdd(asset, value);
-        max_tracker_->OnAdd(asset, value);
-        // deviation_tracker_->OnAdd(asset, value); // Раскомментировать, если
+        avg_tracker_.OnAdd(asset, value);
+        min_tracker_.OnAdd(asset, value);
+        max_tracker_.OnAdd(asset, value);
+        // deviation_tracker_.OnAdd(asset, value); // Раскомментировать, если
         // необходимо
     }
 
     void UpdateTrackersOnRemove(const HashT& asset, const T& value) {
-        avg_tracker_->OnRemove(asset, value);
-        min_tracker_->OnRemove(asset, value);
-        max_tracker_->OnRemove(asset, value);
-        // deviation_tracker_->OnRemove(asset, value); // Раскомментировать,
+        avg_tracker_.OnRemove(asset, value);
+        min_tracker_.OnRemove(asset, value);
+        max_tracker_.OnRemove(asset, value);
+        // deviation_tracker_.OnRemove(asset, value); // Раскомментировать,
         // если необходимо
     }
 };
