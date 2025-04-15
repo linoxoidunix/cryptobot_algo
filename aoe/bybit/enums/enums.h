@@ -27,6 +27,6 @@ enum class StopOrderType {
     kStop,
     kPartialTakeProfit,
     kPartialStopLoss
-}
+};
 };  // namespace bybit
 };  // namespace aoe

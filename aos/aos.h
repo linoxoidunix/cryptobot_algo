@@ -5,6 +5,7 @@
 #include "aos/avg_tracker/i_avg_tracker.h"
 #include "aos/common/common.h"
 #include "aos/common/i_waitable.h"
+#include "aos/common/multi_pool.h"
 #include "aos/common/ref_counted.h"
 #include "aos/common/types/bbo.h"
 #include "aos/common/types/bbo_qty.h"
