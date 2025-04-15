@@ -26,4 +26,6 @@ cxx_executable(hedge_position_storage_by_pair ${CMAKE_CURRENT_LIST_DIR} aos aot 
 cxx_executable(net_position_strategy ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
 cxx_executable(net_position_strategy_default ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
 cxx_executable(net_position_storage_by_pair ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+cxx_executable(net_position_storage_by_pair_use_external_event_bybit ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum)
+
 
