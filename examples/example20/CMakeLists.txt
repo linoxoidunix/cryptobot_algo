@@ -23,6 +23,7 @@ magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 concurrentqueue
 nlohmann_json::nlohmann_json
+simdjson::simdjson
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
