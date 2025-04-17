@@ -183,6 +183,76 @@ TEST(BybitExecutionEventParserTest, ParseLinearSellSuccess) {
     ASSERT_EQ(event->ExchangeId(), common::ExchangeId::kBybit);
 }
 
+TEST(BybitExecutionEventParserTest, ParseEmptyDoc) {
+    std::string json = R"({
+    })";
+
+    simdjson::ondemand::parser parser;
+    simdjson::padded_string padded(json);
+    auto doc = parser.iterate(padded);
+    ASSERT_EQ(doc.error(), simdjson::SUCCESS);
+
+    TradingPairFactoryFake factory;
+    Parser event_parser(10, factory);
+    auto [ok, event] = event_parser.ParseAndCreate(doc.value());
+
+    EXPECT_FALSE(ok);
+}
+
+TEST(BybitExecutionEventParserTest, ParseMissedCategorySuccess) {
+    std::string json = R"({
+        "data": [
+            {
+                "symbol": "BTCUSDT",
+                "side": "Sell",
+                "execFee": "0.003",
+                "execPrice": "32000",
+                "execQty": "0.2",
+                "execValue": "6400",
+                "orderId": "890"
+            }
+        ]
+    })";
+
+    simdjson::ondemand::parser parser;
+    simdjson::padded_string padded(json);
+    auto doc = parser.iterate(padded);
+    ASSERT_EQ(doc.error(), simdjson::SUCCESS);
+
+    TradingPairFactoryFake factory;
+    Parser event_parser(10, factory);
+    auto [ok, event] = event_parser.ParseAndCreate(doc.value());
+
+    EXPECT_FALSE(ok);
+}
+
+TEST(BybitExecutionEventParserTest, ParseMissedSymbolSuccess) {
+    std::string json = R"({
+        "data": [
+            {
+                "category": "linear",
+                "side": "Sell",
+                "execFee": "0.003",
+                "execPrice": "32000",
+                "execQty": "0.2",
+                "execValue": "6400",
+                "orderId": "890"
+            }
+        ]
+    })";
+
+    simdjson::ondemand::parser parser;
+    simdjson::padded_string padded(json);
+    auto doc = parser.iterate(padded);
+    ASSERT_EQ(doc.error(), simdjson::SUCCESS);
+
+    TradingPairFactoryFake factory;
+    Parser event_parser(10, factory);
+    auto [ok, event] = event_parser.ParseAndCreate(doc.value());
+
+    EXPECT_FALSE(ok);
+}
+
 int main(int argc, char** argv) {
     fmtlog::setLogLevel(
         fmtlog::LogLevel::OFF);  // полностью отключит логгирование

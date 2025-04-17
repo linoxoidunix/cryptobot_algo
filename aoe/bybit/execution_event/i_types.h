@@ -16,7 +16,7 @@ class ExecutionEventInterface
     virtual double ExecQtyAbs() const { return exec_qty_; }
     virtual double ExecValue() const { return exec_value_; }
     virtual uint64_t OrderId() const { return order_id_; };
-    virtual common::ExchangeId ExchangeId() const { return exchange_id; };
+    virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
     virtual common::TradingPair TradingPair() const { return trading_pair_; };
 
     virtual void SetFee(double fee) { fee_ = fee; };
@@ -33,12 +33,12 @@ class ExecutionEventInterface
             position_storage) = 0;
 
   protected:
-    double fee_                    = 0;
-    double exec_price_             = 0;
-    double exec_qty_               = 0;
-    double exec_value_             = 0;
-    uint64_t order_id_             = 0;
-    common::ExchangeId exchange_id = common::ExchangeId::kBybit;
+    double fee_                     = 0;
+    double exec_price_              = 0;
+    double exec_qty_                = 0;
+    double exec_value_              = 0;
+    uint64_t order_id_              = 0;
+    common::ExchangeId exchange_id_ = common::ExchangeId::kBybit;
     common::TradingPair trading_pair_;
 };
 };  // namespace bybit
