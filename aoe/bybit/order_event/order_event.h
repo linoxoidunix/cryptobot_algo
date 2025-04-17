@@ -1,6 +1,6 @@
 #pragma once
-#include "aoe/bybit/order_event/i_types.h"
-#include "aos/order_manager/order_manager/i_order_manager.h"
+#include "aos/order_event/i_order_event.h"
+#include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
 
 namespace aoe {
 namespace bybit {

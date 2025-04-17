@@ -1,3 +1,4 @@
+#pragma once
 namespace aoe {
 namespace bybit {
 enum class ExecType { kTrade, kUnknown };
@@ -40,13 +41,6 @@ enum class OrderStatus {
     kDeactivated
 };
 
-enum class Category {
-    kInvalid,
-    kSpot,
-    kLinear,
-    kInverse,
-    // kOption
-};
 enum class Side {
     kUnknown,
     kSell,

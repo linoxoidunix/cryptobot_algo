@@ -1,5 +1,5 @@
 
-set (PROJECT_NAME example20)
+set (PROJECT_NAME example21)
 project(${PROJECT_NAME})
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")

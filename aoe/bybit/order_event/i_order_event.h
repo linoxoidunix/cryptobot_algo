@@ -1,21 +1,20 @@
 #pragma once
-#include "aoe/enums/enums.h"
+#include "aoe/bybit/enums/enums.h"
 #include "aos/common/ref_counted.h"
-// #include
-// "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
+#include "aos/order_event/i_order_event.h"
 #include "aot/common/types.h"
+
 namespace aoe {
 namespace bybit {
 template <template <typename> typename MemoryPool>
-class OrderEventInterface
-    : public common::RefCounted<MemoryPool, OrderEventInterface<MemoryPool>> {
+class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
   public:
     virtual ~OrderEventInterface()                      = default;
     virtual aoe::bybit::OrderStatus OrderStatus() const = 0;
-    virtual double LeavesQty() const { return exec_value_; }
-    virtual double LeavesValue() const { return order_id_; };
-    virtual double CumExecQty() const { return order_id_; };
-    virtual double CumExecValue() const { return order_id_; };
+    virtual double LeavesQty() const { return leaves_qty_; }
+    virtual double LeavesValue() const { return leaves_value_; };
+    virtual double CumExecQty() const { return cum_exec_qty_; };
+    virtual double CumExecValue() const { return cum_exec_value_; };
 
     virtual common::ExchangeId ExchangeId() const { return exchange_id; };
     virtual common::TradingPair TradingPair() const { return trading_pair_; };
@@ -48,6 +47,7 @@ class OrderEventInterface
     double cum_exec_value_                = 0;
     common::ExchangeId exchange_id        = common::ExchangeId::kBybit;
     common::TradingPair trading_pair_;
+    uint64_t order_id_;
 };
 };  // namespace bybit
 };  // namespace aoe

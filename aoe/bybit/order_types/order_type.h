@@ -1,8 +1,7 @@
 #pragma once
-#include "aos/order_types/i_order_type.h"
+#include "aoe/bybit/order_types/i_order_type.h"
 
-namespace aoe {
-namespace bybit {
+namespace aos {
 namespace impl {
 
 template <template <typename> typename MemoryPool>
@@ -48,5 +47,4 @@ class LinearSellOrderDefault : public OrderTypeInterface<MemoryPool> {
     ~LinearSellOrderDefault() override = default;
 };
 };  // namespace impl
-};  // namespace bybit
-};  // namespace aoe
+};  // namespace aos

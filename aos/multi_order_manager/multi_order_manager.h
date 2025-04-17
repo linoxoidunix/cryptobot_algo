@@ -1,0 +1,38 @@
+#pragma once
+#include <memory>
+#include <unordered_map>
+
+#include "aos/multi_order_manager/i_multi_order_manager.h"
+#include "aos/order_manager/i_order_manager.h"
+namespace aos {
+namespace impl {
+
+template <template <typename> typename MemoryPool>
+class MultiOrderManagerDefault : public MultiOrderManagerInterface<MemoryPool> {
+    std::unordered_map<common::ExchangeId,
+                       std::unique_ptr<OrderManagerInterface<MemoryPool>>>
+        oms_;
+
+  public:
+    void Register(
+        common::ExchangeId id,
+        std::unique_ptr<OrderManagerInterface<MemoryPool>> om) override {
+        oms_[id] = std::move(om);
+    }
+
+    void PlaceOrder(
+        common::ExchangeId id,
+        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>> order) override {
+        oms_.at(id)->PlaceOrder(order);
+    }
+
+    void OnResponse(
+        common::ExchangeId id,
+        boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) override {
+        oms_.at(id)->OnResponse(event);
+    }
+    ~MultiOrderManagerDefault() = default;
+};
+
+};  // namespace impl
+};  // namespace aos
