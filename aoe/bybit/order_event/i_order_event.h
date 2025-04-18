@@ -40,7 +40,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     //         position_storage) = 0;
 
   protected:
-    aoe::bybit::OrderStatus order_status_ = aoe::bybit::OrderStatus::kUnknown;
+    aoe::bybit::OrderStatus order_status_ = aoe::bybit::OrderStatus::kInvalid;
     double leaves_qty_                    = 0;
     double leaves_value_                  = 0;
     double cum_exec_qty_                  = 0;

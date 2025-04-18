@@ -1,5 +1,4 @@
 #pragma once
-#include "aos/order_manager/order_manager_types.h"
 #include "aot/common/types.h"
 
 namespace aos {

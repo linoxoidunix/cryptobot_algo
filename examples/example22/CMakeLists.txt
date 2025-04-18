@@ -1,5 +1,5 @@
 
-set (PROJECT_NAME example7)
+set (PROJECT_NAME example22)
 project(${PROJECT_NAME})
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
@@ -10,6 +10,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 file(GLOB SRC
      "*.cpp"
 )
+
 
 add_executable (${PROJECT_NAME}
     ${SRC}
@@ -22,6 +23,7 @@ magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 concurrentqueue
 nlohmann_json::nlohmann_json
+simdjson::simdjson
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

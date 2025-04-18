@@ -11,40 +11,87 @@ class OrderDefault : public OrderTypeInterface<MemoryPool> {
 };
 
 template <template <typename> typename MemoryPool>
-class SpotBuyOrderDefault : public OrderTypeInterface<MemoryPool> {
+class SpotBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
   public:
-    SpotBuyOrderDefault() {
+    SpotBuyLimitOrder() {
         this->SetSide(aos::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kSpot);
+        this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
-    ~SpotBuyOrderDefault() override = default;
+    ~SpotBuyLimitOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
-class SpotSellOrderDefault : public OrderTypeInterface<MemoryPool> {
+class SpotSellLimitOrder : public OrderTypeInterface<MemoryPool> {
   public:
-    SpotSellOrderDefault() {
+    SpotSellLimitOrder() {
         this->SetSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kSpot);
+        this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
-    ~SpotSellOrderDefault() override = default;
+    ~SpotSellLimitOrder() override = default;
+};
+
+template <template <typename> typename MemoryPool>
+class SpotBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
+  public:
+    SpotBuyMarketOrder() {
+        this->SetSide(aos::Side::kBuy);
+        this->SetCategory(aoe::bybit::Category::kSpot);
+        this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
+    }
+    ~SpotBuyMarketOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearBuyOrderDefault : public OrderTypeInterface<MemoryPool> {
+class SpotSellMarketOrder : public OrderTypeInterface<MemoryPool> {
   public:
-    LinearBuyOrderDefault() {
+    SpotSellMarketOrder() {
+        this->SetSide(aos::Side::kSell);
+        this->SetCategory(aoe::bybit::Category::kSpot);
+        this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
+    }
+    ~SpotSellMarketOrder() override = default;
+};
+
+template <template <typename> typename MemoryPool>
+class LinearBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
+  public:
+    LinearBuyLimitOrder() {
         this->SetSide(aos::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kLinear);
+        this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
-    ~LinearBuyOrderDefault() override = default;
+    ~LinearBuyLimitOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearSellOrderDefault : public OrderTypeInterface<MemoryPool> {
+class LinearSellLimitOrder : public OrderTypeInterface<MemoryPool> {
   public:
-    LinearSellOrderDefault() {
+    LinearSellLimitOrder() {
         this->SetSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kLinear);
+        this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
-    ~LinearSellOrderDefault() override = default;
+    ~LinearSellLimitOrder() override = default;
+};
+
+template <template <typename> typename MemoryPool>
+class LinearBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
+  public:
+    LinearBuyMarketOrder() {
+        this->SetSide(aos::Side::kBuy);
+        this->SetCategory(aoe::bybit::Category::kLinear);
+        this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
+    }
+    ~LinearBuyMarketOrder() override = default;
+};
+template <template <typename> typename MemoryPool>
+class LinearSellMarketOrder : public OrderTypeInterface<MemoryPool> {
+  public:
+    LinearSellMarketOrder() {
+        this->SetSide(aos::Side::kSell);
+        this->SetCategory(aoe::bybit::Category::kLinear);
+        this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
+    }
+    ~LinearSellMarketOrder() override = default;
 };
 };  // namespace impl
 };  // namespace aos

@@ -39,7 +39,6 @@
 #include "aos/order_event/i_order_event.h"
 #include "aos/order_manager/i_order_manager.h"
 #include "aos/order_types/i_order_type.h"
-#include "aos/order_types/order_type.h"
 #include "aos/pnl/i_pnl.h"
 #include "aos/pnl/realized_calculator/i_pnl_realized_calculator.h"
 #include "aos/pnl/realized_calculator/pnl_realized_calculator.h"

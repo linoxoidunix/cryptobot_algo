@@ -3,8 +3,6 @@
 #include <thread>
 #include <vector>
 
-#include "aos/order_manager/order_manager/order_manager.h"
-#include "aos/order_manager/order_submitter/order_submitter.h"
 #include "aos/uid/number_pool.h"
 #include "aos/uid/uid_manager.h"
 #include "aos/uid/unique_id_generator.h"

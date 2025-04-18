@@ -10,14 +10,14 @@ enum class Category {
     // kOption
 };
 
-enum class OrderType {
-    kUnknown,
-    kMarket,
-    kLimit,
-};
+// enum class OrderType {
+//     kUnknown,
+//     kMarket,
+//     kLimit,
+// };
 
 enum class StopOrderType {
-    kUnknown,
+    kInvalid,
     kTakeProfit,
     kStopLoss,
     kTrailingStop,
@@ -27,7 +27,7 @@ enum class StopOrderType {
 };
 
 enum class OrderStatus {
-    kUnknown,
+    kInvalid,
     // open status below
     kNew,
     kPartiallyFilled,
@@ -42,9 +42,15 @@ enum class OrderStatus {
 };
 
 enum class Side {
-    kUnknown,
+    kInvalid,
     kSell,
     kBuy,
+};
+
+enum class OrderMode {
+    kInvalid,
+    kMarket,
+    kLimit,
 };
 
 enum class TimeInForce {
