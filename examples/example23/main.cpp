@@ -2,6 +2,7 @@
 
 int main() {
     {
+        aoe::bybit::impl::internal::SingleOrderApi bybit_api;
     }
     return 0;
 }

@@ -5,3 +5,10 @@ find aos -type f -name "*.h" | sort | sed 's/^/#include "/; s/$/"/' >> aos/aos.h
 
 # Добавляем изменения файла aos/aos.h в staged
 git add aos/aos.h
+
+echo "#pragma once" > aoe/aoe.h
+echo "" >> aoe/aoe.h
+find aos -type f -name "*.h" | sort | sed 's/^/#include "/; s/$/"/' >> aoe/aoe.h
+
+# Добавляем изменения файла aos/aos.h в staged
+git add aoe/aoe.h
