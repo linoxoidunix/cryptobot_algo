@@ -4,10 +4,6 @@
 int main() {
     {
         aoe::bybit::impl::internal::SingleOrderAPI bybit_api;
-        bybit_api.PlaceOrder();
-        bybit_api.AmendOrder();
-        bybit_api.CancelOrder();
-        bybit_api.CancelAllOrder();
     }
     return 0;
 }

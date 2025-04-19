@@ -4,7 +4,7 @@
 
 namespace aoe {
 namespace bybit {
-template <template <typename> typename MemoryPool>
+template <template <typename> typename MemoryPool, typename PositionT>
 class OrderEventDefault : public OrderEventInterface<MemoryPool> {
   public:
     OrderEventDefault() = default;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "aoe/aoe.h"
+#include "aoe/bybit/bybit_api/external/rest/exchange_api.h"
+#include "aoe/bybit/bybit_api/external/ws/exchange_api.h"
 #include "aoe/bybit/bybit_api/i_exchange_api.h"
 #include "aoe/bybit/bybit_api/internal/exchange_api.h"
 #include "aoe/bybit/enums/enums.h"
