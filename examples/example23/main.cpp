@@ -1,3 +1,4 @@
+#include "aoe/aoe.h"
 #include "aos/aos.h"
 
 int main() {
