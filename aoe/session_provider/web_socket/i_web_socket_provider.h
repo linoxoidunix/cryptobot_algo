@@ -5,7 +5,7 @@ namespace aoe {
 template <template <typename> class MemoryPool>
 class WebSocketSessionProviderInterface {
   public:
-    virtual ~WebSocketSessionProvider()              = default;
-    WebSocketSessionInterface<MemoryPool>& Provide() = 0
+    virtual ~WebSocketSessionProviderInterface()     = default;
+    WebSocketSessionInterface<MemoryPool>& Provide() = 0;
 };
 };  // namespace aoe

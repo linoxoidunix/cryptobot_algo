@@ -1,7 +1,7 @@
 #pragma once
 #include "aoe/bybit/order_event/i_order_event.h"
 #include "aoe/bybit/order_storage/i_order_storage.h"
-#include "aoe/bybit/order_types/i_order_type.h"
+#include "aoe/bybit/request/place_order/i_order_type.h"
 #include "aos/order_manager/i_order_manager.h"
 namespace aoe {
 namespace bybit {

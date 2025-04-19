@@ -1,6 +1,5 @@
 #pragma once
 #include "aoe/bybit/bybit_api/i_exchange_api.h"
-#include "aoe/bybit/order_types/i_order_type.h"
 namespace aoe {
 namespace bybit {
 namespace impl {
