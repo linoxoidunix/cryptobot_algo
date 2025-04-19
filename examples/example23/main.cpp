@@ -3,7 +3,9 @@
 
 int main() {
     {
-        aoe::bybit::impl::internal::SingleOrderAPI bybit_api;
+        aoe::bybit::impl::internal::SingleOrderAPI<
+            common::MemoryPoolThreadSafety>
+            bybit_api;
         bybit_api.PlaceOrder();
         bybit_api.AmendOrder();
         bybit_api.CancelOrder();
