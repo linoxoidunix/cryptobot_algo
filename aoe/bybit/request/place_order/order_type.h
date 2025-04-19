@@ -1,5 +1,5 @@
 #pragma once
-#include "aoe/bybit/order_types/i_order_type.h"
+#include "aoe/bybit/request/place_order/i_order_type.h"
 
 namespace aos {
 namespace impl {

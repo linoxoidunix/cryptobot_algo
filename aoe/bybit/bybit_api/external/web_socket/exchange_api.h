@@ -21,20 +21,21 @@ class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
         nlohmann::json request = event->ToJson();
         web_session.AsyncWrite(std::move(request));
     }
-    void AmendOrder(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {
+    void AmendOrder(boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>
+                        event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
         nlohmann::json request = event->ToJson();
         web_session.AsyncWrite(std::move(request));
     }
-    void CancelOrder(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {
+    void CancelOrder(boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>
+                         event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
         nlohmann::json request = event->ToJson();
         web_session.AsyncWrite(std::move(request));
     }
     void CancelAllOrder(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {}
+        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event)
+        override {}
     ~SingleOrderAPI() override = default;
 };
 };  // namespace ws

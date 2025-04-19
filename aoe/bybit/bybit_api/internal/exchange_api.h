@@ -8,13 +8,13 @@ template <template <typename> typename MemoryPool>
 class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
   public:
     void PlaceOrder(
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>>) override {}
+        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {}
     void AmendOrder(
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>>) override {}
+        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {}
     void CancelOrder(
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>>) override {}
+        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {}
     void CancelAllOrder(
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>>) override {}
+        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>) override {}
     ~SingleOrderAPI() override = default;
 };
 };  // namespace internal
