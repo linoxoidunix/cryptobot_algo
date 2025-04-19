@@ -1,0 +1,32 @@
+diff --git a/aoe/bybit/order_manager/order_manager.h b/aoe/bybit/order_manager/order_manager.h
+index 3f03614..0981a1b 100644
+--- a/aoe/bybit/order_manager/order_manager.h
++++ b/aoe/bybit/order_manager/order_manager.h
+@@ -17,12 +17,13 @@ class OrderManager : public aos::OrderManagerInterface<MemoryPool> {
+                         order) override {
+         auto typed = boost::static_pointer_cast<
+             aoe::bybit::OrderTypeInterface<MemoryPool>>(order);
+-        // async логика для биржи
++        // save to storage
+         Order placed_order{typed->Category(),  typed->OrderSide(),
+                            typed->OrderMode(), OrderStatus::kInvalid,
+                            typed->OrderId(),   typed->TradingPair(),
+                            typed->Price(),     typed->Qty()};
+         order_storage_.Add(std::move(placed_order));
++        // send to exchange
+     }
+ 
+     void OnResponse(boost::intrusive_ptr<aos::OrderEventInterface<MemoryPool>>
+diff --git a/examples/CMakeLists.txt b/examples/CMakeLists.txt
+index 5be721d..2a7f4f9 100644
+--- a/examples/CMakeLists.txt
++++ b/examples/CMakeLists.txt
+@@ -16,4 +16,5 @@ add_subdirectory(example18)
+ add_subdirectory(example19)
+ add_subdirectory(example20)
+ add_subdirectory(example21)
+-add_subdirectory(example22)
+\ No newline at end of file
++add_subdirectory(example22)
++add_subdirectory(example23)
+\ No newline at end of file

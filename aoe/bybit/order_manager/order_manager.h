@@ -17,12 +17,13 @@ class OrderManager : public aos::OrderManagerInterface<MemoryPool> {
                         order) override {
         auto typed = boost::static_pointer_cast<
             aoe::bybit::OrderTypeInterface<MemoryPool>>(order);
-        // async логика для биржи
+        // save to storage
         Order placed_order{typed->Category(),  typed->OrderSide(),
                            typed->OrderMode(), OrderStatus::kInvalid,
                            typed->OrderId(),   typed->TradingPair(),
                            typed->Price(),     typed->Qty()};
         order_storage_.Add(std::move(placed_order));
+        // send to exchange
     }
 
     void OnResponse(boost::intrusive_ptr<aos::OrderEventInterface<MemoryPool>>
