@@ -2,7 +2,7 @@
 
 #include "aoe/aoe.h"
 #include "aoe/bybit/bybit_api/external/rest/exchange_api.h"
-#include "aoe/bybit/bybit_api/external/ws/exchange_api.h"
+#include "aoe/bybit/bybit_api/external/web_socket/exchange_api.h"
 #include "aoe/bybit/bybit_api/i_exchange_api.h"
 #include "aoe/bybit/bybit_api/internal/exchange_api.h"
 #include "aoe/bybit/enums/enums.h"
@@ -20,3 +20,5 @@
 #include "aoe/bybit/order_types/order_type.h"
 #include "aoe/bybit/parser/json/ws/execution_response/bybit_execution_event_parser.h"
 #include "aoe/exchange/enums.h"
+#include "aoe/session_provider/web_socket/i_web_socket_provider.h"
+#include "aoe/session/web_socket/i_web_socket.h"

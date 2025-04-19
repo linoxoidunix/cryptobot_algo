@@ -143,6 +143,7 @@ target_link_libraries(${PROJECT_NAME}
     magic_enum
     ${Boost_LIBRARIES}
     tomlplusplus::tomlplusplus
+    nlohmann_json::nlohmann_json
     aot
 )
 

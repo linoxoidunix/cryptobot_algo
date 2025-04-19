@@ -8,6 +8,7 @@ template <template <typename> typename MemoryPool>
 class OrderDefault : public OrderTypeInterface<MemoryPool> {
   public:
     ~OrderDefault() override = default;
+    nlohmann::json ToJson() override { return {}; };
 };
 
 template <template <typename> typename MemoryPool>
@@ -18,6 +19,7 @@ class SpotBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~SpotBuyLimitOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
@@ -28,6 +30,7 @@ class SpotSellLimitOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~SpotSellLimitOrder() override = default;
 };
 
@@ -39,6 +42,7 @@ class SpotBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~SpotBuyMarketOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
@@ -49,6 +53,7 @@ class SpotSellMarketOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~SpotSellMarketOrder() override = default;
 };
 
@@ -60,6 +65,7 @@ class LinearBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~LinearBuyLimitOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
@@ -70,6 +76,7 @@ class LinearSellLimitOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~LinearSellLimitOrder() override = default;
 };
 
@@ -81,6 +88,7 @@ class LinearBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~LinearBuyMarketOrder() override = default;
 };
 template <template <typename> typename MemoryPool>
@@ -91,6 +99,7 @@ class LinearSellMarketOrder : public OrderTypeInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
+    nlohmann::json ToJson() override { return {}; };
     ~LinearSellMarketOrder() override = default;
 };
 };  // namespace impl
