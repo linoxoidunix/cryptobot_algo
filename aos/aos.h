@@ -70,6 +70,7 @@
 #include "aos/sum_tracker/sum_tracker.h"
 #include "aos/trading_pair_factory/i_trading_pair_factory.h"
 #include "aos/trading_pair_factory/trading_pair_factory.h"
+#include "aos/trading_pair_printer/i_trading_pair_printer.h"
 #include "aos/uid/i_number_pool.h"
 #include "aos/uid/i_uid_manager.h"
 #include "aos/uid/i_unique_id_generator.h"

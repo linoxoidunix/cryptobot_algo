@@ -1,5 +1,6 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
+#include "aoe/bybit/request_maker/for_web_socket/place_order/i_place_order.h"
 #include "aos/common/common.h"
 #include "aos/order_types/i_order_type.h"
 #include "aot/common/types.h"
@@ -11,7 +12,9 @@ class OrderTypeInterface : public aos::OrderTypeInterface<MemoryPool> {
   public:
     virtual ~OrderTypeInterface() = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
-    virtual common::TradingPair TradingPair() const { return trading_pair_; };
+    virtual const common::TradingPair& TradingPair() const {
+        return trading_pair_;
+    };
     virtual aoe::bybit::Category Category() const { return category_; };
     virtual double Price() const { return price_; }
     virtual double Qty() const { return qty_; };
@@ -44,6 +47,10 @@ class OrderTypeInterface : public aos::OrderTypeInterface<MemoryPool> {
     virtual void SetOrderMode(aoe::bybit::OrderMode order_mode) {
         order_mode_ = order_mode;
     };
+    // json appearance for bybit
+    virtual std::pair<bool, nlohmann::json> Accept(
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
+            request_maker) = 0;
 
   protected:
     common::ExchangeId exchange_id_ = common::ExchangeId::kBybit;

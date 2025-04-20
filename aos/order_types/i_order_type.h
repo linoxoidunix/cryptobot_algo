@@ -6,7 +6,6 @@ template <template <typename> typename MemoryPool>
 class OrderTypeInterface
     : public common::RefCounted<MemoryPool, OrderTypeInterface<MemoryPool>> {
   public:
-    virtual nlohmann::json ToJson() = 0;
-    virtual ~OrderTypeInterface()   = default;
+    virtual ~OrderTypeInterface() = default;
 };
 };  // namespace aos
