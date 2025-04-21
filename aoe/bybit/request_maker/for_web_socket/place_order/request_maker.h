@@ -1,7 +1,7 @@
 #pragma once
 #include <boost/pointer_cast.hpp>  // обязательно!
 
-#include "aoe/bybit/request_maker/for_web_socket/place_order/i_place_order.h"
+#include "aoe/bybit/request_maker/for_web_socket/place_order/i_request_maker.h"
 #include "aot/common/time_utils.h"
 namespace aoe {
 namespace bybit {
@@ -10,7 +10,7 @@ template <template <typename> typename MemoryPool>
 class RequestMaker : public RequestMakerInterface<MemoryPool> {
   public:
     std::pair<bool, nlohmann::json> Make(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event)
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event)
         override {
         auto [status, value] = CreateRequestJson(event);
         return std::make_pair(status, value);
@@ -29,23 +29,21 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
         };
     }
     std::pair<bool, nlohmann::json> CreateArgsEntryJson(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) {
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
             aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
         auto [status, json_object] = derived_ptr->Accept(this);
         return std::make_pair(status, json_object);
     }
     std::pair<bool, nlohmann::json> CreateRequestJson(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) {
-        auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
+        // auto derived_ptr = boost::static_pointer_cast<
+        //     aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
         auto [status, value] = CreateArgsEntryJson(event);
         return std::make_pair(
-            status,
-            nlohmann::json{{"reqId", std::to_string(derived_ptr->OrderId())},
-                           {"header", CreateHeaderJson()},
-                           {"op", "order.create"},
-                           {"args", nlohmann::json::array({value})}});
+            status, nlohmann::json{{"header", CreateHeaderJson()},
+                                   {"op", "order.create"},
+                                   {"args", nlohmann::json::array({value})}});
     }
 };
 };  // namespace place_order

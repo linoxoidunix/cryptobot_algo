@@ -1,7 +1,7 @@
 #pragma once
 #include "aoe/bybit/order_event/i_order_event.h"
 #include "aoe/bybit/order_storage/i_order_storage.h"
-#include "aoe/bybit/request/place_order/i_order_type.h"
+#include "aoe/bybit/request/place_order/i_request.h"
 #include "aos/order_manager/i_order_manager.h"
 namespace aoe {
 namespace bybit {
@@ -13,7 +13,7 @@ class OrderManager : public aos::OrderManagerInterface<MemoryPool> {
   public:
     OrderManager(OrderStorageInterface& order_storage)
         : order_storage_(order_storage) {}
-    void PlaceOrder(boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>>
+    void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         order) override {
         auto typed = boost::static_pointer_cast<
             aoe::bybit::OrderTypeInterface<MemoryPool>>(order);

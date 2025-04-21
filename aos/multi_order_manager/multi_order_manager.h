@@ -22,7 +22,7 @@ class MultiOrderManagerDefault : public MultiOrderManagerInterface<MemoryPool> {
 
     void PlaceOrder(
         common::ExchangeId id,
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>> order) override {
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) override {
         oms_.at(id)->PlaceOrder(order);
     }
 

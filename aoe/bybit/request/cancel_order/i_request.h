@@ -1,15 +1,15 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
-#include "aoe/bybit/request_maker/for_web_socket/cancel_order/i_cancel_order.h"
+#include "aoe/bybit/request_maker/for_web_socket/cancel_order/i_request_maker.h"
 #include "aos/common/common.h"
-#include "aos/order_types/i_order_type.h"
+#include "aos/request/i_request.h"
 #include "aot/common/types.h"
 
 namespace aoe {
 namespace bybit {
 namespace cancel_order {
 template <template <typename> typename MemoryPool>
-class RequestInterface : public aos::OrderTypeInterface<MemoryPool> {
+class RequestInterface : public aos::RequestInterface<MemoryPool> {
   public:
     virtual ~RequestInterface() = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };

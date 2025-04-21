@@ -1,6 +1,6 @@
 #pragma once
 #include "aos/order_event/i_order_event.h"
-#include "aos/order_types/i_order_type.h"
+#include "aos/request/i_request.h"
 
 namespace aos {
 template <template <typename> typename MemoryPool>
@@ -9,7 +9,7 @@ class OrderManagerInterface {
     virtual ~OrderManagerInterface() = default;
 
     virtual void PlaceOrder(
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>> order) = 0;
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
 
     virtual void OnResponse(
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) = 0;

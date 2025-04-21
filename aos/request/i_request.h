@@ -3,9 +3,9 @@
 #include "nlohmann/json.hpp"
 namespace aos {
 template <template <typename> typename MemoryPool>
-class OrderTypeInterface
-    : public common::RefCounted<MemoryPool, OrderTypeInterface<MemoryPool>> {
+class RequestInterface
+    : public common::RefCounted<MemoryPool, RequestInterface<MemoryPool>> {
   public:
-    virtual ~OrderTypeInterface() = default;
+    virtual ~RequestInterface() = default;
 };
 };  // namespace aos

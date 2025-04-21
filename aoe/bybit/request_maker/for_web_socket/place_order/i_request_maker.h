@@ -1,5 +1,5 @@
 #pragma once
-#include "aos/order_types/i_order_type.h"
+#include "aos/request/i_request.h"
 #include "boost/intrusive_ptr.hpp"
 #include "nlohmann/json.hpp"
 namespace aoe {
@@ -9,7 +9,7 @@ template <template <typename> typename MemoryPool>
 class RequestMakerInterface {
   public:
     virtual std::pair<bool, nlohmann::json> Make(
-        boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) = 0;
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) = 0;
     virtual ~RequestMakerInterface() = default;
 };
 };  // namespace place_order

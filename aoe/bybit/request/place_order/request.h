@@ -1,6 +1,6 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
-#include "aoe/bybit/request/place_order/i_order_type.h"
+#include "aoe/bybit/request/place_order/i_request.h"
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
@@ -60,6 +60,10 @@ class SpotBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
         {
             auto [status, value] = TimeInForceToString(this->TimeInForce());
             if (status) order["timeInForce"] = value;  // Значение категории
+        }
+        {
+            auto value           = (this->OrderId());
+            order["orderLinkId"] = std::to_string(value);  // Значение категории
         }
         return {true, order};
     };

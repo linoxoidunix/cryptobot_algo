@@ -1,7 +1,7 @@
 #pragma once
 #include "aos/order_event/i_order_event.h"
 #include "aos/order_manager/i_order_manager.h"
-#include "aos/order_types/i_order_type.h"
+#include "aos/request/i_request.h"
 #include "aot/common/mem_pool.h"
 #include "boost/intrusive_ptr.hpp"
 
@@ -18,7 +18,7 @@ class MultiOrderManagerInterface {
 
     virtual void PlaceOrder(
         common::ExchangeId,
-        boost::intrusive_ptr<OrderTypeInterface<MemoryPool>> order) = 0;
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
 
     virtual void OnResponse(
         common::ExchangeId id,

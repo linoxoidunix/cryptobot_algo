@@ -1,14 +1,14 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
-#include "aoe/bybit/request_maker/for_web_socket/place_order/i_place_order.h"
+#include "aoe/bybit/request_maker/for_web_socket/place_order/i_request_maker.h"
 #include "aos/common/common.h"
-#include "aos/order_types/i_order_type.h"
+#include "aos/request/i_request.h"
 #include "aot/common/types.h"
 
 namespace aoe {
 namespace bybit {
 template <template <typename> typename MemoryPool>
-class OrderTypeInterface : public aos::OrderTypeInterface<MemoryPool> {
+class OrderTypeInterface : public aos::RequestInterface<MemoryPool> {
   public:
     virtual ~OrderTypeInterface() = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
