@@ -5,7 +5,7 @@
 #include "aoe/credentials/secret_key/i_secret_key.h"
 
 namespace aoe {
-class CredentialsInterface : public SecretKey, public ApiKey, {
+class CredentialsInterface : public SecretKeyInterface, public ApiKeyInterface {
   public:
     virtual ~CredentialsInterface() = default;
 };

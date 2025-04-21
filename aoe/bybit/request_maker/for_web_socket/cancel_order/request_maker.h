@@ -1,11 +1,12 @@
 #pragma once
 #include <boost/pointer_cast.hpp>  // обязательно!
 
-#include "aoe/bybit/request_maker/for_web_socket/place_order/i_place_order.h"
+#include "aoe/bybit/request_maker/cancel_order/i_request.h"
+#include "aoe/bybit/request_maker/for_web_socket/cancel_order/i_request_maker.h"
 #include "aot/common/time_utils.h"
 namespace aoe {
 namespace bybit {
-namespace place_order {
+namespace cancel_order {
 template <template <typename> typename MemoryPool>
 class RequestMaker : public RequestMakerInterface<MemoryPool> {
   public:
@@ -23,22 +24,22 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
         // TODO
         //  {"X-BAPI-RECV-WINDOW", "8000"},
         //  {"Referer", "bot-001"}
-        auto timestamp = common::getCurrentNanoS();
-        return {
-            {"X-BAPI-TIMESTAMP", std::to_string(timestamp)},
-        };
+        // auto timestamp = common::getCurrentNanoS();
+        // return {
+        //     {"X-BAPI-TIMESTAMP", std::to_string(timestamp)},
+        // };
     }
     std::pair<bool, nlohmann::json> CreateArgsEntryJson(
         boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
+            aoe::bybit::cancel_order::RequestInterface<MemoryPool>>(event);
         auto [status, json_object] = derived_ptr->Accept(this);
         return std::make_pair(status, json_object);
     }
     std::pair<bool, nlohmann::json> CreateRequestJson(
         boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
+            aoe::bybit::cancel_order::RequestInterface<MemoryPool>>(event);
         auto [status, value] = CreateArgsEntryJson(event);
         return std::make_pair(
             status,
@@ -48,6 +49,6 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
                            {"args", nlohmann::json::array({value})}});
     }
 };
-};  // namespace place_order
+};  // namespace cancel_order
 };  // namespace bybit
 };  // namespace aoe

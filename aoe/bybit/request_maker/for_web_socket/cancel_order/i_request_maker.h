@@ -4,7 +4,7 @@
 #include "nlohmann/json.hpp"
 namespace aoe {
 namespace bybit {
-namespace place_order {
+namespace cancel_order {
 template <template <typename> typename MemoryPool>
 class RequestMakerInterface {
   public:
@@ -12,6 +12,6 @@ class RequestMakerInterface {
         boost::intrusive_ptr<aos::OrderTypeInterface<MemoryPool>> event) = 0;
     virtual ~RequestMakerInterface() = default;
 };
-};  // namespace place_order
+};  // namespace cancel_order
 };  // namespace bybit
 };  // namespace aoe

@@ -30,5 +30,4 @@ cxx_executable(net_position_storage_by_pair_use_external_event_bybit ${CMAKE_CUR
 cxx_executable(bybit_execution_event_parser ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum simdjson::simdjson nlohmann_json::nlohmann_json)
 cxx_executable(bybit_order_storage ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main magic_enum simdjson::simdjson)
 cxx_executable(bybit_spot_buy_limit_order ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum simdjson::simdjson nlohmann_json::nlohmann_json)
-
-
+cxx_executable(bybit_place_order_request_maker ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum simdjson::simdjson nlohmann_json::nlohmann_json)
