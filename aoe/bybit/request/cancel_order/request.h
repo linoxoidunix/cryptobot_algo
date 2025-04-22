@@ -8,7 +8,7 @@ namespace cancel_order {
 namespace impl {
 
 template <template <typename> typename MemoryPool>
-class CancelSpotOrder : public OrderTypeInterface<MemoryPool> {
+class CancelSpotOrder : public RequestInterface<MemoryPool> {
     aos::TradingPairPrinterInterface& trading_pair_printer_;
 
   public:

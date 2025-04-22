@@ -10,6 +10,7 @@ using ::testing::Return;
 using namespace aoe;
 using namespace aoe::bybit;
 using namespace aoe::bybit::impl;
+using namespace aoe::bybit::place_order::impl;
 using namespace aos;
 
 // Мок для интерфейса TradingPairPrinterInterface
@@ -23,7 +24,7 @@ class MockTradingPairPrinter : public TradingPairPrinterInterface {
 class SpotBuyLimitOrderTest : public ::testing::Test {
   protected:
     MockTradingPairPrinter mock_trading_pair_printer_;
-    SpotBuyLimitOrder<common::MemoryPoolThreadSafety> order_{
+    SpotBuyLimit<common::MemoryPoolThreadSafety> order_{
         mock_trading_pair_printer_};
 
     // Можно добавить дополнительные подготовительные шаги, если нужно

@@ -16,7 +16,7 @@ class OrderManager : public aos::OrderManagerInterface<MemoryPool> {
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         order) override {
         auto typed = boost::static_pointer_cast<
-            aoe::bybit::OrderTypeInterface<MemoryPool>>(order);
+            aoe::bybit::place_order::RequestInterface<MemoryPool>>(order);
         // save to storage
         Order placed_order{typed->Category(),  typed->OrderSide(),
                            typed->OrderMode(), OrderStatus::kInvalid,

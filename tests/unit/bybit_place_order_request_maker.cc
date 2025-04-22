@@ -14,7 +14,7 @@ using namespace aos;
 
 // мок для OrderTypeInterface
 template <template <typename> typename MemoryPool>
-class MockOrder : public aoe::bybit::OrderTypeInterface<MemoryPool> {
+class MockOrder : public aoe::bybit::place_order::RequestInterface<MemoryPool> {
   public:
     MOCK_METHOD((std::pair<bool, nlohmann::json>), Accept,
                 (aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*),

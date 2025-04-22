@@ -7,10 +7,11 @@
 
 namespace aoe {
 namespace bybit {
+namespace place_order {
 template <template <typename> typename MemoryPool>
-class OrderTypeInterface : public aos::RequestInterface<MemoryPool> {
+class RequestInterface : public aos::RequestInterface<MemoryPool> {
   public:
-    virtual ~OrderTypeInterface() = default;
+    virtual ~RequestInterface() = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
     virtual const common::TradingPair& TradingPair() const {
         return trading_pair_;
@@ -64,5 +65,6 @@ class OrderTypeInterface : public aos::RequestInterface<MemoryPool> {
     aoe::bybit::OrderRouting order_routing_;
     aoe::bybit::OrderMode order_mode_ = aoe::bybit::OrderMode::kInvalid;
 };
+};  // namespace place_order
 };  // namespace bybit
 };  // namespace aoe

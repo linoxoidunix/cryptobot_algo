@@ -4,12 +4,14 @@
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
+namespace place_order {
+
 namespace impl {
 
 template <template <typename> typename MemoryPool>
-class OrderDefault : public OrderTypeInterface<MemoryPool> {
+class Standart : public RequestInterface<MemoryPool> {
   public:
-    ~OrderDefault() override = default;
+    ~Standart() override = default;
     std::pair<bool, nlohmann::json> Accept(
         aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
@@ -18,11 +20,11 @@ class OrderDefault : public OrderTypeInterface<MemoryPool> {
 };
 
 template <template <typename> typename MemoryPool>
-class SpotBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
+class SpotBuyLimit : public RequestInterface<MemoryPool> {
     aos::TradingPairPrinterInterface& trading_pair_printer_;
 
   public:
-    SpotBuyLimitOrder(aos::TradingPairPrinterInterface& trading_pair_printer)
+    SpotBuyLimit(aos::TradingPairPrinterInterface& trading_pair_printer)
         : trading_pair_printer_(trading_pair_printer) {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kSpot);
@@ -67,12 +69,12 @@ class SpotBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~SpotBuyLimitOrder() override = default;
+    ~SpotBuyLimit() override = default;
 };
 template <template <typename> typename MemoryPool>
-class SpotSellLimitOrder : public OrderTypeInterface<MemoryPool> {
+class SpotSellLimit : public RequestInterface<MemoryPool> {
   public:
-    SpotSellLimitOrder() {
+    SpotSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -82,13 +84,13 @@ class SpotSellLimitOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~SpotSellLimitOrder() override = default;
+    ~SpotSellLimit() override = default;
 };
 
 template <template <typename> typename MemoryPool>
-class SpotBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
+class SpotBuyMarket : public RequestInterface<MemoryPool> {
   public:
-    SpotBuyMarketOrder() {
+    SpotBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -98,12 +100,12 @@ class SpotBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~SpotBuyMarketOrder() override = default;
+    ~SpotBuyMarket() override = default;
 };
 template <template <typename> typename MemoryPool>
-class SpotSellMarketOrder : public OrderTypeInterface<MemoryPool> {
+class SpotSellMarket : public RequestInterface<MemoryPool> {
   public:
-    SpotSellMarketOrder() {
+    SpotSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -113,13 +115,13 @@ class SpotSellMarketOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~SpotSellMarketOrder() override = default;
+    ~SpotSellMarket() override = default;
 };
 
 template <template <typename> typename MemoryPool>
-class LinearBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
+class LinearBuyLimit : public RequestInterface<MemoryPool> {
   public:
-    LinearBuyLimitOrder() {
+    LinearBuyLimit() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -129,12 +131,12 @@ class LinearBuyLimitOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~LinearBuyLimitOrder() override = default;
+    ~LinearBuyLimit() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearSellLimitOrder : public OrderTypeInterface<MemoryPool> {
+class LinearSellLimit : public RequestInterface<MemoryPool> {
   public:
-    LinearSellLimitOrder() {
+    LinearSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -144,13 +146,13 @@ class LinearSellLimitOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~LinearSellLimitOrder() override = default;
+    ~LinearSellLimit() override = default;
 };
 
 template <template <typename> typename MemoryPool>
-class LinearBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
+class LinearBuyMarket : public RequestInterface<MemoryPool> {
   public:
-    LinearBuyMarketOrder() {
+    LinearBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -160,12 +162,12 @@ class LinearBuyMarketOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~LinearBuyMarketOrder() override = default;
+    ~LinearBuyMarket() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearSellMarketOrder : public OrderTypeInterface<MemoryPool> {
+class LinearSellMarket : public RequestInterface<MemoryPool> {
   public:
-    LinearSellMarketOrder() {
+    LinearSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -175,8 +177,9 @@ class LinearSellMarketOrder : public OrderTypeInterface<MemoryPool> {
             request_maker) override {
         return {};
     };
-    ~LinearSellMarketOrder() override = default;
+    ~LinearSellMarket() override = default;
 };
 };  // namespace impl
+};  // namespace place_order
 };  // namespace bybit
 };  // namespace aoe
