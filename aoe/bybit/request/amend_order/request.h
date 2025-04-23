@@ -4,7 +4,7 @@
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
-namespace cancel_order {
+namespace amend_order {
 namespace impl {
 
 template <template <typename> typename MemoryPool>
@@ -42,6 +42,6 @@ class Spot : public RequestInterface<MemoryPool> {
     ~Spot() override = default;
 };
 };  // namespace impl
-};  // namespace cancel_order
+};  // namespace amend_order
 };  // namespace bybit
 };  // namespace aoe

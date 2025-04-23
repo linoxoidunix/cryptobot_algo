@@ -4,7 +4,8 @@
 namespace aoe {
 namespace impl {
 template <template <typename> class MemoryPool>
-class WebSocketSessionProvider : public WebSocketSessionProviderInterface {
+class WebSocketSessionProvider
+    : public WebSocketSessionProviderInterface<MemoryPool> {
     WebSocketSessionInterface<MemoryPool>& web_socket_session_;
 
   public:
@@ -14,6 +15,7 @@ class WebSocketSessionProvider : public WebSocketSessionProviderInterface {
     WebSocketSessionInterface<MemoryPool>& Provide() {
         return web_socket_session_;
     };
+    ~WebSocketSessionProvider() override = default;
 };
 };  // namespace impl
 };  // namespace aoe

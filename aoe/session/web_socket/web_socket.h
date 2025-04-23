@@ -6,8 +6,8 @@ namespace impl {
 template <template <typename> class MemoryPool>
 class WebSocketSession : public WebSocketSessionInterface<MemoryPool> {
   public:
-    virtual void AsyncWrite(nlohmann::json&&) = 0;
-    virtual ~WebSocketSessionInterface()      = default;
+    void AsyncWrite(nlohmann::json&&) override {};
+    ~WebSocketSession() override = default;
 };
 };  // namespace impl
 };  // namespace aoe

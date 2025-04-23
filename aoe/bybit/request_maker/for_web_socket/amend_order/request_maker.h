@@ -33,14 +33,14 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
     std::pair<bool, nlohmann::json> CreateArgsEntryJson(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::cancel_order::RequestInterface<MemoryPool>>(event);
+            aoe::bybit::amend_order::RequestInterface<MemoryPool>>(event);
         auto [status, json_object] = derived_ptr->Accept(this);
         return std::make_pair(status, json_object);
     }
     std::pair<bool, nlohmann::json> CreateRequestJson(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::cancel_order::RequestInterface<MemoryPool>>(event);
+            aoe::bybit::amend_order::RequestInterface<MemoryPool>>(event);
         auto [status, value] = CreateArgsEntryJson(event);
         return std::make_pair(
             status, nlohmann::json{{"header", CreateHeaderJson()},

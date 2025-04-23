@@ -21,6 +21,11 @@ int main() {
         aoe::bybit::amend_order::RequestMaker<common::MemoryPoolThreadSafety>
             amend_order_maker;
 
+        aos::impl::NumberPoolDefault<uint64_t> number_pool;
+        aos::impl::UIDGeneratorDefault<uint64_t> uid_generator;
+        aos::impl::UIDManagerDefault<uint64_t> uid_manager(uid_generator,
+                                                           number_pool);
+
         aoe::bybit::impl::external::ws::SingleOrderAPI<
             common::MemoryPoolThreadSafety>
             bybit_api(wss_provider, place_order_maker, cancel_order_maker,
@@ -30,7 +35,7 @@ int main() {
         aoe::bybit::impl::OrderStorage order_storage;
         auto ptr = std::make_unique<
             aoe::bybit::impl::OrderManager<common::MemoryPoolThreadSafety>>(
-            order_storage, bybit_api);
+            order_storage, bybit_api, uid_manager);
         multi_order_manager.Register(common::ExchangeId::kBybit,
                                      std::move(ptr));
     }

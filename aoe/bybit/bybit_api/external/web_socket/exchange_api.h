@@ -11,7 +11,7 @@ namespace external {
 namespace ws {
 template <template <typename> typename MemoryPool>
 class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
-    WebSocketSessionProviderInterface<MemoryPool> web_socket_session_provider_;
+    WebSocketSessionProviderInterface<MemoryPool>& web_socket_session_provider_;
     aoe::bybit::place_order::RequestMakerInterface<MemoryPool>&
         place_order_request_maker_;
     aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>&
@@ -35,19 +35,19 @@ class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = place_order_request_maker_->Make(event);
+        nlohmann::json request = place_order_request_maker_.Make(event);
         web_session.AsyncWrite(std::move(request));
     }
     void AmendOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = amend_order_request_maker_->Make(event);
+        nlohmann::json request = amend_order_request_maker_.Make(event);
         web_session.AsyncWrite(std::move(request));
     }
     void CancelOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                          event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = cancel_order_request_maker_->Make(event);
+        nlohmann::json request = cancel_order_request_maker_.Make(event);
         web_session.AsyncWrite(std::move(request));
     }
     void CancelAllOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
