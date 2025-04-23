@@ -17,7 +17,7 @@ class Spot : public RequestInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
     }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
+        aoe::bybit::amend_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
         nlohmann::json order;
         // set mandatory field
@@ -40,40 +40,6 @@ class Spot : public RequestInterface<MemoryPool> {
         return {true, order};
     };
     ~Spot() override = default;
-};
-template <template <typename> typename MemoryPool>
-class Linear : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
-
-  public:
-    Linear(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
-        this->SetCategory(aoe::bybit::Category::kLinear);
-    }
-    std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
-        nlohmann::json order;
-        // set mandatory field
-        {
-            auto [status, value] = CategoryToString(this->Category());
-            if (!status) return {false, {}};
-            order["category"] = value;  // Значение категории
-        }
-        {
-            auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
-            if (!status) return {false, {}};
-            order["symbol"] = value;  // Значение категории
-        }
-        // set not mandatory
-        {
-            auto value           = (this->OrderId());
-            order["orderLinkId"] = std::to_string(value);  // Значение категории
-        }
-        return {true, order};
-    };
-    ~Linear() override = default;
 };
 };  // namespace impl
 };  // namespace cancel_order

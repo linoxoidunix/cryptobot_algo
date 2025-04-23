@@ -10,6 +10,7 @@ struct Order {
     Side side;
     OrderMode order_mode;
     OrderStatus order_status;
+    PendingAction pending_action;
     uint64_t order_id;
     common::TradingPair trading_pair;
     double price = 0;

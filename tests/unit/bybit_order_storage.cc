@@ -7,14 +7,15 @@ using namespace aoe::bybit::impl;
 using namespace aoe::bybit;
 namespace {
 
-Order MakeOrder(uint64_t id, OrderStatus status, Category category, Side side,
-                OrderMode mode) {
+Order MakeOrder(uint64_t id, OrderStatus status, PendingAction pending_action,
+                Category category, Side side, OrderMode mode) {
     Order o{};
-    o.order_id     = id;
-    o.order_status = status;
-    o.category     = category;
-    o.side         = side;
-    o.order_mode   = mode;
+    o.order_id       = id;
+    o.order_status   = status;
+    o.pending_action = pending_action;
+    o.category       = category;
+    o.side           = side;
+    o.order_mode     = mode;
     return o;
 }
 
@@ -23,8 +24,8 @@ Order MakeOrder(uint64_t id, OrderStatus status, Category category, Side side,
 TEST(OrderStorageTest, AddAndGetById) {
     OrderStorage storage;
 
-    auto order = MakeOrder(1, OrderStatus::kNew, Category::kLinear, Side::kBuy,
-                           OrderMode::kLimit);
+    auto order = MakeOrder(1, OrderStatus::kNew, PendingAction::kNone,
+                           Category::kLinear, Side::kBuy, OrderMode::kLimit);
     storage.Add(std::move(order));
 
     auto [found, result] = storage.Get(1);
@@ -36,11 +37,14 @@ TEST(OrderStorageTest, AddAndGetById) {
 TEST(OrderStorageTest, GetByStatus) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 1, common::TradingPair{2, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 1,
+                    common::TradingPair{2, 1});
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
-                    OrderStatus::kFilled, 2, common::TradingPair{3, 1});
+                    OrderStatus::kFilled, PendingAction::kNone, 2,
+                    common::TradingPair{3, 1});
     storage.Emplace(Category::kInverse, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 3, common::TradingPair{4, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 3,
+                    common::TradingPair{4, 1});
 
     auto orders = storage.Get(OrderStatus::kNew);
     ASSERT_EQ(orders.size(), 2);
@@ -51,11 +55,14 @@ TEST(OrderStorageTest, GetByStatus) {
 TEST(OrderStorageTest, GetByCategory) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 1, common::TradingPair{2, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 1,
+                    common::TradingPair{2, 1});
     storage.Emplace(Category::kInverse, Side::kSell, OrderMode::kMarket,
-                    OrderStatus::kNew, 2, common::TradingPair{3, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 2,
+                    common::TradingPair{3, 1});
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kLimit,
-                    OrderStatus::kNew, 3, common::TradingPair{4, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 3,
+                    common::TradingPair{4, 1});
 
     auto orders = storage.Get(Category::kLinear);
     ASSERT_EQ(orders.size(), 2);
@@ -66,11 +73,14 @@ TEST(OrderStorageTest, GetByCategory) {
 TEST(OrderStorageTest, GetByCategorySide) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 1, common::TradingPair{2, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 1,
+                    common::TradingPair{2, 1});
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
-                    OrderStatus::kNew, 2, common::TradingPair{3, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 2,
+                    common::TradingPair{3, 1});
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 3, common::TradingPair{4, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 3,
+                    common::TradingPair{4, 1});
 
     auto orders = storage.Get(Category::kLinear, Side::kBuy);
     ASSERT_EQ(orders.size(), 2);
@@ -83,11 +93,14 @@ TEST(OrderStorageTest, GetByCategorySide) {
 TEST(OrderStorageTest, GetByCategoryMode) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 1, common::TradingPair{2, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 1,
+                    common::TradingPair{2, 1});
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
-                    OrderStatus::kNew, 2, common::TradingPair{3, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 2,
+                    common::TradingPair{3, 1});
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
-                    OrderStatus::kNew, 3, common::TradingPair{4, 1});
+                    OrderStatus::kNew, PendingAction::kNone, 3,
+                    common::TradingPair{4, 1});
 
     auto orders = storage.Get(Category::kLinear, OrderMode::kLimit);
     ASSERT_EQ(orders.size(), 2);

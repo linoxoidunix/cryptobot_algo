@@ -1,3 +1,4 @@
+#include "aoe/aoe.h"
 #include "aoe/bybit/order_manager/order_manager.h"
 #include "aoe/bybit/order_storage/order_storage.h"
 #include "aos/aos.h"
@@ -9,12 +10,27 @@ using PositionT = aos::impl::NetPositionDefault<double, double>;
 
 int main() {
     {
+        aoe::impl::WebSocketSession<common::MemoryPoolThreadSafety> wss;
+        aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>
+            wss_provider(wss);
+
+        aoe::bybit::place_order::RequestMaker<common::MemoryPoolThreadSafety>
+            place_order_maker;
+        aoe::bybit::cancel_order::RequestMaker<common::MemoryPoolThreadSafety>
+            cancel_order_maker;
+        aoe::bybit::amend_order::RequestMaker<common::MemoryPoolThreadSafety>
+            amend_order_maker;
+
+        aoe::bybit::impl::external::ws::SingleOrderAPI<
+            common::MemoryPoolThreadSafety>
+            bybit_api(wss_provider, place_order_maker, cancel_order_maker,
+                      amend_order_maker);
         aos::impl::MultiOrderManagerDefault<common::MemoryPoolThreadSafety>
             multi_order_manager;
         aoe::bybit::impl::OrderStorage order_storage;
         auto ptr = std::make_unique<
             aoe::bybit::impl::OrderManager<common::MemoryPoolThreadSafety>>(
-            order_storage);
+            order_storage, bybit_api);
         multi_order_manager.Register(common::ExchangeId::kBybit,
                                      std::move(ptr));
     }

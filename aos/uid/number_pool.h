@@ -8,6 +8,24 @@
 namespace aos {
 namespace impl {
 template <typename T>
+class NumberPoolDefault : public NumberPoolInterface<T> {
+  public:
+    void ReturnToPool(size_t id) override { pool.push(id); }
+    ~NumberPoolDefault() override { logi("NumberPoolDefault dtor"); };
+    std::pair<bool, size_t> GetFromPool() override {
+        if (pool.empty()) {
+            return {false, 0};  // Возвращаем 0, если пул пуст
+        }
+        size_t id = pool.front();
+        pool.pop();
+        return {true, id};
+    }
+
+  private:
+    std::queue<size_t> pool;
+};
+
+template <typename T>
 class NumberPool
     : public aos::INumberPool<T, common::MemoryPoolNotThreadSafety> {
   public:

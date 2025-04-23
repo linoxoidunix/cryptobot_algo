@@ -33,28 +33,21 @@ TEST(BybitCancelOrderRequestMakerTest, MakeReturnsValidRequestJson) {
 
     // Настройка моков
     EXPECT_CALL(*mock_order, Accept(::testing::_))
-        .WillOnce(Return(
-            std::make_pair(true, nlohmann::json{{"category", "spot"},
-                                                {"symbol", "BTCUSDT"},
-                                                {"side", "Buy"},
-                                                {"orderType", "Limit"},
-                                                {"qty", "1"},
-                                                {"orderLinkId", "123456789"},
-                                                {"price", "20000"}})));
-
-    EXPECT_CALL(*mock_order, OrderId()).WillOnce(Return(123456789));
+        .WillOnce(Return(std::make_pair(
+            true, nlohmann::json{{"category", "spot"},
+                                 {"symbol", "BTCUSDT"},
+                                 {"orderLinkId", "123456789"}})));
 
     RequestMaker maker;
     auto [status, result] = maker.Make(mock_order);
     ASSERT_TRUE(status);
     // Проверка ключей верхнего уровня
-    ASSERT_TRUE(result.contains("reqId"));
     ASSERT_TRUE(result.contains("header"));
     ASSERT_TRUE(result.contains("op"));
     ASSERT_TRUE(result.contains("args"));
 
     // Проверка значений
-    EXPECT_EQ(result["op"], "order.create");
+    EXPECT_EQ(result["op"], "order.cancel");
 
     // Проверка header
     ASSERT_TRUE(result["header"].contains("X-BAPI-TIMESTAMP"));
@@ -65,7 +58,7 @@ TEST(BybitCancelOrderRequestMakerTest, MakeReturnsValidRequestJson) {
     ASSERT_TRUE(result["args"].is_array());
     ASSERT_EQ(result["args"].size(), 1);
     EXPECT_EQ(result["args"][0]["symbol"], "BTCUSDT");
-    EXPECT_EQ(result["args"][0]["price"], "20000");
+    EXPECT_EQ(result["args"][0]["category"], "spot");
     EXPECT_EQ(result["args"][0]["orderLinkId"], "123456789");
     mock_order
         ->~MockOrderT();  // ❌ ПЛОХО: нарушает управление памятью intrusive_ptr

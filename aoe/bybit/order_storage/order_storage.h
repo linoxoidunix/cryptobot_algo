@@ -94,6 +94,40 @@ class OrderStorage : public OrderStorageInterface {
         orders_.emplace(std::forward<Args>(args)...);  // прямое размещение
     }
 
+    void UpdateStatus(uint64_t order_id,
+                      aoe::bybit::OrderStatus new_order_status,
+                      aoe::bybit::PendingAction new_pending_action) override {
+        auto& index = orders_.get<ByOrderId>();
+        auto it     = index.find(order_id);
+        if (it != index.end()) {
+            index.modify(it, [&](Order& o) {
+                o.order_status   = new_order_status;
+                o.pending_action = new_pending_action;
+            });
+        }
+    }
+    void Remove(uint64_t order_id) override {
+        auto& index = orders_.get<ByOrderId>();
+        auto it     = index.find(order_id);
+        if (it != index.end()) {
+            index.erase(it);
+        } else {
+            // Можно добавить лог или обработку ошибки, если нужно
+            // std::cerr << "Order with ID " << order_id << " not found.\n";
+        }
+    }
+    void UpdateState(uint64_t order_id, double new_price,
+                     double new_qty) override {
+        auto& index = orders_.get<ByOrderId>();
+        auto it     = index.find(order_id);
+        if (it != index.end()) {
+            index.modify(it, [&](Order& o) {
+                o.price = new_price;
+                o.qty   = new_qty;
+            });
+        }
+    }
+
   private:
     OrderSet orders_;
 };

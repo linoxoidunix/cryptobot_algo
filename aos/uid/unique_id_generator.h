@@ -4,6 +4,18 @@
 
 namespace aos {
 namespace impl {
+
+template <typename T>
+class UIDGeneratorDefault : public UniqueIDGeneratorInterface<T> {
+  public:
+    UIDGeneratorDefault() : current_id(0) {}
+    ~UIDGeneratorDefault() override { logi("UIDGenerator dtor"); }
+    T GenerateUniqueID() override { return current_id++; }
+
+  private:
+    T current_id;
+};
+
 template <typename T>
 class UIDGenerator
     : public IUniqueIDGenerator<T, common::MemoryPoolNotThreadSafety> {

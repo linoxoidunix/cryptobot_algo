@@ -6,7 +6,7 @@
 #include "aot/common/time_utils.h"
 namespace aoe {
 namespace bybit {
-namespace cancel_order {
+namespace amend_order {
 template <template <typename> typename MemoryPool>
 class RequestMaker : public RequestMakerInterface<MemoryPool> {
   public:
@@ -44,10 +44,10 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
         auto [status, value] = CreateArgsEntryJson(event);
         return std::make_pair(
             status, nlohmann::json{{"header", CreateHeaderJson()},
-                                   {"op", "order.cancel"},
+                                   {"op", "order.amend"},
                                    {"args", nlohmann::json::array({value})}});
     }
 };
-};  // namespace cancel_order
+};  // namespace amend_order
 };  // namespace bybit
 };  // namespace aoe

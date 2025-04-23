@@ -1,5 +1,6 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
+#include "aoe/bybit/order_mutator/i_order_mutator.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_event/i_order_event.h"
 #include "aot/common/types.h"
@@ -18,6 +19,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
 
     virtual common::ExchangeId ExchangeId() const { return exchange_id; };
     virtual common::TradingPair TradingPair() const { return trading_pair_; };
+    virtual double Price() const { return price_; };
 
     virtual void SetLeavesQty(double leaves_qty) { leaves_qty_ = leaves_qty; };
     virtual void SetLeavesValue(double leaves_value) {
@@ -34,10 +36,8 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     virtual void SetTradingPair(common::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };
-
-    // virtual void Accept(
-    //     aos::PositionStorageByPairInterface<double, double, PositionT>&
-    //         position_storage) = 0;
+    virtual void SetPrice(double price) { price_ = price; };
+    virtual void Accept(OrderMutatorInterface& order_storage) = 0;
 
   protected:
     aoe::bybit::OrderStatus order_status_ = aoe::bybit::OrderStatus::kInvalid;
@@ -48,6 +48,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     common::ExchangeId exchange_id        = common::ExchangeId::kBybit;
     common::TradingPair trading_pair_;
     uint64_t order_id_;
+    double price_ = 0;
 };
 };  // namespace bybit
 };  // namespace aoe

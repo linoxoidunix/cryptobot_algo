@@ -41,13 +41,10 @@ TEST(BybitPlaceOrderRequestMakerTest, MakeReturnsValidRequestJson) {
                                                 {"orderLinkId", "123456789"},
                                                 {"price", "20000"}})));
 
-    EXPECT_CALL(*mock_order, OrderId()).WillOnce(Return(123456789));
-
     RequestMaker maker;
     auto [status, result] = maker.Make(mock_order);
     ASSERT_TRUE(status);
     // Проверка ключей верхнего уровня
-    ASSERT_TRUE(result.contains("reqId"));
     ASSERT_TRUE(result.contains("header"));
     ASSERT_TRUE(result.contains("op"));
     ASSERT_TRUE(result.contains("args"));

@@ -8,6 +8,30 @@
 
 namespace aos {
 namespace impl {
+
+template <typename T>
+class UIDManagerDefault : public UIDManagerInterface<T> {
+  public:
+    UIDManagerDefault(UniqueIDGeneratorInterface<T>& generator,
+                      NumberPoolInterface<T>& pool)
+        : id_generator_(generator), number_pool_(pool) {}
+
+    T GetUniqueID() {
+        auto [status, id_from_pool] = number_pool_->GetFromPool();
+        if (!status) {
+            return id_generator_->GenerateUniqueID();
+        }
+        return id_from_pool;
+    }
+
+    void ReturnIDToPool(T id) { number_pool_->ReturnToPool(id); }
+    ~UIDManagerDefault() { logi("UIDManagerDefault dtor"); }
+
+  private:
+    UniqueIDGeneratorInterface<T>& id_generator_;
+    NumberPoolInterface<T>& number_pool_;
+};
+
 template <typename T>
 class UIDManager
     : public IUIDManager<

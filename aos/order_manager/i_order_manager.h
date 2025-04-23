@@ -10,7 +10,10 @@ class OrderManagerInterface {
 
     virtual void PlaceOrder(
         boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
-
+    virtual void CancelOrder(
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
+    virtual void AmendOrder(
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
     virtual void OnResponse(
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) = 0;
 };
