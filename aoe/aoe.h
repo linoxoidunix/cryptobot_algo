@@ -22,6 +22,8 @@
 #include "aoe/bybit/order_watcher/i_order_watcher.h"
 #include "aoe/bybit/order_watcher/order_watcher.h"
 #include "aoe/bybit/parser/json/ws/execution_response/bybit_execution_event_parser.h"
+#include "aoe/bybit/parser/json/ws/order_response/i_order_event_parser.h"
+#include "aoe/bybit/parser/json/ws/order_response/order_event_parser.h"
 #include "aoe/bybit/request/amend_order/i_request.h"
 #include "aoe/bybit/request/amend_order/request.h"
 #include "aoe/bybit/request/cancel_order/i_request.h"
