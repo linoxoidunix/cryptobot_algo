@@ -62,6 +62,7 @@ class OrderManager : public OrderManagerInterface<MemoryPool> {
 
     void OnResponse(boost::intrusive_ptr<aos::OrderEventInterface<MemoryPool>>
                         event) override {
+        // need capture ptr to lambda
         auto typed = boost::static_pointer_cast<
             aoe::bybit::OrderEventInterface<MemoryPool>>(event);
         // async логика для ответа

@@ -9,16 +9,16 @@ namespace bybit {
 namespace impl {
 template <template <typename> typename MemoryPool>
 class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
-    auto EventPtr   = OrderEventParserInterface<MemoryPool>::EventPtr;
-    using Key       = std::pair<std::string_view>;
+    using EventPtr  = OrderEventParserInterface<MemoryPool>::EventPtr;
+    using Key       = std::string_view;
     using FactoryFn = std::function<EventPtr()>;
 
     struct PairHash {
-        std::size_t operator()(const Key& k) const {
-            return std::hash<std::string_view>{}(k.first);
+        std::size_t operator()(Key& k) const {
+            return std::hash<std::string_view>{}(k);
         }
     };
-
+    aos::TradingPairFactoryInterface& trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
     MemoryPool<OrderEventNew<MemoryPool>> pool_order_new_;
     MemoryPool<OrderEventPartiallyFilled<MemoryPool>>
@@ -33,8 +33,10 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
     MemoryPool<OrderEventDeactivated<MemoryPool>> pool_order_deactivated_;
 
   public:
-    OrderEventParser(std::size_t pool_size)
-        : pool_order_new_(pool_size),
+    OrderEventParser(std::size_t pool_size,
+                     aos::TradingPairFactoryInterface& trading_pair_factory)
+        : trading_pair_factory_(trading_pair_factory),
+          pool_order_new_(pool_size),
           pool_order_partially_filled_(pool_size),
           pool_order_untriggered_(pool_size),
           pool_order_rejected_(pool_size),

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "aoe/bybit/order_storage/i_order_storage.h"
+#include "aoe/bybit/order_manager/i_order_manager.h"
 #include "aoe/bybit/order_watcher/i_order_watcher.h"
 #include "aot/Logger.h"
 
@@ -8,14 +8,14 @@ namespace aoe {
 namespace bybit {
 template <template <typename> typename MemoryPool>
 class OrderWatcher : OrderWatcherInterface<MemoryPool> {
-    OrderStorageInterface& order_storage_;
+    OrderManagerInterface<MemoryPool>& order_manager_;
 
   public:
-    OrderWatcher(OrderStorageInterface& order_storage)
-        : order_storage_(order_storage) {};
+    OrderWatcher(OrderManagerInterface<MemoryPool>& order_manager)
+        : order_manager_(order_manager) {};
     void OnOrderEvent(
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) {
-        event->Accept(order_storage_);
+        order_manager_.OnResponse(event);
     };
     ~OrderWatcher() = default;
 };

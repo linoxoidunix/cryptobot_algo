@@ -141,6 +141,7 @@ target_include_directories(
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
     magic_enum
+    concurrentqueue
     ${Boost_LIBRARIES}
     tomlplusplus::tomlplusplus
     nlohmann_json::nlohmann_json

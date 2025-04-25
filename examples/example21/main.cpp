@@ -10,7 +10,7 @@ using PositionT = aos::impl::NetPositionDefault<double, double>;
 
 int main() {
     {
-        aoe::impl::WebSocketSession<common::MemoryPoolThreadSafety> wss;
+        aoe::impl::WebSocketSessionDummy wss;
         aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>
             wss_provider(wss);
 
