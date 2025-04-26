@@ -1,6 +1,8 @@
 #pragma once
 
 #include "aoe/aoe.h"
+#include "aoe/auth/web_socket/i_auth.h"
+#include "aoe/bybit/auth/web_socket/auth.h"
 #include "aoe/bybit/bybit_api/external/rest/exchange_api.h"
 #include "aoe/bybit/bybit_api/external/web_socket/exchange_api.h"
 #include "aoe/bybit/bybit_api/i_exchange_api.h"
@@ -42,7 +44,11 @@
 #include "aoe/credentials/secret_key/i_secret_key.h"
 #include "aoe/credentials/secret_key/secret_key.h"
 #include "aoe/exchange/enums.h"
+#include "aoe/response_queue_listener/i_response_queue_listener.h"
+#include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aoe/session_provider/web_socket/i_web_socket_provider.h"
 #include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/web_socket.h"
+#include "aoe/signer/hmac_sha256/i_signer.h"
+#include "aoe/signer/hmac_sha256/signer.h"

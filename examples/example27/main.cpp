@@ -1,7 +1,9 @@
 #include <thread>
 
 #include "aoe/aoe.h"
+#include "aoe/bybit/auth/web_socket/auth.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
+#include "aoe/signer/hmac_sha256/signer.h"
 #include "aos/aos.h"
 #include "aot/Logger.h"
 void SendSubscribePeriodically(boost::asio::steady_timer& timer,
@@ -31,9 +33,15 @@ int main() {
         aoe::impl::WebSocketSession ws(ioc, ctx_, "stream.bybit.com", "443",
                                        "/v5/private", response_queue_,
                                        listener);
-        // Создаём таймер
+
+        aoe::impl::StaticApiKey api_key("");
+        aoe::impl::StaticSecretKey secret_key("");
+        aoe::hmac_sha256::impl::Signer signer(api_key, secret_key);
+        aoe::bybit::impl::Authentificator auth(ws, signer);
+        auth.Auth();
+        //  Создаём таймер
         boost::asio::steady_timer timer(ioc);
-        timer.expires_after(std::chrono::seconds(0));  // сразу отправить
+        timer.expires_after(std::chrono::seconds(20));  // сразу отправить
         timer.async_wait([&timer, &ws](const boost::system::error_code& ec) {
             if (!ec) {
                 SendSubscribePeriodically(timer, ws);

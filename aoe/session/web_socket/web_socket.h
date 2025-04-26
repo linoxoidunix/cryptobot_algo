@@ -15,12 +15,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aot/Logger.h"
 #include "boost/asio.hpp"
 #include "boost/asio/awaitable.hpp"
 #include "boost/asio/this_coro.hpp"
-#include "concurrentqueue.h"
 
 namespace beast     = boost::beast;          // from <boost/beast.hpp>
 namespace http      = beast::http;           // from <boost/beast/http.hpp>
@@ -31,7 +31,8 @@ using tcp           = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 
 namespace aoe {
 namespace impl {
-class WebSocketSession : public WebSocketSessionInterface {
+class WebSocketSession : public WebSocketSessionWritableInterface,
+                         public WebSocketSessionReadableInterface {
     /**
      * @brief req variable must manage only via SetRequest() method
      *
@@ -50,13 +51,16 @@ class WebSocketSession : public WebSocketSessionInterface {
     boost::asio::strand<boost::asio::io_context::executor_type> write_strand_;
     boost::asio::thread_pool thread_pool_;
     moodycamel::ConcurrentQueue<nlohmann::json> message_queue_;
-    moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
+    moodycamel::ConcurrentQueue<std::vector<char>>& response_queue_;
+    ResponseQueueListenerInterface& listener_;
 
   public:
-    explicit WebSocketSession(boost::asio::io_context& ioc, ssl::context& ctx,
-                              const std::string_view host,
-                              const std::string_view port,
-                              const std::string_view default_endpoint)
+    explicit WebSocketSession(
+        boost::asio::io_context& ioc, ssl::context& ctx,
+        const std::string_view host, const std::string_view port,
+        const std::string_view default_endpoint,
+        moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+        ResponseQueueListenerInterface& listener)
         : resolver_(net::make_strand(ioc)),
           stream_(net::make_strand(ioc), ctx),
           ioc_(ioc),
@@ -66,8 +70,9 @@ class WebSocketSession : public WebSocketSessionInterface {
           host_(host),
           port_(port),
           default_endpoint_(default_endpoint),
-          timer_(ioc)  // Initialize the timer
-    {
+          timer_(ioc),  // Initialize the timer
+          response_queue_(response_queue),
+          listener_(listener) {
         net::co_spawn(ioc_,
                       Run(host.data(), port.data(), default_endpoint.data()),
                       [](std::exception_ptr e) {
@@ -81,6 +86,10 @@ class WebSocketSession : public WebSocketSessionInterface {
         });
     };
     ~WebSocketSession() override = default;
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return response_queue_;
+    }
 
   private:
     net::awaitable<void> Run(const char* host, const char* port,
@@ -184,6 +193,7 @@ class WebSocketSession : public WebSocketSessionInterface {
                 std::vector<char> data_copy(data_view.begin(), data_view.end());
                 response_queue_.enqueue(std::move(data_copy));  // копия строки
                 logi("get data queue_size:{}", response_queue_.size_approx());
+                listener_.OnDataEnqueued();
             } else {
                 logd("No data was read");
             }
@@ -236,7 +246,7 @@ class WebSocketSession : public WebSocketSessionInterface {
     void CloseSessionFast() { beast::get_lowest_layer(stream_).close(); }
 };
 
-class WebSocketSessionDummy : public WebSocketSessionInterface {
+class WebSocketSessionDummy : public WebSocketSessionWritableInterface {
   public:
     void AsyncWrite(nlohmann::json&&) override {};
     ~WebSocketSessionDummy() override = default;
