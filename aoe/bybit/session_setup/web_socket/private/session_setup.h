@@ -11,6 +11,7 @@
 namespace aoe {
 namespace bybit {
 namespace impl {
+namespace main_net {
 class PrivateSessionSetup {
     WebSocketPrivateSessionInterface& ws_;
     CredentialsLoaderInterface& credentials_loader_;
@@ -41,6 +42,39 @@ class PrivateSessionSetup {
     }
     virtual ~PrivateSessionSetup() = default;
 };
+};  // namespace main_net
+namespace test_net {
+class PrivateSessionSetup {
+    WebSocketPrivateSessionInterface& ws_;
+    CredentialsLoaderInterface& credentials_loader_;
+    PingManagerInterface& ping_manager_;
+
+  public:
+    PrivateSessionSetup(WebSocketPrivateSessionInterface& ws,
+                        CredentialsLoaderInterface& credentials_loader,
+                        PingManagerInterface& ping_manager)
+        : ws_(ws),
+          credentials_loader_(credentials_loader),
+          ping_manager_(ping_manager) {}
+
+    bool Setup() {
+        auto [ok1, api_key]    = credentials_loader_.ApiKeyTestNet();
+        auto [ok2, secret_key] = credentials_loader_.SecretKeyTestNet();
+        if (!ok1 || !ok2) {
+            return false;
+        }
+        aoe::impl::StaticApiKey api_key_manager(api_key);
+        aoe::impl::StaticSecretKey secret_key_manager(secret_key);
+        aoe::hmac_sha256::impl::Signer signer(api_key_manager,
+                                              secret_key_manager);
+        aoe::bybit::impl::Authentificator authentificator(ws_, signer);
+        authentificator.Auth();
+        ping_manager_.Start();
+        return true;
+    }
+    virtual ~PrivateSessionSetup() = default;
+};
+};  // namespace test_net
 };  // namespace impl
 };  // namespace bybit
 };  // namespace aoe
