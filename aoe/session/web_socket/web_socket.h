@@ -230,9 +230,9 @@ class WebSocketSession : public WebSocketSessionWritableInterface,
             try {
                 co_await stream_.async_write(net::buffer(dump),
                                              net::use_awaitable);
-                std::cout << "Sent: " << message << "\n";
+                logi("Sent throw ws: {}", message.dump());
             } catch (const std::exception& e) {
-                std::cerr << "Write error: " << e.what() << "\n";
+                loge("Write error: {}", e.what());
                 break;
             }
         }

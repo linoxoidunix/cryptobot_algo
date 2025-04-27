@@ -29,7 +29,7 @@ class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
                    aoe::bybit::amend_order::RequestMakerInterface<MemoryPool>&
                        amend_order_request_maker)
         : web_socket_session_provider_(web_socket_session_provider),
-          place_order_request_maker_(place_order_request_maker_),
+          place_order_request_maker_(place_order_request_maker),
           cancel_order_request_maker_(cancel_order_request_maker),
           amend_order_request_maker_(amend_order_request_maker) {}
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
