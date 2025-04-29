@@ -18,6 +18,7 @@
 #include "aoe/bybit/order_event/i_order_event.h"
 #include "aoe/bybit/order_event/order_event.h"
 #include "aoe/bybit/order_manager/i_order_manager.h"
+#include "aoe/bybit/order_manager/order_manager_default.h"
 #include "aoe/bybit/order_manager/order_manager.h"
 #include "aoe/bybit/order_mutator/i_order_mutator.h"
 #include "aoe/bybit/order/order.h"

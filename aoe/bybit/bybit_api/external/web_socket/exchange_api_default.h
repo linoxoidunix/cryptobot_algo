@@ -13,7 +13,6 @@ namespace ws {
 template <template <typename> typename MemoryPool>
 class SingleOrderAPIDefault : public SingleOrderAPIInterface<MemoryPool> {
     SingleOrderAPI<MemoryPool> api_;
-    WebSocketSessionProviderInterface<MemoryPool>& web_socket_session_provider_;
     aoe::bybit::place_order::RequestMaker<MemoryPool>
         place_order_request_maker_;
     aoe::bybit::cancel_order::RequestMaker<MemoryPool>
@@ -23,10 +22,9 @@ class SingleOrderAPIDefault : public SingleOrderAPIInterface<MemoryPool> {
 
   public:
     SingleOrderAPIDefault(WebSocketSessionProviderInterface<MemoryPool>&
-                              web_socket_session_provider, )
-        : web_socket_session_provider_(web_socket_session_provider),
-          api_(place_order_request_maker_, cancel_order_request_maker_,
-               amend_order_request_maker_) {}
+                              web_socket_session_provider)
+        : api_(web_socket_session_provider, place_order_request_maker_,
+               cancel_order_request_maker_, amend_order_request_maker_) {}
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         event) override {
         api_.PlaceOrder(event);
