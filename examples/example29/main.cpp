@@ -80,22 +80,14 @@ int main(int argc, char** argv) {
         aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>
             wss_provider(ws_order);
 
-        aoe::bybit::place_order::RequestMaker<common::MemoryPoolThreadSafety>
-            place_order_maker;
-        aoe::bybit::cancel_order::RequestMaker<common::MemoryPoolThreadSafety>
-            cancel_order_maker;
-        aoe::bybit::amend_order::RequestMaker<common::MemoryPoolThreadSafety>
-            amend_order_maker;
-
         aos::impl::NumberPoolDefault<uint64_t> number_pool;
         aos::impl::UIDGeneratorDefault<uint64_t> uid_generator;
         aos::impl::UIDManagerDefault<uint64_t> uid_manager(uid_generator,
                                                            number_pool);
 
-        aoe::bybit::impl::external::ws::SingleOrderAPI<
+        aoe::bybit::impl::external::ws::SingleOrderAPIDefault<
             common::MemoryPoolThreadSafety>
-            bybit_api(wss_provider, place_order_maker, cancel_order_maker,
-                      amend_order_maker);
+            bybit_api(wss_provider);
         aos::impl::MultiOrderManagerDefault<common::MemoryPoolThreadSafety>
             multi_order_manager;
         aoe::bybit::impl::OrderStorage order_storage;

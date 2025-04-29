@@ -4,6 +4,7 @@
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/bybit/auth/web_socket/auth.h"
 #include "aoe/bybit/bybit_api/external/rest/exchange_api.h"
+#include "aoe/bybit/bybit_api/external/web_socket/exchange_api_default.h"
 #include "aoe/bybit/bybit_api/external/web_socket/exchange_api.h"
 #include "aoe/bybit/bybit_api/i_exchange_api.h"
 #include "aoe/bybit/bybit_api/internal/exchange_api.h"
