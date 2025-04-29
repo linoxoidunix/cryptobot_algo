@@ -14,7 +14,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
     using FactoryFn = std::function<EventPtr()>;
 
     struct PairHash {
-        std::size_t operator()(Key& k) const {
+        std::size_t operator()(const Key& k) const {
             return std::hash<std::string_view>{}(k);
         }
     };

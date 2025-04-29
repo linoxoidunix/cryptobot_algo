@@ -39,7 +39,7 @@ int main() {
         ptr->SetExecPrice(100);
         ptr->SetExecQty(10);
         ptr->SetMemoryPool(&pool_event);
-        watcher.OnNewExecutionEvent(ptr);
+        watcher.OnEvent(ptr);
     }
     fmtlog::poll();
     return 0;

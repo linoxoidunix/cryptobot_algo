@@ -49,7 +49,7 @@ class Listener : public ResponseQueueListenerInterface {
             }
             auto [status, ptr] = parser_.ParseAndCreate(doc);
             if (!status) co_return;
-            watcher_.OnResponse(ptr);
+            watcher_.OnEvent(ptr);
             std::string str(msg.data(), msg.size());
             logi("parsed JSON: {}", str);
         }

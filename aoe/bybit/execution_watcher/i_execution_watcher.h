@@ -7,7 +7,7 @@ namespace bybit {
 template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionWatcherInterface {
   public:
-    virtual void OnNewExecutionEvent(
+    virtual void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event)               = 0;
     ~ExecutionWatcherInterface() = default;

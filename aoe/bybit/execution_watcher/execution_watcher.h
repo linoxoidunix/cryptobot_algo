@@ -17,7 +17,7 @@ class ExecutionWatcherDefault
         aos::PositionStorageByPairInterface<double, double, PositionT>&
             position_storage)
         : position_storage_(position_storage) {};
-    void OnNewExecutionEvent(
+    void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {
         event->Accept(position_storage_);

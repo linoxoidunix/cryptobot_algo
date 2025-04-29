@@ -68,7 +68,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(3.0);
     ptr_sell->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell);
+    watcher.OnEvent(ptr_sell);
 
     auto position = position_storage_by_pair.GetPosition(
         common::ExchangeId::kBybit, {2, 1});
@@ -82,7 +82,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr->SetExecPrice(120);
     ptr->SetExecQty(3.0);
     ptr->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr);
+    watcher.OnEvent(ptr);
 
     auto position = position_storage_by_pair.GetPosition(
         common::ExchangeId::kBybit, {2, 1});
@@ -103,14 +103,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(1.0);
     ptr_sell->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell);
+    watcher.OnEvent(ptr_sell);
 
     auto [status, pnl] =
         realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
@@ -132,14 +132,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell_linear->SetExecPrice(120);
     ptr_sell_linear->SetExecQty(3.0);
     ptr_sell_linear->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell_linear);
+    watcher.OnEvent(ptr_sell_linear);
 
     auto ptr_buy_linear = linear_buy_pool_event.Allocate();
     ptr_buy_linear->SetMemoryPool(&linear_buy_pool_event);
     ptr_buy_linear->SetExecPrice(100);
     ptr_buy_linear->SetExecQty(1.0);
     ptr_buy_linear->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy_linear);
+    watcher.OnEvent(ptr_buy_linear);
 
     auto [status, pnl] =
         realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
@@ -163,14 +163,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(5.0);
     ptr_sell->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell);
+    watcher.OnEvent(ptr_sell);
 
     auto [status, pnl] =
         realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
@@ -194,14 +194,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell_linear->SetExecPrice(120);
     ptr_sell_linear->SetExecQty(3.0);
     ptr_sell_linear->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell_linear);
+    watcher.OnEvent(ptr_sell_linear);
 
     auto ptr_buy_linear = linear_buy_pool_event.Allocate();
     ptr_buy_linear->SetMemoryPool(&linear_buy_pool_event);
     ptr_buy_linear->SetExecPrice(100);
     ptr_buy_linear->SetExecQty(5.0);
     ptr_buy_linear->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy_linear);
+    watcher.OnEvent(ptr_buy_linear);
 
     auto [status, pnl] =
         realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
@@ -224,14 +224,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(0.0);
     ptr_sell->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_sell);
+    watcher.OnEvent(ptr_sell);
 
     auto [status, pnl] =
         realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
@@ -253,7 +253,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(2.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 90.0,
                                       110.0);
@@ -274,7 +274,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(2.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
         common::ExchangeId::kBybit, {2, 1});
@@ -289,7 +289,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(1.0);
     ptr_buy->SetTradingPair({2, 1});
-    watcher.OnNewExecutionEvent(ptr_buy);
+    watcher.OnEvent(ptr_buy);
 
     un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 90.0,
                                       110.0);

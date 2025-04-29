@@ -7,7 +7,7 @@ namespace bybit {
 template <template <typename> typename MemoryPool>
 class OrderWatcherInterface {
   public:
-    virtual void OnOrderEvent(
+    virtual void OnEvent(
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) = 0;
     ~OrderWatcherInterface()                                         = default;
 };
