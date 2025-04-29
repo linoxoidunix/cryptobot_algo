@@ -20,25 +20,23 @@ int main(int argc, char** argv) {
         std::string config_path = argv[1];
         aoe::bybit::impl::CredentialsLoader bybit_credentials(config_path);
         //-------------------------------------------------------------------------------
-        // boost::asio::io_context ioc;
-        // moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
-        // aoe::impl::ResponseQueueListener listener(thread_pool,
-        // response_queue_);
-        // aoe::bybit::impl::test_net::private_channel::Session ws(
-        //     ioc, response_queue_, listener);
-        // //-------------------------------
-        // boost::asio::steady_timer timer(ioc);
-        // aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
-        //     ping_manager(timer, ws, std::chrono::seconds(20));
-        // aoe::bybit::impl::test_net::PrivateSessionSetup
-        // private_session_setuper(
-        //     ws, bybit_credentials, ping_manager);
-        // private_session_setuper.Setup();
-        // //-------------------------------
-        // aoe::bybit::impl::ExecutionSubscriptionBuilder execution_sub_builder(
-        //     ws);
-        // execution_sub_builder.Subscribe();
-        // std::thread thread_ioc([&ioc]() { ioc.run(); });
+        boost::asio::io_context ioc;
+        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
+        aoe::impl::ResponseQueueListener listener(thread_pool, response_queue_);
+        aoe::bybit::impl::test_net::private_channel::Session ws(
+            ioc, response_queue_, listener);
+        //-------------------------------
+        boost::asio::steady_timer timer(ioc);
+        aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
+            ping_manager(timer, ws, std::chrono::seconds(20));
+        aoe::bybit::impl::test_net::PrivateSessionSetup private_session_setuper(
+            ws, bybit_credentials, ping_manager);
+        private_session_setuper.Setup();
+        //-------------------------------
+        aoe::bybit::impl::ExecutionSubscriptionBuilder execution_sub_builder(
+            ws);
+        execution_sub_builder.Subscribe();
+        std::thread thread_ioc([&ioc]() { ioc.run(); });
         //-------------------------------------------------------------------------------
         boost::asio::io_context ioc_order;
         moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order_;

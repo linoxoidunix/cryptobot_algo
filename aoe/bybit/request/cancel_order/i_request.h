@@ -18,6 +18,13 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
     };
     virtual aoe::bybit::Category Category() const { return category_; };
     virtual uint64_t OrderId() const { return order_id_; };
+    virtual void SetOrderId(uint64_t order_id) { order_id_ = order_id; };
+    virtual void SetTradingPair(common::TradingPair trading_pair) {
+        trading_pair_ = trading_pair;
+    };
+    virtual void SetCategory(aoe::bybit::Category category) {
+        category_ = category;
+    };
     // json appearance for bybit
     virtual std::pair<bool, nlohmann::json> Accept(
         aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>*

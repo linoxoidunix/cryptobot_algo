@@ -1,6 +1,6 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
-#include "aoe/bybit/request/place_order/i_request.h"
+#include "aoe/bybit/request/cancel_order/i_request.h"
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
@@ -17,7 +17,7 @@ class Spot : public RequestInterface<MemoryPool> {
         this->SetCategory(aoe::bybit::Category::kSpot);
     }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
+        aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
         nlohmann::json order;
         // set mandatory field

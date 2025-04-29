@@ -2,7 +2,7 @@
 
 #include "aoe/bybit/execution_event/types.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
-#include "aoe/bybit/parser/json/ws/execution_response/bybit_execution_event_parser.h"
+#include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
 #include "aos/aos.h"
 #include "aos/trading_pair_factory/trading_pair_factory.h"
 #include "aot/common/mem_pool.h"
@@ -11,8 +11,9 @@ struct DummyPosition {};
 using PositionT = aos::impl::NetPositionDefault<double, double>;
 
 int main() {
-    using Parser = aoe::bybit::impl::BybitExecutionEventParser<
-        common::MemoryPoolThreadSafety, PositionT>;
+    using Parser =
+        aoe::bybit::impl::ExecutionEventParser<common::MemoryPoolThreadSafety,
+                                               PositionT>;
 
     std::string json = R"({
         "data": [

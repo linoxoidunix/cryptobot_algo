@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+
 #include "aos/order_event/i_order_event.h"
 #include "aos/request/i_request.h"
 
@@ -8,7 +10,10 @@ class OrderManagerInterface {
   public:
     virtual ~OrderManagerInterface() = default;
 
-    virtual void PlaceOrder(
+    virtual void PlaceOrderManualId(
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order,
+        uint64_t uid) = 0;
+    virtual void PlaceOrderAutoId(
         boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
     virtual void CancelOrder(
         boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;

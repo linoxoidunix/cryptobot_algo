@@ -1,19 +1,18 @@
-#include "aoe/bybit/parser/json/ws/execution_response/bybit_execution_event_parser.h"
-
 #include <gtest/gtest.h>
 
 #include <memory>
 
 #include "aoe/bybit/execution_event/types.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
+#include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
 #include "aos/aos.h"
 #include "aos/trading_pair_factory/trading_pair_factory.h"
 #include "aot/common/mem_pool.h"
 
 using PositionT = int;  // Или ваша реальная структура позиции
 using Parser =
-    aoe::bybit::impl::BybitExecutionEventParser<common::MemoryPoolThreadSafety,
-                                                PositionT>;
+    aoe::bybit::impl::ExecutionEventParser<common::MemoryPoolThreadSafety,
+                                           PositionT>;
 
 class TradingPairFactoryFake : public aos::TradingPairFactoryInterface {
   public:

@@ -30,14 +30,14 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
     virtual aoe::bybit::OrderMode OrderMode() const { return order_mode_; };
 
     virtual void SetTradingPair(common::TradingPair trading_pair) {
-        trading_pair_ = trading_pair_;
+        trading_pair_ = trading_pair;
     };
     virtual void SetCategory(aoe::bybit::Category category) {
         category_ = category;
     };
     virtual void SetPrice(double price) { price_ = price; }
     virtual void SetQty(double qty) { qty_ = qty; }
-    virtual void SetOrderId(uint64_t order_id) { order_id = order_id_; };
+    virtual void SetOrderId(uint64_t order_id) { order_id_ = order_id; };
     virtual void SetOrderSide(Side side) { side_ = side; };
     virtual void SetTimeInForce(aoe::bybit::TimeInForce time_in_force) {
         time_in_force_ = time_in_force;

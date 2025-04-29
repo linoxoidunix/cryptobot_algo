@@ -16,7 +16,20 @@ class MultiOrderManagerInterface {
         common::ExchangeId,
         std::unique_ptr<OrderManagerInterface<MemoryPool>>) = 0;
 
-    virtual void PlaceOrder(
+    virtual void PlaceOrderManualId(
+        common::ExchangeId,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order,
+        uint64_t uid) = 0;
+
+    virtual void PlaceOrderAutoId(
+        common::ExchangeId,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
+
+    virtual void CancelOrder(
+        common::ExchangeId,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
+
+    virtual void AmendOrder(
         common::ExchangeId,
         boost::intrusive_ptr<RequestInterface<MemoryPool>> order) = 0;
 

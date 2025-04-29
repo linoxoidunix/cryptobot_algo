@@ -14,8 +14,18 @@
 
 using BybitSpotBuyLimit =
     aoe::bybit::place_order::impl::SpotBuyLimit<common::MemoryPoolThreadSafety>;
-auto Allocate(common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool,
-              aos::impl::TradingPairPrinter& printer) {
+auto AllocatePlaceOrder(common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool,
+                        aos::impl::TradingPairPrinter& printer) {
+    auto ptr = pool.Allocate(printer);
+    ptr->SetMemoryPool(&pool);
+    return ptr;
+}
+
+using BybitSpotCancel =
+    aoe::bybit::cancel_order::impl::Spot<common::MemoryPoolThreadSafety>;
+
+auto AllocateCancelOrder(common::MemoryPoolThreadSafety<BybitSpotCancel>& pool,
+                         aos::impl::TradingPairPrinter& printer) {
     auto ptr = pool.Allocate(printer);
     ptr->SetMemoryPool(&pool);
     return ptr;
@@ -23,18 +33,52 @@ auto Allocate(common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool,
 
 int main(int argc, char** argv) {
     {
+        boost::asio::thread_pool thread_pool;
+        LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
+        //-------------------------------------------------------------------------
         aos::impl::TradingPairPrinter trading_pair_printer;
 
         BybitSpotBuyLimit order(trading_pair_printer);
         common::MemoryPoolThreadSafety<BybitSpotBuyLimit>
             memory_pool_bybit_spot_buy_limit{100};
+        common::MemoryPoolThreadSafety<BybitSpotCancel>
+            memory_pool_bybit_spot_cancel{100};
         //-------------------------------------------------------------------------
-        auto ptr_order =
-            Allocate(memory_pool_bybit_spot_buy_limit, trading_pair_printer);
+        std::string config_path = argv[1];
+        aoe::bybit::impl::CredentialsLoader bybit_credentials(config_path);
         //-------------------------------------------------------------------------
-        aoe::impl::WebSocketSessionDummy wss;
+        boost::asio::io_context ioc_trade;
+        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order_;
+        aoe::impl::ResponseQueueListener listener_order(thread_pool,
+                                                        response_queue_order_);
+        aoe::bybit::impl::test_net::trade_channel::Session ws_order(
+            ioc_trade, response_queue_order_, listener_order);
+        //-------------------------------------------------------------------------
+        boost::asio::steady_timer timer_order(ioc_trade);
+        aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
+            ping_manager_order(timer_order, ws_order, std::chrono::seconds(20));
+        aoe::bybit::impl::test_net::PrivateSessionSetup
+            private_session_setuper_order(ws_order, bybit_credentials,
+                                          ping_manager_order);
+        bool apikey_readed = private_session_setuper_order.Setup();
+        if (!apikey_readed) return -1;
+        //-------------------------------------------------------------------------
+        auto ptr_place_order = AllocatePlaceOrder(
+            memory_pool_bybit_spot_buy_limit, trading_pair_printer);
+        ptr_place_order->SetTradingPair({2, 1});
+        ptr_place_order->SetOrderSide(aoe::bybit::Side::kBuy);
+        ptr_place_order->SetOrderMode(aoe::bybit::OrderMode::kLimit);
+        ptr_place_order->SetPrice(50000);
+        ptr_place_order->SetQty(0.0001);
+        ptr_place_order->SetTimeInForce(aoe::bybit::TimeInForce::kFOK);
+        //-------------------------------------------------------------------------
+        auto ptr_cancel_order = AllocateCancelOrder(
+            memory_pool_bybit_spot_cancel, trading_pair_printer);
+        ptr_cancel_order->SetTradingPair({2, 1});
+        ptr_cancel_order->SetOrderId(0);
+        //-------------------------------------------------------------------------
         aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>
-            wss_provider(wss);
+            wss_provider(ws_order);
 
         aoe::bybit::place_order::RequestMaker<common::MemoryPoolThreadSafety>
             place_order_maker;
@@ -61,7 +105,15 @@ int main(int argc, char** argv) {
         multi_order_manager.Register(common::ExchangeId::kBybit,
                                      std::move(ptr));
         //-------------------------------------------------------------------------
-        multi_order_manager.PlaceOrder(common::ExchangeId::kBybit, ptr_order);
+        // multi_order_manager.CancelOrder(common::ExchangeId::kBybit,
+        //                                 ptr_cancel_order);
+        //-------------------------------------------------------------------------
+        multi_order_manager.PlaceOrderManualId(common::ExchangeId::kBybit,
+                                               ptr_place_order, 3);
+        //-------------------------------------------------------------------------
+        std::thread thread_ioc_trade([&ioc_trade]() { ioc_trade.run(); });
+        //-------------------------------------------------------------------------
+        thread_ioc_trade.join();
     }
     fmtlog::poll();
     return 0;

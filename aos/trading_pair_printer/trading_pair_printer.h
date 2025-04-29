@@ -14,9 +14,10 @@ class TradingPairPrinter : public TradingPairPrinterInterface {
     TradingPairPrinter() { dictionary_[{2, 1}] = "BTCUSDT"; }
     std::pair<bool, std::string_view> Print(
         const common::TradingPair& trading_pair) override {
-        if (!dictionary_.contains(trading_pair))
+        auto it = dictionary_.find(trading_pair);
+        if (it == dictionary_.end())
             return std::make_pair(false, std::string_view{});
-        return std::make_pair(true, dictionary_.at(trading_pair));
+        return std::make_pair(true, std::string_view(it->second));
     };
 };
 };  // namespace impl

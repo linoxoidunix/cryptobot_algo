@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "aoe/bybit/execution_event/types.h"
+#include "aoe/bybit/parser/json/ws/execution_response/i_execution_event_parser.h"
 #include "aos/common/multi_pool.h"
 #include "aos/trading_pair_factory/i_trading_pair_factory.h"
 #include "boost/intrusive_ptr.hpp"
@@ -9,44 +10,11 @@
 namespace aoe {
 namespace bybit {
 namespace impl {
-// template <template <typename> typename Pool, typename PositionT,
-//           template <template <typename> typename, typename> typename EventT>
-// struct EventDescriptor {
-//     std::string_view category;
-//     std::string_view side;
-
-//     auto RegisterTo(auto& factory_map, auto& memory_pools) const {
-//         using ConcreteEvent           = EventT<Pool, PositionT>;
-//         factory_map[{category, side}] = [&memory_pools]() {
-//             auto& pool = memory_pools.template Get<ConcreteEvent>();
-//             return boost::intrusive_ptr<ConcreteEvent>(pool.Allocate());
-//         };
-//     }
-// };
-
-// template <template <typename> typename Pool, typename PositionT>
-// auto GetDefaultEventConfig() {
-//     using ED = EventDescriptor<Pool, PositionT,
-//     ExecutionEventSpotBuyDefault>; std::vector<ED> result;
-
-//     // return std::vector<ED>{
-//     //     EventDescriptor<Pool, PositionT,
-//     //     ExecutionEventSpotBuyDefault>{"spot",
-//     // "Buy"},
-//     //     EventDescriptor<Pool, PositionT,
-//     //     ExecutionEventSpotSellDefault>{"spot",
-//     // "Sell"},
-//     //     EventDescriptor<Pool, PositionT, ExecutionEventLinearBuyDefault>{
-//     //         "linear", "Buy"},
-//     //     EventDescriptor<Pool, PositionT, ExecutionEventLinearSellDefault>{
-//     //         "linear", "Sell"}};
-//     return result;
-// };
-
-template <template <typename> typename Pool, typename PositionT>
-class BybitExecutionEventParser {
+template <template <typename> typename MemoryPool, typename PositionT>
+class ExecutionEventParser
+    : public ExecutionEventParserInterface<MemoryPool, PositionT> {
     using EventPtr =
-        boost::intrusive_ptr<ExecutionEventInterface<Pool, PositionT>>;
+        boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>;
     using Key       = std::pair<std::string_view, std::string_view>;
     using FactoryFn = std::function<EventPtr()>;
 
@@ -59,15 +27,18 @@ class BybitExecutionEventParser {
 
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
 
-    Pool<ExecutionEventSpotSellDefault<Pool, PositionT>> pool_spot_sell_{200};
-    Pool<ExecutionEventSpotBuyDefault<Pool, PositionT>> pool_spot_buy_{200};
-    Pool<ExecutionEventLinearSellDefault<Pool, PositionT>> pool_linear_sell_{
-        200};
-    Pool<ExecutionEventLinearBuyDefault<Pool, PositionT>> pool_linear_buy_{200};
+    MemoryPool<ExecutionEventSpotSellDefault<MemoryPool, PositionT>>
+        pool_spot_sell_{200};
+    MemoryPool<ExecutionEventSpotBuyDefault<MemoryPool, PositionT>>
+        pool_spot_buy_{200};
+    MemoryPool<ExecutionEventLinearSellDefault<MemoryPool, PositionT>>
+        pool_linear_sell_{200};
+    MemoryPool<ExecutionEventLinearBuyDefault<MemoryPool, PositionT>>
+        pool_linear_buy_{200};
     aos::TradingPairFactoryInterface& trading_pair_factory_;
 
   public:
-    explicit BybitExecutionEventParser(
+    explicit ExecutionEventParser(
         std::size_t pool_size,
         aos::TradingPairFactoryInterface& trading_pair_factory)
         : pool_spot_sell_(pool_size),

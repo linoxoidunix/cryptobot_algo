@@ -35,19 +35,22 @@ class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = place_order_request_maker_.Make(event);
+        auto [status, request] = place_order_request_maker_.Make(event);
+        if (!status) return;
         web_session.AsyncWrite(std::move(request));
     }
     void AmendOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                         event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = amend_order_request_maker_.Make(event);
+        auto [status, request] = amend_order_request_maker_.Make(event);
+        if (!status) return;
         web_session.AsyncWrite(std::move(request));
     }
     void CancelOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
                          event) override {
         auto& web_session      = web_socket_session_provider_.Provide();
-        nlohmann::json request = cancel_order_request_maker_.Make(event);
+        auto [status, request] = cancel_order_request_maker_.Make(event);
+        if (!status) return;
         web_session.AsyncWrite(std::move(request));
     }
     void CancelAllOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>

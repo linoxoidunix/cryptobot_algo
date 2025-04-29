@@ -56,8 +56,10 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
             if (!status) return {false, {}};
             order["orderType"] = value;  // Значение категории
         }
-        order["qty"]   = this->Qty();    // ToDo выравнивание количества
-        order["price"] = this->Price();  // ToDo выравнивание цены
+        order["qty"] =
+            std::to_string(this->Qty());  // ToDo выравнивание количества
+        order["price"] =
+            std::to_string(this->Price());  // ToDo выравнивание цены
         // set not mandatory
         {
             auto [status, value] = TimeInForceToString(this->TimeInForce());

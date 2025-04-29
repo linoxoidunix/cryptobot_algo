@@ -24,8 +24,24 @@ class OrderManager : public OrderManagerInterface<MemoryPool> {
         : order_storage_(order_storage),
           bybit_single_order_api_(bybit_single_order_api),
           uid_manager_(uid_manager) {}
-    void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>
-                        order) override {
+    void PlaceOrderManualId(
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> order,
+        uint64_t uid) override {
+        auto typed = boost::static_pointer_cast<
+            aoe::bybit::place_order::RequestInterface<MemoryPool>>(order);
+        // save to storage
+        typed->SetOrderId(uid);
+        Order placed_order{
+            typed->Category(),     typed->OrderSide(),    typed->OrderMode(),
+            OrderStatus::kInvalid, PendingAction::kPlace, typed->OrderId(),
+            typed->TradingPair(),  typed->Price(),        typed->Qty()};
+        order_storage_.Add(std::move(placed_order));
+        // send to exchange
+        bybit_single_order_api_.PlaceOrder(order);
+    }
+    void PlaceOrderAutoId(
+        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> order)
+        override {
         auto typed = boost::static_pointer_cast<
             aoe::bybit::place_order::RequestInterface<MemoryPool>>(order);
         // save to storage

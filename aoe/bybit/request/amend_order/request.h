@@ -1,6 +1,6 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
-#include "aoe/bybit/request/place_order/i_request.h"
+#include "aoe/bybit/request/amend_order/i_request.h"
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {

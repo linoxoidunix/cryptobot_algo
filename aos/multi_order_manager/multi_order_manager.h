@@ -20,10 +20,29 @@ class MultiOrderManagerDefault : public MultiOrderManagerInterface<MemoryPool> {
         oms_[id] = std::move(om);
     }
 
-    void PlaceOrder(
+    void PlaceOrderManualId(
+        common::ExchangeId id,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order,
+        uint64_t uid) override {
+        oms_.at(id)->PlaceOrderManualId(order, uid);
+    }
+
+    void PlaceOrderAutoId(
         common::ExchangeId id,
         boost::intrusive_ptr<RequestInterface<MemoryPool>> order) override {
-        oms_.at(id)->PlaceOrder(order);
+        oms_.at(id)->PlaceOrderAutoId(order);
+    }
+
+    void CancelOrder(
+        common::ExchangeId id,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) override {
+        oms_.at(id)->CancelOrder(order);
+    }
+
+    void AmendOrder(
+        common::ExchangeId id,
+        boost::intrusive_ptr<RequestInterface<MemoryPool>> order) override {
+        oms_.at(id)->AmendOrder(order);
     }
 
     void OnResponse(
