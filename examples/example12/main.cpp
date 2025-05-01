@@ -51,9 +51,9 @@ int main() {
         using PositionStrategy =
             aos::impl::NetPositionStrategy<Price, Qty,
                                            common::MemoryPoolNotThreadSafety>;
-        aos::impl::PositionStorageByPair<Price, Qty,
-                                         common::MemoryPoolNotThreadSafety,
-                                         Position, PositionStrategy>
+        aos::impl::PositionStorageByPairDeprecated<
+            Price, Qty, common::MemoryPoolNotThreadSafety, Position,
+            PositionStrategy>
             position_storage(position_strategy);
 
         // Добавить 100 единиц по цене 50

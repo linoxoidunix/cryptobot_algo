@@ -43,6 +43,7 @@
 #include "aoe/bybit/request_maker/for_web_socket/place_order/request_maker.h"
 #include "aoe/bybit/request/place_order/i_request.h"
 #include "aoe/bybit/request/place_order/request.h"
+#include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener.h"

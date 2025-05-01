@@ -68,9 +68,9 @@ struct NetPositionTypes {
 
     using PositionStorageByPairT = aos::impl::PositionStorageContainer<
         Price, Qty, common::MemoryPoolNotThreadSafety,
-        aos::impl::PositionStorageByPair<Price, Qty,
-                                         common::MemoryPoolNotThreadSafety,
-                                         Position, PositionStrategy>,
+        aos::impl::PositionStorageByPairDeprecated<
+            Price, Qty, common::MemoryPoolNotThreadSafety, Position,
+            PositionStrategy>,
         PositionStrategy>;
 };
 
@@ -108,9 +108,9 @@ struct HedgePositionTypes {
 
     using PositionStorageByPairT = aos::impl::PositionStorageContainer<
         Price, Qty, common::MemoryPoolNotThreadSafety,
-        aos::impl::PositionStorageByPair<Price, Qty,
-                                         common::MemoryPoolNotThreadSafety,
-                                         Position, PositionStrategy>,
+        aos::impl::PositionStorageByPairDeprecated<
+            Price, Qty, common::MemoryPoolNotThreadSafety, Position,
+            PositionStrategy>,
         PositionStrategy>;
 };
 };  // namespace aos::types

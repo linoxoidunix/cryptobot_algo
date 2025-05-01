@@ -41,10 +41,9 @@ class ComponentsBuilder {
     common::MemoryPoolNotThreadSafety<PositionStrategyT>
         position_strategy_pool_{1};
 
-    using PositionStorageByPairT =
-        aos::impl::PositionStorageByPair<Price, Qty,
-                                         common::MemoryPoolNotThreadSafety,
-                                         PositionT, PositionStrategyT>;
+    using PositionStorageByPairT = aos::impl::PositionStorageByPairDeprecated<
+        Price, Qty, common::MemoryPoolNotThreadSafety, PositionT,
+        PositionStrategyT>;
 
     aos::impl::PositionStorageContainer<
         Price, Qty, common::MemoryPoolNotThreadSafety, PositionStorageByPairT,
@@ -156,7 +155,7 @@ using HedgedComponents =
 //         aos::impl::NetPosition<Price, Qty,
 //         common::MemoryPoolNotThreadSafety>;
 //     using PositionStorageByPairT =
-//         aos::impl::PositionStorageByPair<Price, Qty,
+//         aos::impl::PositionStorageByPairDeprecated<Price, Qty,
 //                                          common::MemoryPoolNotThreadSafety,
 //                                          PositionT, PositionStrategy>;
 //     aos::impl::PositionStorageContainer<
@@ -228,7 +227,7 @@ using HedgedComponents =
 //         aos::impl::HedgePosition<Price, Qty,
 //         common::MemoryPoolNotThreadSafety>;
 //     using PositionStorageByPairT =
-//         aos::impl::PositionStorageByPair<Price, Qty,
+//         aos::impl::PositionStorageByPairDeprecated<Price, Qty,
 //                                          common::MemoryPoolNotThreadSafety,
 //                                          PositionT, PositionStrategy>;
 //     aos::impl::PositionStorageContainer<

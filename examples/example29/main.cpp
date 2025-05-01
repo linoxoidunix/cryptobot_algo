@@ -48,11 +48,7 @@ int main(int argc, char** argv) {
         aoe::bybit::impl::CredentialsLoader bybit_credentials(config_path);
         //-------------------------------------------------------------------------
         boost::asio::io_context ioc_trade;
-        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order_;
-        aoe::impl::ResponseQueueListener listener_order(thread_pool,
-                                                        response_queue_order_);
-        aoe::bybit::impl::test_net::trade_channel::Session ws_order(
-            ioc_trade, response_queue_order_, listener_order);
+        aoe::bybit::impl::test_net::trade_channel::SessionW ws_order(ioc_trade);
         //-------------------------------------------------------------------------
         boost::asio::steady_timer timer_order(ioc_trade);
         aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>

@@ -7,7 +7,7 @@ namespace aos {
 namespace impl {
 
 template <typename Price, typename Qty, typename PositionT>
-class PositionStorageByPairDefault
+class PositionStorageByPair
     : public PositionStorageByPairInterface<Price, Qty, PositionT> {
   private:
     using Key = std::pair<common::ExchangeId, common::TradingPair>;
@@ -31,9 +31,9 @@ class PositionStorageByPairDefault
         position_factory_;  // 👈 теперь используем фабрику
 
   public:
-    PositionStorageByPairDefault(std::function<PositionT()> position_factory)
+    PositionStorageByPair(std::function<PositionT()> position_factory)
         : position_factory_(position_factory) {};
-    ~PositionStorageByPairDefault() override {};
+    ~PositionStorageByPair() override {};
     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
         common::ExchangeId exchange,
         common::TradingPair trading_pair) const override {
@@ -81,7 +81,7 @@ class PositionStorageByPairDefault
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename PositionT, typename StrategyT>
-class PositionStorageByPair
+class PositionStorageByPairDeprecated
     : public IPositionStorageByPair<Price, Qty, MemoryPool> {
   private:
     using Key         = std::pair<common::ExchangeId, common::TradingPair>;
@@ -105,7 +105,7 @@ class PositionStorageByPair
     boost::intrusive_ptr<StrategyT> strategy_;
 
   public:
-    PositionStorageByPair(boost::intrusive_ptr<StrategyT> strategy)
+    PositionStorageByPairDeprecated(boost::intrusive_ptr<StrategyT> strategy)
         : strategy_(strategy) {};
     std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange,
@@ -155,14 +155,15 @@ class PositionStorageByPair
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
-          typename PositionStorageByPair, typename PositionT,
+          typename PositionStorageByPairDeprecated, typename PositionT,
           typename StrategyT>
 class PositionStorageBuilder {
-    MemoryPool<PositionStorageByPair>& pool_;
+    MemoryPool<PositionStorageByPairDeprecated>& pool_;
     boost::intrusive_ptr<StrategyT> strategy_;
 
   public:
-    explicit PositionStorageBuilder(MemoryPool<PositionStorageByPair>& pool)
+    explicit PositionStorageBuilder(
+        MemoryPool<PositionStorageByPairDeprecated>& pool)
         : pool_(pool) {}
 
     PositionStorageBuilder& SetPositionStrategy(

@@ -26,8 +26,8 @@ class NetPositionStorageDefaultTest : public ::testing::Test {
     aos::impl::NetUnRealizedPnlStorageDefault<Price, Qty>
         un_realized_pnl_storage;
     aos::impl::NetPositionStrategyDefault<Price, Qty> strategy;
-    aos::impl::PositionStorageByPairDefault<
-        Price, Qty, aos::impl::NetPositionDefault<Price, Qty>>
+    aos::impl::PositionStorageByPair<Price, Qty,
+                                     aos::impl::NetPositionDefault<Price, Qty>>
         position_storage_by_pair;
     void SetUp() override {}
     NetPositionStorageDefaultTest()

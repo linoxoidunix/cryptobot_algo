@@ -23,7 +23,7 @@ int main() {
         aos::impl::NetPositionStrategyDefault<Price, Qty> strategy(
             realized_pnl_storage, un_realized_pnl_storage);
 
-        aos::impl::PositionStorageByPairDefault<
+        aos::impl::PositionStorageByPair<
             Price, Qty, aos::impl::NetPositionDefault<Price, Qty>>
             position_storage_by_pair([&]() {
                 return aos::impl::NetPositionDefault<Price, Qty>(strategy);

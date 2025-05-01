@@ -55,9 +55,9 @@ int main() {
 
         aos::impl::PositionStorageContainer<
             Price, Qty, common::MemoryPoolNotThreadSafety,
-            aos::impl::PositionStorageByPair<Price, Qty,
-                                             common::MemoryPoolNotThreadSafety,
-                                             Position, PositionStrategy>,
+            aos::impl::PositionStorageByPairDeprecated<
+                Price, Qty, common::MemoryPoolNotThreadSafety, Position,
+                PositionStrategy>,
             Position, PositionStrategy>
             position_storage_container(1);
         position_storage_container.SetPositionStrategy(position_strategy);

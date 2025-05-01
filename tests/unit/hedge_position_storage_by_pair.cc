@@ -25,7 +25,7 @@ class HedgedPositionSorageByPairDefaultTest : public ::testing::Test {
         un_realized_pnl_storage;
 
     aos::impl::HedgedPositionStrategyDefault<Price, Qty> strategy;
-    aos::impl::PositionStorageByPairDefault<
+    aos::impl::PositionStorageByPair<
         Price, Qty, aos::impl::HedgedPositionDefault<Price, Qty>>
         position_storage_by_pair;
     void SetUp() override {}

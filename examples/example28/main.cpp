@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
         boost::asio::io_context ioc;
         moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
         aoe::impl::ResponseQueueListener listener(thread_pool, response_queue_);
-        aoe::bybit::impl::test_net::private_channel::Session ws(
+        aoe::bybit::impl::test_net::private_channel::SessionRW ws(
             ioc, response_queue_, listener);
         //-------------------------------
         boost::asio::steady_timer timer(ioc);
@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
         moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order_;
         aoe::impl::ResponseQueueListener listener_order(thread_pool,
                                                         response_queue_order_);
-        aoe::bybit::impl::test_net::private_channel::Session ws_order(
+        aoe::bybit::impl::test_net::private_channel::SessionRW ws_order(
             ioc_order, response_queue_order_, listener_order);
         //-------------------------------
         boost::asio::steady_timer timer_order(ioc_order);

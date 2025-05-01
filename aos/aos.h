@@ -53,6 +53,7 @@
 #include "aos/position_storage/position_storage_by_order_id/i_position_storage_by_order_id.h"
 #include "aos/position_storage/position_storage_by_order_id/position_storage_by_order_id.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
+#include "aos/position_storage/position_storage_by_pair/position_storage_by_pair_default.h"
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
 #include "aos/position_storage/position_storage.h"
 #include "aos/position_strategy/i_position_strategy.h"
