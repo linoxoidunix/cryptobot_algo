@@ -23,7 +23,7 @@ class ListenerDefault : public ResponseQueueListenerInterface {
   public:
     ListenerDefault(boost::asio::thread_pool& thread_pool,
                     moodycamel::ConcurrentQueue<std::vector<char>>& queue,
-                    ExecutionWatcherInterface<MemoryPool>& watcher,
+                    ExecutionWatcherInterface<MemoryPool, PositionT>& watcher,
                     size_t number_events)
         : parser_(number_events, trading_pair_factory_),
           listener_(thread_pool, queue, parser_, watcher) {}

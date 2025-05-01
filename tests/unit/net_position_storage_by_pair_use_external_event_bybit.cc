@@ -45,8 +45,8 @@ class NetPositionStorageDefaultUseExternalEventBybitTest
     common::MemoryPoolThreadSafety<aoe::bybit::ExecutionEventLinearSellDefault<
         common::MemoryPoolThreadSafety, PositionT>>
         linear_sell_pool_event{1};
-    aoe::bybit::ExecutionWatcherDefault<common::MemoryPoolThreadSafety,
-                                        PositionT>
+    aoe::bybit::impl::ExecutionWatcherDefault<common::MemoryPoolThreadSafety,
+                                              PositionT>
         watcher;
     void SetUp() override {}
     NetPositionStorageDefaultUseExternalEventBybitTest()

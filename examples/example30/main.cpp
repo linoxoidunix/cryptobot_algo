@@ -8,16 +8,19 @@
 // #include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 // #include "aos/multi_order_manager/multi_order_manager.h"
 #include "aoe/aoe.h"
+#include "aoe/bybit/execution_watcher/execution_watcher.h"
+#include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener_default.h"
 #include "aos/aos.h"
+#include "aos/position/position.h"
+#include "aos/position_storage/position_storage_by_pair/position_storage_by_pair_default.h"
 #include "aos/trading_pair_printer/trading_pair_printer.h"
 #include "aot/common/mem_pool.h"
 
-class BybitListenerCreater {
+class BybitOrderManagerListener {
   public:
-    using WebSocketSessionRW = aoe::bybit::WebSocketPrivateSessionRWInterface;
-    using WebSocketSessionW  = aoe::bybit::WebSocketPrivateSessionWInterface;
-    using ResponseQueue      = moodycamel::ConcurrentQueue<std::vector<char>>;
+    using WebSocketSessionW = aoe::bybit::WebSocketPrivateSessionWInterface;
+    using ResponseQueue     = moodycamel::ConcurrentQueue<std::vector<char>>;
 
   private:
     boost::asio::thread_pool& thread_pool_;
@@ -42,8 +45,8 @@ class BybitListenerCreater {
         listener_;
 
   public:
-    BybitListenerCreater(boost::asio::thread_pool& thread_pool,
-                         WebSocketSessionW& session)
+    BybitOrderManagerListener(boost::asio::thread_pool& thread_pool,
+                              WebSocketSessionW& session)
         : thread_pool_(thread_pool),
           session_ref_(session),
           wss_provider_(session_ref_),
@@ -55,11 +58,33 @@ class BybitListenerCreater {
         multi_order_manager_.Register(common::ExchangeId::kBybit,
                                       std::move(order_manager_));
     }
-    aoe::bybit::impl::order_response::ListenerDefault<
-        common::MemoryPoolThreadSafety>&
-    GetListener() {
-        return listener_;
-    }
+    aoe::ResponseQueueListenerInterface& GetListener() { return listener_; }
+    ResponseQueue& GetQueue() { return response_queue_; }
+};
+
+template <typename Price = double, typename Qty = double,
+          typename PositionT = aos::impl::NetPositionDefault<Price, Qty>>
+class BybitNetPositionManagerListener {
+    using ResponseQueue = moodycamel::ConcurrentQueue<std::vector<char>>;
+
+  private:
+    boost::asio::thread_pool& thread_pool_;
+    ResponseQueue response_queue_;
+    aos::impl::NetPositionStorageByPairDefault<> position_storage_;
+    aoe::bybit::impl::ExecutionWatcherDefault<common::MemoryPoolThreadSafety,
+                                              PositionT, Price, Qty>
+        execution_watcher_;
+
+    aoe::bybit::impl::execution_response::ListenerDefault<
+        common::MemoryPoolThreadSafety, PositionT>
+        listener_;
+
+  public:
+    BybitNetPositionManagerListener(boost::asio::thread_pool& thread_pool)
+        : thread_pool_(thread_pool),
+          execution_watcher_(position_storage_),
+          listener_(thread_pool_, response_queue_, execution_watcher_, 100) {}
+    aoe::ResponseQueueListenerInterface& GetListener() { return listener_; }
     ResponseQueue& GetQueue() { return response_queue_; }
 };
 
@@ -104,7 +129,7 @@ int main(int argc, char** argv) {
         boost::asio::io_context ioc_trade_channel;
         aoe::bybit::impl::test_net::trade_channel::SessionW
             session_trade_channel(ioc_trade_channel);
-        BybitListenerCreater manager(thread_pool, session_trade_channel);
+        BybitOrderManagerListener manager(thread_pool, session_trade_channel);
         boost::asio::io_context ioc_private_channel;
         aoe::bybit::impl::test_net::private_channel::SessionRW
             session_private_channel(ioc_private_channel, manager.GetQueue(),

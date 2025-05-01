@@ -32,8 +32,8 @@ int main() {
         common::MemoryPoolThreadSafety<aoe::bybit::ExecutionEventSpotBuyDefault<
             common::MemoryPoolThreadSafety, PositionT>>
             pool_event(1);
-        aoe::bybit::ExecutionWatcherDefault<common::MemoryPoolThreadSafety,
-                                            PositionT>
+        aoe::bybit::impl::ExecutionWatcherDefault<
+            common::MemoryPoolThreadSafety, PositionT>
             watcher(position_storage_by_pair);
         auto ptr = pool_event.Allocate();
         ptr->SetExecPrice(100);
