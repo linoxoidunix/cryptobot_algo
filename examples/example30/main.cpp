@@ -7,6 +7,8 @@
 // #include "aoe/session/web_socket/web_socket.h"
 // #include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 // #include "aos/multi_order_manager/multi_order_manager.h"
+#include <thread>
+
 #include "aoe/aoe.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
 #include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener_default.h"
@@ -88,7 +90,7 @@ class BybitNetPositionManagerListener {
     ResponseQueue& GetQueue() { return response_queue_; }
 };
 
-class SessionStarter {
+class OrderChannelSessionStarter {
     boost::asio::io_context& context_;
     boost::asio::steady_timer timer_;
     aoe::bybit::WebSocketPrivateSessionRWInterface& session_;
@@ -97,11 +99,13 @@ class SessionStarter {
     aoe::bybit::impl::CredentialsLoader bybit_credentials_;
     aoe::bybit::impl::test_net::PrivateSessionSetup private_session_setuper_;
     aoe::bybit::impl::OrderSubscriptionBuilder order_subscription_builder_;
+    std::jthread thread_;
 
   public:
-    SessionStarter(boost::asio::io_context& context,
-                   aoe::bybit::WebSocketPrivateSessionRWInterface& session,
-                   std::string config_path)
+    OrderChannelSessionStarter(
+        boost::asio::io_context& context,
+        aoe::bybit::WebSocketPrivateSessionRWInterface& session,
+        std::string config_path)
         : context_(context),
           timer_(context_),
           session_(session),
@@ -113,8 +117,39 @@ class SessionStarter {
         order_subscription_builder_.Subscribe();
     }
     void Run() {
-        std::thread thread_ioc([this]() { context_.run(); });
-        thread_ioc.join();
+        thread_ = std::jthread([this]() { context_.run(); });
+    }
+};
+
+class ExecutionChannelSessionStarter {
+    boost::asio::io_context& context_;
+    boost::asio::steady_timer timer_;
+    aoe::bybit::WebSocketPrivateSessionRWInterface& session_;
+    aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
+        ping_manager_;
+    aoe::bybit::impl::CredentialsLoader bybit_credentials_;
+    aoe::bybit::impl::test_net::PrivateSessionSetup private_session_setuper_;
+    aoe::bybit::impl::ExecutionSubscriptionBuilder
+        execution_subscription_builder_;
+    std::jthread thread_;
+
+  public:
+    ExecutionChannelSessionStarter(
+        boost::asio::io_context& context,
+        aoe::bybit::WebSocketPrivateSessionRWInterface& session,
+        std::string config_path)
+        : context_(context),
+          timer_(context_),
+          session_(session),
+          ping_manager_(timer_, session_, std::chrono::seconds(20)),
+          bybit_credentials_(config_path),
+          private_session_setuper_(session_, bybit_credentials_, ping_manager_),
+          execution_subscription_builder_(session_) {
+        private_session_setuper_.Setup();
+        execution_subscription_builder_.Subscribe();
+    }
+    void Run() {
+        thread_ = std::jthread([this]() { context_.run(); });
     }
 };
 
@@ -134,8 +169,8 @@ int main(int argc, char** argv) {
         aoe::bybit::impl::test_net::private_channel::SessionRW
             session_private_channel(ioc_private_channel, manager.GetQueue(),
                                     manager.GetListener());
-        SessionStarter starter(ioc_private_channel, session_private_channel,
-                               config_path);
+        OrderChannelSessionStarter starter(
+            ioc_private_channel, session_private_channel, config_path);
         starter.Run();
     }
     fmtlog::poll();
