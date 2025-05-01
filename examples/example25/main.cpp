@@ -5,7 +5,7 @@
 #include "aos/aos.h"
 #include "aot/Logger.h"
 void SendSubscribePeriodically(boost::asio::steady_timer& timer,
-                               aoe::impl::WebSocketSession& ws) {
+                               aoe::impl::WebSocketSessionRW& ws) {
     nlohmann::json j;
     j["op"] = "ping";
     ws.AsyncWrite(std::move(j));
@@ -28,9 +28,9 @@ int main() {
         boost::asio::io_context ioc;
         moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
         aoe::impl::ResponseQueueListener listener(thread_pool, response_queue_);
-        aoe::impl::WebSocketSession ws(ioc, ctx_, "stream.bybit.com", "443",
-                                       "/v5/private", response_queue_,
-                                       listener);
+        aoe::impl::WebSocketSessionRW ws(ioc, ctx_, "stream.bybit.com", "443",
+                                         "/v5/private", response_queue_,
+                                         listener);
         // Создаём таймер
         boost::asio::steady_timer timer(ioc);
         timer.expires_after(std::chrono::seconds(0));  // сразу отправить

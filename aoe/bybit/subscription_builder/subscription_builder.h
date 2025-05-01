@@ -7,10 +7,10 @@ namespace aoe {
 namespace bybit {
 namespace impl {
 class ExecutionSubscriptionBuilder : public SubscriptionBuilderInterface {
-    WebSocketPrivateSessionInterface& ws_;
+    WebSocketPrivateSessionRWInterface& ws_;
 
   public:
-    ExecutionSubscriptionBuilder(WebSocketPrivateSessionInterface& ws)
+    ExecutionSubscriptionBuilder(WebSocketPrivateSessionRWInterface& ws)
         : ws_(ws) {}
     ~ExecutionSubscriptionBuilder() override = default;
     void Subscribe() override {
@@ -21,10 +21,11 @@ class ExecutionSubscriptionBuilder : public SubscriptionBuilderInterface {
     }
 };
 class OrderSubscriptionBuilder : public SubscriptionBuilderInterface {
-    WebSocketPrivateSessionInterface& ws_;
+    WebSocketPrivateSessionRWInterface& ws_;
 
   public:
-    OrderSubscriptionBuilder(WebSocketPrivateSessionInterface& ws) : ws_(ws) {}
+    OrderSubscriptionBuilder(WebSocketPrivateSessionRWInterface& ws)
+        : ws_(ws) {}
     ~OrderSubscriptionBuilder() override = default;
     void Subscribe() override {
         nlohmann::json j_;

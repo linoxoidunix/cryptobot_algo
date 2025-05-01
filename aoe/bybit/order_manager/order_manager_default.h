@@ -1,5 +1,6 @@
 #pragma once
 #include "aoe/bybit/order_manager/order_manager.h"
+#include "aoe/bybit/order_storage/order_storage.h"
 #include "aos/uid/i_uid_manager.h"
 #include "aos/uid/number_pool.h"
 #include "aos/uid/uid_manager.h"
@@ -15,15 +16,15 @@ class OrderManagerDefault : public OrderManagerInterface<MemoryPool> {
     aos::impl::UIDGeneratorDefault<uint64_t> uid_generator_;
     aos::impl::UIDManagerDefault<uint64_t> uid_manager_;  //(uid_generator,
                                                           // number_pool);
-    aoe::bybit::SingleOrderAPIInterface<MemoryPool>& bybit_single_order_api_;
     OrderManager<MemoryPool> order_manager_;
 
   public:
     OrderManagerDefault(
         aoe::bybit::SingleOrderAPIInterface<MemoryPool>& bybit_single_order_api)
         : uid_manager_(uid_generator_, number_pool_),
-          order_manager_(order_storage_, bybit_single_order_api,
-                         order_manager_) {}
+          order_manager_(order_storage_, bybit_single_order_api, uid_manager_) {
+    }
+    ~OrderManagerDefault() override = default;
     void PlaceOrderManualId(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> order,
         uint64_t uid) override {

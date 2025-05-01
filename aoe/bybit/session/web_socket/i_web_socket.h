@@ -8,17 +8,32 @@
 
 namespace aoe {
 namespace bybit {
-class WebSocketPrivateSessionInterface
-    : public WebSocketSessionWritableInterface,
+
+class WebSocketPrivateSessionWInterface
+    : public WebSocketSessionWritableInterface {
+  public:
+    virtual ~WebSocketPrivateSessionWInterface() = default;
+};
+
+class WebSocketPrivateSessionRWInterface
+    : public WebSocketPrivateSessionWInterface,
       public WebSocketSessionReadableInterface {
   public:
-    virtual ~WebSocketPrivateSessionInterface() = default;
+    virtual ~WebSocketPrivateSessionRWInterface() = default;
 };
-class WebSocketPublicSessionInterface
-    : public WebSocketSessionWritableInterface,
+
+class WebSocketPublicSessionWInterface
+    : public WebSocketSessionWritableInterface {
+  public:
+    virtual ~WebSocketPublicSessionWInterface() = default;
+};
+
+class WebSocketPublicSessionRWInterface
+    : public WebSocketPublicSessionWInterface,
       public WebSocketSessionReadableInterface {
   public:
-    virtual ~WebSocketPublicSessionInterface() = default;
+    virtual ~WebSocketPublicSessionRWInterface() = default;
 };
+
 };  // namespace bybit
 };  // namespace aoe

@@ -1,0 +1,50 @@
+int main(int argc, char** argv) {
+    {
+        boost::asio::thread_pool thread_pool;
+        LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
+
+        //-------------------------------------------------------------------------------
+        std::unique_ptr<aoe::bybit::WebSocketPrivateSessionInterface> session;
+        BybitWebSocketManager manager(thread_pool, *session);
+
+        // aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>
+        //     wss_provider(*session);
+
+        // aoe::bybit::impl::external::ws::SingleOrderAPIDefault<
+        //     common::MemoryPoolThreadSafety>
+        //     bybit_api(wss_provider);
+        // aos::impl::MultiOrderManagerDefault<common::MemoryPoolThreadSafety>
+        //     multi_order_manager;
+        // auto ptr = std::make_unique<aoe::bybit::impl::OrderManagerDefault<
+        //     common::MemoryPoolThreadSafety>>(bybit_api);
+        // aoe::bybit::impl::OrderWatcher<common::MemoryPoolThreadSafety>
+        //     order_watcher(*ptr);
+        // multi_order_manager.Register(common::ExchangeId::kBybit,
+        //                              std::move(ptr));
+        // //--------------
+        // moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
+        // aoe::bybit::impl::order_response::ListenerDefault listener(
+        //     thread_pool, response_queue_, order_watcher, 100);
+
+        boost::asio::io_context ioc;
+        session = std::make_unique<
+            aoe::bybit::impl::test_net::private_channel::Session>(
+            ioc, manager.GetQueue(), manager.GetListener());
+        //-------------------------------
+        boost::asio::steady_timer timer(ioc);
+        aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
+            ping_manager(timer, *session.get(), std::chrono::seconds(20));
+        std::string config_path = argv[1];
+        aoe::bybit::impl::CredentialsLoader bybit_credentials(config_path);
+        aoe::bybit::impl::test_net::PrivateSessionSetup private_session_setuper(
+            *session.get(), bybit_credentials, ping_manager);
+        private_session_setuper.Setup();
+        //-------------------------------
+        aoe::bybit::impl::OrderSubscriptionBuilder order_subscription_builder(
+            *session.get());
+        order_subscription_builder.Subscribe();
+        std::thread thread_ioc([&ioc]() { ioc.run(); });
+    }
+    fmtlog::poll();
+    return 0;
+}

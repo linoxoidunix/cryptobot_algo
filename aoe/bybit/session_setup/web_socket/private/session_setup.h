@@ -13,12 +13,12 @@ namespace bybit {
 namespace impl {
 namespace main_net {
 class PrivateSessionSetup {
-    WebSocketPrivateSessionInterface& ws_;
+    WebSocketPrivateSessionWInterface& ws_;
     CredentialsLoaderInterface& credentials_loader_;
     PingManagerInterface& ping_manager_;
 
   public:
-    PrivateSessionSetup(WebSocketPrivateSessionInterface& ws,
+    PrivateSessionSetup(WebSocketPrivateSessionWInterface& ws,
                         CredentialsLoaderInterface& credentials_loader,
                         PingManagerInterface& ping_manager)
         : ws_(ws),
@@ -45,12 +45,12 @@ class PrivateSessionSetup {
 };  // namespace main_net
 namespace test_net {
 class PrivateSessionSetup {
-    WebSocketPrivateSessionInterface& ws_;
+    WebSocketPrivateSessionWInterface& ws_;
     CredentialsLoaderInterface& credentials_loader_;
     PingManagerInterface& ping_manager_;
 
   public:
-    PrivateSessionSetup(WebSocketPrivateSessionInterface& ws,
+    PrivateSessionSetup(WebSocketPrivateSessionWInterface& ws,
                         CredentialsLoaderInterface& credentials_loader,
                         PingManagerInterface& ping_manager)
         : ws_(ws),

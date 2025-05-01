@@ -44,6 +44,7 @@
 #include "aoe/bybit/request/place_order/i_request.h"
 #include "aoe/bybit/request/place_order/request.h"
 #include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener.h"
+#include "aoe/bybit/response_queue_listener/json/ws/order_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener.h"
 #include "aoe/bybit/session_setup/web_socket/private/session_setup.h"
 #include "aoe/bybit/session/web_socket/i_web_socket.h"

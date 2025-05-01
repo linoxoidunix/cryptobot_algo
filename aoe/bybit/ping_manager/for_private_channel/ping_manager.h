@@ -9,12 +9,12 @@ namespace private_channel {
 template <typename DurationType>
 class PingManager : public PingManagerInterface {
     boost::asio::steady_timer& timer_;
-    WebSocketPrivateSessionInterface& ws_;
+    WebSocketPrivateSessionRWInterface& ws_;
     DurationType interval_;
 
   public:
     PingManager(boost::asio::steady_timer& timer,
-                WebSocketPrivateSessionInterface& ws, DurationType interval)
+                WebSocketPrivateSessionRWInterface& ws, DurationType interval)
         : timer_(timer), ws_(ws), interval_(interval) {}
 
     void Start() override {
