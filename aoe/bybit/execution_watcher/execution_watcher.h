@@ -55,7 +55,7 @@ class ExecutionWatcherHedgedDefault
 template <template <typename> typename MemoryPool, typename PositionT,
           typename Price = double, typename Qty = double>
 class ExecutionWatcherDefault
-    : ExecutionWatcherInterface<MemoryPool, PositionT> {
+    : public ExecutionWatcherInterface<MemoryPool, PositionT> {
     aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
         position_storage_;
 

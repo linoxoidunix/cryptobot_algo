@@ -52,7 +52,7 @@ class Listener : public ResponseQueueListenerInterface {
             auto [status, ptr] = parser_.ParseAndCreate(doc);
             if (!status) co_return;
             watcher_.OnEvent(ptr);
-                }
+        }
         co_return;
     }
 };

@@ -112,11 +112,11 @@ class OrderChannelSessionStarter {
           ping_manager_(timer_, session_, std::chrono::seconds(20)),
           bybit_credentials_(config_path),
           private_session_setuper_(session_, bybit_credentials_, ping_manager_),
-          order_subscription_builder_(session_) {
-        private_session_setuper_.Setup();
-        order_subscription_builder_.Subscribe();
-    }
+          order_subscription_builder_(session_) {}
     void Run() {
+        auto status = private_session_setuper_.Setup();
+        if (!status) return;
+        order_subscription_builder_.Subscribe();
         thread_ = std::jthread([this]() { context_.run(); });
     }
 };
@@ -155,8 +155,6 @@ class ExecutionChannelSessionStarter {
 
 int main(int argc, char** argv) {
     {
-        std::string config_path = argv[1];
-
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
 
@@ -164,14 +162,30 @@ int main(int argc, char** argv) {
         boost::asio::io_context ioc_trade_channel;
         aoe::bybit::impl::test_net::trade_channel::SessionW
             session_trade_channel(ioc_trade_channel);
-        BybitOrderManagerListener manager(thread_pool, session_trade_channel);
-        boost::asio::io_context ioc_private_channel;
+        BybitOrderManagerListener order_manager(thread_pool,
+                                                session_trade_channel);
+        //-------------------------------------------------------------------------------
+        boost::asio::io_context ioc_private_channel1;
         aoe::bybit::impl::test_net::private_channel::SessionRW
-            session_private_channel(ioc_private_channel, manager.GetQueue(),
-                                    manager.GetListener());
-        OrderChannelSessionStarter starter(
-            ioc_private_channel, session_private_channel, config_path);
-        starter.Run();
+            session_private_channel1(ioc_private_channel1,
+                                     order_manager.GetQueue(),
+                                     order_manager.GetListener());
+
+        std::string config_path = argv[1];
+        OrderChannelSessionStarter order_starter(
+            ioc_private_channel1, session_private_channel1, config_path);
+        order_starter.Run();
+        //-------------------------------------------------------------------------------
+        BybitNetPositionManagerListener net_position_manager(thread_pool);
+        //-------------------------------------------------------------------------------
+        boost::asio::io_context ioc_private_channel2;
+        aoe::bybit::impl::test_net::private_channel::SessionRW
+            session_private_channel2(ioc_private_channel2,
+                                     net_position_manager.GetQueue(),
+                                     net_position_manager.GetListener());
+        ExecutionChannelSessionStarter execution_starter(
+            ioc_private_channel2, session_private_channel2, config_path);
+        execution_starter.Run();
     }
     fmtlog::poll();
     return 0;
