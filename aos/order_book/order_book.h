@@ -1,0 +1,114 @@
+#pragma once
+#include "aos/order_book/i_order_book.h"
+#include "aos/order_book_level/order_book_level.h"
+#include "aot/common/types.h"
+#include "boost/intrusive/avltree.hpp"
+
+namespace aos {
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename HashMap>
+class OrderBook : public OrderBookInterface<Price, Qty>,
+                  public HasBBOInterface<Price, Qty> {
+    using MemberOption =
+        boost::intrusive::member_hook<OrderBookLevel<Price, Qty>,
+                                      boost::intrusive::avl_set_member_hook<>,
+                                      &OrderBookLevel<Price, Qty>::member_hook>;
+    using BidTree = boost::intrusive::avltree<
+        OrderBookLevel<Price, Qty>,
+        boost::intrusive::compare<std::greater<OrderBookLevel<Price, Qty>>>,
+        MemberOption>;
+    using AskTree = boost::intrusive::avltree<
+        OrderBookLevel<Price, Qty>,
+        boost::intrusive::compare<std::less<OrderBookLevel<Price, Qty>>>,
+        MemberOption>;
+
+    HashMap price_to_bid_level_;
+    HashMap price_to_ask_level_;
+    BidTree bid_levels_;
+    AskTree ask_levels_;
+
+    common::ExchangeId exchange_id_;
+    common::TradingPair trading_pair_;
+    MemoryPool<OrderBookLevel<Price, Qty>> bid_lvl_memory_pool_;
+    MemoryPool<OrderBookLevel<Price, Qty>> ask_lvl_memory_pool_;
+
+  public:
+    OrderBook(size_t max_level)
+        : bid_lvl_memory_pool_(max_level), ask_lvl_memory_pool_(max_level) {};
+    OrderBook(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+              size_t max_level)
+        : exchange_id_(exchange_id),
+          trading_pair_(trading_pair),
+          bid_lvl_memory_pool_(max_level),
+          ask_lvl_memory_pool_(max_level) {}
+    ~OrderBook() override = default;
+    void Clear() override {
+        price_to_bid_level_.clear();
+        price_to_ask_level_.clear();
+        for (auto& elem : bid_levels_) {
+            bid_lvl_memory_pool_.Deallocate(&elem);
+        }
+        bid_levels_.clear();
+        for (auto& elem : ask_levels_) {
+            ask_lvl_memory_pool_.Deallocate(&elem);
+        }
+        ask_levels_.clear();
+    }
+    void AddBidLevel(Price price, Qty qty) {
+        auto contains = price_to_bid_level_.contains(price);
+        if (contains) {
+            price_to_bid_level_.at(price)->price = price;
+            price_to_bid_level_.at(price)->qty   = qty;
+            return;
+        }
+        auto ptr = bid_lvl_memory_pool_.Allocate(price, qty);
+        price_to_bid_level_.insert({price, ptr});
+        bid_levels_.insert_unique(*ptr);
+    }
+    void AddAskLevel(Price price, Qty qty) {
+        auto contains = price_to_ask_level_.contains(price);
+        if (contains) {
+            price_to_ask_level_.at(price)->price = price;
+            price_to_ask_level_.at(price)->qty   = qty;
+            return;
+        }
+        auto ptr = ask_lvl_memory_pool_.Allocate(price, qty);
+        price_to_ask_level_.insert({price, ptr});
+        ask_levels_.insert_unique(*ptr);
+    }
+    void RemoveBidLevel(Price price) {
+        auto contains = price_to_bid_level_.contains(price);
+        if (!contains) {
+            return;
+        }
+        auto ptr = price_to_bid_level_.at(price);
+        price_to_bid_level_.erase(price);
+        bid_levels_.erase(*ptr);
+        bid_lvl_memory_pool_.Deallocate(ptr);
+    }
+    void RemoveAskLevel(Price price) {
+        auto contains = price_to_ask_level_.contains(price);
+        if (!contains) {
+            return;
+        }
+        auto ptr = price_to_ask_level_.at(price);
+        price_to_ask_level_.erase(price);
+        ask_levels_.erase(*ptr);
+        ask_lvl_memory_pool_.Deallocate(ptr);
+    }
+    std::pair<bool, BBOFull<Price, Qty>> GetBBO() override {
+        if (bid_levels_.empty()) {
+            return {false, {}};
+        }
+        if (ask_levels_.empty()) {
+            return {false, {}};
+        }
+        BBOFull<Price, Qty> bbo;
+        bbo.bid_price = bid_levels_.begin()->price;
+        bbo.bid_qty   = bid_levels_.begin()->qty;
+        bbo.ask_price = ask_levels_.begin()->price;
+        bbo.ask_qty   = ask_levels_.begin()->qty;
+        return std::make_pair(true, bbo);
+    }
+};
+};  // namespace aos

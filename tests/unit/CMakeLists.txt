@@ -32,3 +32,4 @@ cxx_executable(bybit_order_storage ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main 
 cxx_executable(bybit_spot_buy_limit_order ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus)
 cxx_executable(bybit_place_order_request_maker ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus)
 cxx_executable(bybit_cancel_order_request_maker ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus)
+cxx_executable(order_book ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus)
