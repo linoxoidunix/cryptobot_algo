@@ -82,5 +82,20 @@ enum class PendingAction {
     kTrigger  // (опционально) ожидается срабатывание стопа
 };
 
+namespace spot {
+enum class Depth { k1, k50, k200 };
+};
+
+namespace linear {
+enum class Depth { k1, k50, k200, k500 };
+};
+
+namespace inverse {
+enum class Depth { k1, k50, k200, k500 };
+};
+
+namespace option {
+enum class Depth { k25, k100 };
+};
 };  // namespace bybit
 };  // namespace aoe

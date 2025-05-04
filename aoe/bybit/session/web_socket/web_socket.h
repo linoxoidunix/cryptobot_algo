@@ -129,6 +129,115 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
 };
 };  // namespace trade_channel
 };  // namespace test_net
+
+namespace test_net {
+namespace spot {
+namespace order_book_channel {
+class SessionRW : public WebSocketPublicSessionRWInterface {
+    boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
+    aoe::impl::WebSocketSessionRW ws_;
+
+  public:
+    SessionRW(boost::asio::io_context& ioc,
+              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+              ResponseQueueListenerInterface& listener)
+        : ws_(ioc, ctx_, "stream-testnet.bybit.com", "443", "/v5/public/spot",
+              response_queue, listener) {}
+    void AsyncWrite(nlohmann::json&& j) override {
+        ws_.AsyncWrite(std::move(j));
+    };
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return ws_.GetResponseQueue();
+    }
+
+    ~SessionRW() override = default;
+};
+};  // namespace order_book_channel
+};  // namespace spot
+};  // namespace test_net
+
+namespace test_net {
+namespace linear {
+namespace order_book_channel {
+class SessionRW : public WebSocketPublicSessionRWInterface {
+    boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
+    aoe::impl::WebSocketSessionRW ws_;
+
+  public:
+    SessionRW(boost::asio::io_context& ioc,
+              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+              ResponseQueueListenerInterface& listener)
+        : ws_(ioc, ctx_, "stream-testnet.bybit.com", "443", "/v5/public/linear",
+              response_queue, listener) {}
+    void AsyncWrite(nlohmann::json&& j) override {
+        ws_.AsyncWrite(std::move(j));
+    };
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return ws_.GetResponseQueue();
+    }
+
+    ~SessionRW() override = default;
+};
+};  // namespace order_book_channel
+};  // namespace linear
+};  // namespace test_net
+
+namespace main_net {
+namespace spot {
+namespace order_book_channel {
+class SessionRW : public WebSocketPublicSessionRWInterface {
+    boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
+    aoe::impl::WebSocketSessionRW ws_;
+
+  public:
+    SessionRW(boost::asio::io_context& ioc,
+              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+              ResponseQueueListenerInterface& listener)
+        : ws_(ioc, ctx_, "stream.bybit.com", "443", "/v5/public/spot",
+              response_queue, listener) {}
+    void AsyncWrite(nlohmann::json&& j) override {
+        ws_.AsyncWrite(std::move(j));
+    };
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return ws_.GetResponseQueue();
+    }
+
+    ~SessionRW() override = default;
+};
+};  // namespace order_book_channel
+};  // namespace spot
+};  // namespace main_net
+
+namespace main_net {
+namespace linear {
+namespace order_book_channel {
+class SessionRW : public WebSocketPublicSessionRWInterface {
+    boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
+    aoe::impl::WebSocketSessionRW ws_;
+
+  public:
+    SessionRW(boost::asio::io_context& ioc,
+              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+              ResponseQueueListenerInterface& listener)
+        : ws_(ioc, ctx_, "stream.bybit.com", "443", "/v5/public/linear",
+              response_queue, listener) {}
+    void AsyncWrite(nlohmann::json&& j) override {
+        ws_.AsyncWrite(std::move(j));
+    };
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return ws_.GetResponseQueue();
+    }
+
+    ~SessionRW() override = default;
+};
+};  // namespace order_book_channel
+};  // namespace linear
+};  // namespace main_net
+
 };  // namespace impl
 };  // namespace bybit
 };  // namespace aoe

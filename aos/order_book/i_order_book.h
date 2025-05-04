@@ -2,10 +2,12 @@
 #include <utility>  // std::pair
 
 #include "aos/bbo_full/bbo_full.h"
+#include "aos/order_book_view/i_order_book_view.h"
+#include "boost/intrusive_ptr.hpp"
 
 namespace aos {
 template <typename Price, typename Qty>
-class OrderBookInterface {
+class OrderBookInnerInterface {
   public:
     // add bid level
     virtual void AddBidLevel(Price price, Qty qty) = 0;
@@ -17,7 +19,7 @@ class OrderBookInterface {
     virtual void RemoveAskLevel(Price price)       = 0;
     // clear order book
     virtual void Clear()                           = 0;
-    virtual ~OrderBookInterface()                  = default;
+    virtual ~OrderBookInnerInterface()             = default;
 };
 
 template <typename Price, typename Qty>
@@ -25,5 +27,26 @@ class HasBBOInterface {
   public:
     virtual std::pair<bool, BBOFull<Price, Qty>> GetBBO() = 0;
     virtual ~HasBBOInterface()                            = default;
+};
+
+template <typename Price, typename Qty>
+class OrderBookInterface {
+  public:
+    // add bid level
+    virtual void AddBidOrder(Price price, Qty qty) = 0;
+    // remove bid lvl
+    virtual void AddAskOrder(Price price, Qty qty) = 0;
+    // remove ask lvl
+    virtual void Clear()                           = 0;
+    virtual ~OrderBookInterface()                  = default;
+};
+
+template <typename Price, typename Qty>
+class OrderBookEventListenerInterface {
+  public:
+    // add bid level
+    virtual void OnEvent(
+        boost::intrusive_ptr<OrderBookTwoSideViewInterface<Price, Qty>>) = 0;
+    virtual ~OrderBookEventListenerInterface() = default;
 };
 };  // namespace aos

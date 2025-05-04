@@ -152,5 +152,67 @@ EnumValueWithStatus OrderRoutingToString(OrderRouting orderRouting) {
             return {false, ""};
     }
 }
+
+namespace spot {
+EnumValueWithStatus DepthToString(Depth depth) {
+    switch (depth) {
+        case Depth::k1:
+            return {true, "1"};
+        case Depth::k50:
+            return {true, "50"};
+        case Depth::k200:
+            return {true, "200"};
+        default:
+            return {false, ""};
+    }
+};
+};  // namespace spot
+
+namespace linear {
+EnumValueWithStatus DepthToString(Depth depth) {
+    switch (depth) {
+        case Depth::k1:
+            return {true, "1"};
+        case Depth::k50:
+            return {true, "50"};
+        case Depth::k200:
+            return {true, "200"};
+        case Depth::k500:
+            return {true, "500"};
+        default:
+            return {false, ""};
+    }
+};
+};  // namespace linear
+
+namespace inverse {
+EnumValueWithStatus DepthToString(Depth depth) {
+    switch (depth) {
+        case Depth::k1:
+            return {true, "1"};
+        case Depth::k50:
+            return {true, "50"};
+        case Depth::k200:
+            return {true, "200"};
+        case Depth::k500:
+            return {true, "500"};
+        default:
+            return {false, ""};
+    }
+};
+};  // namespace inverse
+
+namespace option {
+EnumValueWithStatus DepthToString(Depth depth) {
+    switch (depth) {
+        case Depth::k25:
+            return {true, "25"};
+        case Depth::k100:
+            return {true, "100"};
+        default:
+            return {false, ""};
+    }
+};
+};  // namespace option
 };  // namespace bybit
 };  // namespace aoe

@@ -15,12 +15,12 @@ using namespace aoe::bybit::impl;
 using namespace aos;
 
 // Объявление типа OrderBook с подстановкой
-using TestOrderBook =
-    aos::OrderBook<double, double, common::MemoryPoolNotThreadSafety,
-                   std::unordered_map<double, OrderBookLevel<double, double>*>>;
+using TestOrderBookInner = aos::OrderBookInner<
+    double, double, common::MemoryPoolNotThreadSafety,
+    std::unordered_map<double, OrderBookLevel<double, double>*>>;
 
 TEST(OrderBookTest, BasicAddAndGetBBO) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
 
     book.AddBidLevel(100.0, 5.0);
     book.AddAskLevel(101.0, 10.0);
@@ -34,13 +34,13 @@ TEST(OrderBookTest, BasicAddAndGetBBO) {
 }
 
 TEST(OrderBookTest, EmptyBBO) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     auto [has_bbo, bbo] = book.GetBBO();
     EXPECT_FALSE(has_bbo);
 }
 
 TEST(OrderBookTest, OverwriteBidLevel) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     book.AddBidLevel(100.0, 5.0);
     book.AddBidLevel(100.0, 8.0);  // перезапись
 
@@ -53,7 +53,7 @@ TEST(OrderBookTest, OverwriteBidLevel) {
 }
 
 TEST(OrderBookTest, OverwriteAskLevel) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     book.AddBidLevel(100.0, 5.0);  // нужно для GetBBO
 
     book.AddAskLevel(101.0, 10.0);
@@ -66,7 +66,7 @@ TEST(OrderBookTest, OverwriteAskLevel) {
 }
 
 TEST(OrderBookTest, RemoveBidAndAsk) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     book.AddBidLevel(100.0, 5.0);
     book.AddAskLevel(101.0, 10.0);
 
@@ -78,7 +78,7 @@ TEST(OrderBookTest, RemoveBidAndAsk) {
 }
 
 TEST(OrderBookTest, MultipleLevelsBBOSelection) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     book.AddBidLevel(99.0, 1.0);
     book.AddBidLevel(100.0, 2.0);  // best bid
     book.AddBidLevel(98.0, 3.0);
@@ -96,7 +96,7 @@ TEST(OrderBookTest, MultipleLevelsBBOSelection) {
 }
 
 TEST(OrderBookTest, RemoveOneSideExpectBBOFalse) {
-    TestOrderBook book{100};
+    TestOrderBookInner book{100};
     book.AddBidLevel(100.0, 5.0);
     book.AddAskLevel(101.0, 10.0);
 

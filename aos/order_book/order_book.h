@@ -7,8 +7,8 @@
 namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
-class OrderBook : public OrderBookInterface<Price, Qty>,
-                  public HasBBOInterface<Price, Qty> {
+class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
+                       public HasBBOInterface<Price, Qty> {
     using MemberOption =
         boost::intrusive::member_hook<OrderBookLevel<Price, Qty>,
                                       boost::intrusive::avl_set_member_hook<>,
@@ -33,15 +33,15 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
     MemoryPool<OrderBookLevel<Price, Qty>> ask_lvl_memory_pool_;
 
   public:
-    OrderBook(size_t max_level)
+    OrderBookInner(size_t max_level)
         : bid_lvl_memory_pool_(max_level), ask_lvl_memory_pool_(max_level) {};
-    OrderBook(common::ExchangeId exchange_id, common::TradingPair trading_pair,
-              size_t max_level)
+    OrderBookInner(common::ExchangeId exchange_id,
+                   common::TradingPair trading_pair, size_t max_level)
         : exchange_id_(exchange_id),
           trading_pair_(trading_pair),
           bid_lvl_memory_pool_(max_level),
           ask_lvl_memory_pool_(max_level) {}
-    ~OrderBook() override = default;
+    ~OrderBookInner() override = default;
     void Clear() override {
         price_to_bid_level_.clear();
         price_to_ask_level_.clear();
@@ -111,4 +111,63 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
         return std::make_pair(true, bbo);
     }
 };
+
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename HashMap>
+class OrderBook : public OrderBookInterface<Price, Qty>,
+                  public HasBBOInterface<Price, Qty> {
+    OrderBookInner<Price, Qty, MemoryPool, HashMap> inner_order_book_;
+
+  public:
+    OrderBook(size_t max_levels) : inner_order_book_(max_levels) {}
+    OrderBook(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+              size_t max_level)
+        : inner_order_book_(exchange_id, trading_pair, max_level) {}
+    void AddBidOrder(Price price, Qty qty) override {
+        if (qty == 0) {
+            inner_order_book_.RemoveBidLevel(price);
+            return;
+        }
+        inner_order_book_.AddBidLevel(price, qty);
+    };
+    // remove bid lvl
+    void AddAskOrder(Price price, Qty qty) override {
+        if (qty == 0) {
+            inner_order_book_.RemoveAskLevel(price);
+            return;
+        }
+        inner_order_book_.AddAskLevel(price, qty);
+    };
+    void Clear() override { inner_order_book_.Clear(); };
+    std::pair<bool, BBOFull<Price, Qty>> GetBBO() override {
+        return inner_order_book_.GetBBO();
+    }
+    ~OrderBook() = default;
+};
+
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename HashMap>
+class OrderBookEventListener
+    : public OrderBookEventListenerInterface<Price, Qty> {
+    OrderBook<Price, Qty, MemoryPool, HashMap> order_book_;
+
+  public:
+    OrderBookEventListener(size_t max_levels) : order_book_(max_levels) {}
+    OrderBookEventListener(common::ExchangeId exchange_id,
+                           common::TradingPair trading_pair, size_t max_level)
+        : order_book_(exchange_id, trading_pair, max_level) {}
+    ~OrderBookEventListener() override = default;
+    void OnEvent(
+        boost::intrusive_ptr<OrderBookTwoSideViewInterface<Price, Qty>> ptr) {
+        auto& bids = ptr->Bids();
+        for (auto& it : bids) {
+            order_book_.AddBidOrder(it.price, it.qty);
+        }
+        auto& asks = ptr->Asks();
+        for (auto& it : asks) {
+            order_book_.AddAskOrder(it.price, it.qty);
+        }
+    }
+};
+
 };  // namespace aos
