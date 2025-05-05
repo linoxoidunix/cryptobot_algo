@@ -10,6 +10,8 @@
 #include <thread>
 
 #include "aoe/aoe.h"
+#include "aoe/bybit/order_book_sync/order_book_sync.h"
+#include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
 #include "aos/aos.h"
 #include "aot/common/mem_pool.h"
 
@@ -20,9 +22,21 @@ int main(int argc, char** argv) {
 
         //-------------------------------------------------------------------------------
         moodycamel::ConcurrentQueue<std::vector<char>> queue;
+        aos::OrderBookEventListener<
+            double, double, common::MemoryPoolThreadSafety,
+            std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
+            order_book{1000};
+        aoe::bybit::impl::OrderBookSync<
+            double, double, common::MemoryPoolThreadSafety,
+            std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
+            order_book_sync{order_book};
+        aos::impl::TradingPairFactoryTest trading_pair_factory;
+        aoe::bybit::impl::OrderBookEventParser<double, double,
+                                               common::MemoryPoolThreadSafety>
+            parser{1000, trading_pair_factory};
         aoe::bybit::impl::order_book_response::Listener<
-            common::MemoryPoolThreadSafety>
-            listener(thread_pool, queue);
+            double, double, common::MemoryPoolThreadSafety>
+            listener(thread_pool, queue, parser, order_book_sync);
 
         //-------------------------------------------------------------------------------
 

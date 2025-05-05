@@ -38,6 +38,7 @@
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 #include "aos/order_book_diff/i_order_book_diff.h"
+#include "aos/order_book_event/i_order_book_event.h"
 #include "aos/order_book/i_order_book.h"
 #include "aos/order_book_level/order_book_level.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"

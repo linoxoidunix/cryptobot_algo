@@ -1,6 +1,6 @@
 #pragma once
-#include "aoe/bybit/execution_watcher/i_execution_watcher.h"
-#include "aoe/bybit/parser/json/ws/execution_response/i_execution_event_parser.h"
+#include "aoe/bybit/order_book_sync/i_order_book_sync.h"
+#include "aoe/bybit/parser/json/ws/order_book_response/i_parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aot/Logger.h"
 #include "boost/asio.hpp"
@@ -12,27 +12,22 @@ namespace bybit {
 namespace impl {
 namespace order_book_response {
 
-template <template <typename> typename MemoryPool>
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class Listener : public ResponseQueueListenerInterface {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     moodycamel::ConcurrentQueue<std::vector<char>>& queue_;
-    // ExecutionEventParserInterface<MemoryPool>& parser_;
-    // ExecutionWatcherInterface<MemoryPool, PositionT>& watcher_;
+    OrderBookEventParserInterface<Price, Qty, MemoryPool>& parser_;
+    OrderBookSyncInterface<Price, Qty, MemoryPool>& sync_;
 
   public:
     Listener(boost::asio::thread_pool& thread_pool,
-             moodycamel::ConcurrentQueue<std::vector<char>>& queue
-             /*,
-             ExecutionEventParserInterface<MemoryPool, PositionT>& parser,
-             ExecutionWatcherInterface<MemoryPool, PositionT>& watcher
-             */
-             )
+             moodycamel::ConcurrentQueue<std::vector<char>>& queue,
+             OrderBookEventParserInterface<Price, Qty, MemoryPool>& parser,
+             OrderBookSyncInterface<Price, Qty, MemoryPool>& sync)
         : strand_(boost::asio::make_strand(thread_pool)),
-          queue_(queue)
-    // ,
-    // parser_(parser),
-    // watcher_(watcher)
-    {}
+          queue_(queue),
+          parser_(parser),
+          sync_(sync) {}
     void OnDataEnqueued() override {
         boost::asio::co_spawn(strand_, ProcessQueue(), boost::asio::detached);
     }
@@ -43,7 +38,6 @@ class Listener : public ResponseQueueListenerInterface {
         std::vector<char> msg;
         simdjson::ondemand::parser parser;
         while (queue_.try_dequeue(msg)) {
-            // Обработка данных (например, parse via simdjson)
             logi("process message of size {}", msg.size());
             simdjson::padded_string padded_json(msg.data(), msg.size());
             simdjson::ondemand::document doc;
@@ -54,9 +48,9 @@ class Listener : public ResponseQueueListenerInterface {
                 logi("parsing error: {}", simdjson::error_message(error));
                 co_return;
             }
-            // auto [status, ptr] = parser_.ParseAndCreate(doc);
-            // if (!status) co_return;
-            // watcher_.OnEvent(ptr);
+            auto [status, ptr] = parser_.ParseAndCreate(doc);
+            if (!status) co_return;
+            sync_.OnEvent(ptr);
         }
         co_return;
     }

@@ -38,6 +38,7 @@ class ExecutionEventParser
     aos::TradingPairFactoryInterface& trading_pair_factory_;
 
   public:
+    ~ExecutionEventParser() override = default;
     explicit ExecutionEventParser(
         std::size_t pool_size,
         aos::TradingPairFactoryInterface& trading_pair_factory)

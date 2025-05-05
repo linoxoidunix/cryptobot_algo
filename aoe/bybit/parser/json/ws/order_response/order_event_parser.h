@@ -33,6 +33,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
     MemoryPool<OrderEventDeactivated<MemoryPool>> pool_order_deactivated_;
 
   public:
+    ~OrderEventParser() override = default;
     OrderEventParser(std::size_t pool_size,
                      aos::TradingPairFactoryInterface& trading_pair_factory)
         : trading_pair_factory_(trading_pair_factory),
