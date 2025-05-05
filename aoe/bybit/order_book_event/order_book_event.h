@@ -5,12 +5,16 @@
 #include "aos/order_book_level_raw/order_book_level_raw.h"
 namespace aoe {
 namespace bybit {
+namespace impl {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSnapshotEventDefault
     : public OrderBookEventInterface<Price, Qty, MemoryPool> {
   public:
     OrderBookSnapshotEventDefault() = default;
     ~OrderBookSnapshotEventDefault() override {};
+    void Accept(OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
+        logi("process event as snapshot");
+    };
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
@@ -19,7 +23,11 @@ class OrderBookDiffEventDefault
   public:
     OrderBookDiffEventDefault() = default;
     ~OrderBookDiffEventDefault() override {};
+    void Accept(OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
+        logi("process event as diff");
+    };
 };
+};  // namespace impl
 
 };  // namespace bybit
 };  // namespace aoe

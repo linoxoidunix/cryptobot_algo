@@ -37,79 +37,87 @@ class OrderBookEventParser
                          aos::TradingPairFactoryInterface& trading_pair_factory)
         : trading_pair_factory_(trading_pair_factory),
           pool_order_snapshot_(pool_size),
-          pool_order_diff_(pool_size) {}
+          pool_order_diff_(pool_size) {
+        RegisterFromConfig();
+    }
 
     std::pair<bool, EventPtr> ParseAndCreate(
         simdjson::ondemand::document& doc) override {
-        auto data_json    = doc["data"];
-        auto array_result = data_json.get_array();
-        if (array_result.error() != simdjson::SUCCESS) return {false, nullptr};
-        for (auto item : array_result.value()) {
-            auto update_id = item["u"].get_uint64_in_string();
-            if (update_id.error() != simdjson::SUCCESS)
-                return std::make_pair(false, nullptr);
+        std::string_view event_type;
+        auto status_type_event = doc["type"].get_string().get(event_type);
+        if (status_type_event != simdjson::SUCCESS) return {false, nullptr};
 
-            auto symbol = item["s"];
-            if (symbol.error() != simdjson::SUCCESS)
-                return std::make_pair(false, nullptr);
-            auto it = factory_map_.find(symbol);
+        simdjson::simdjson_result<simdjson::ondemand::object> data_obj_result =
+            doc["data"].get_object();
+        if (data_obj_result.error() != simdjson::SUCCESS)
+            return {false, nullptr};
 
-            if (it != factory_map_.end()) {
-                auto ptr = it->second();
-                ptr->SetUpdateId(update_id.value());
-                auto [status, trading_pair] =
-                    trading_pair_factory_.Produce(symbol.value());
-                if (!status) return std::make_pair(false, nullptr);
-                ptr->SetTradingPair(trading_pair);
+        simdjson::ondemand::object data_obj = data_obj_result.value();
 
-                auto bids_array_result = item["b"].get_array();
-                if (bids_array_result.error() == simdjson::SUCCESS) {
-                    std::vector<aos::OrderBookLevelRaw<Price, Qty>> bids;
-                    // i knew that max 500 lvl for bybit
-                    bids.reserve(1000);
-                    for (auto bid_entry : bids_array_result.value()) {
-                        simdjson::ondemand::array bid_pair =
-                            bid_entry.get_array();
-                        auto price_result =
-                            bid_pair.at(0).get_double_in_string();
-                        if (price_result.error() != simdjson::SUCCESS) {
-                            return std::make_pair(false, nullptr);
-                        }
-                        auto qty_result = bid_pair.at(1).get_double_in_string();
-                        if (qty_result.error() != simdjson::SUCCESS) {
-                            return std::make_pair(false, nullptr);
-                        }
-                        bids.emplace_back(price_result.value(),
-                                          qty_result.value());
-                    }
-                    ptr->SetBids(std::move(bids));
-                }
-                auto asks_array_result = item["a"].get_array();
-                if (asks_array_result.error() == simdjson::SUCCESS) {
-                    std::vector<aos::OrderBookLevelRaw<Price, Qty>> asks;
-                    // i knew that max 500 lvl for bybit
-                    asks.reserve(1000);
-                    for (auto ask_entry : asks_array_result.value()) {
-                        simdjson::ondemand::array ask_pair =
-                            ask_entry.get_array();
-                        auto price_result =
-                            ask_pair.at(0).get_double_in_string();
-                        if (price_result.error() != simdjson::SUCCESS) {
-                            return std::make_pair(false, nullptr);
-                        }
-                        auto qty_result = ask_pair.at(1).get_double_in_string();
-                        if (qty_result.error() != simdjson::SUCCESS) {
-                            return std::make_pair(false, nullptr);
-                        }
-                        asks.emplace_back(price_result.value(),
-                                          qty_result.value());
-                    }
-                    ptr->SetAsks(std::move(asks));
-                }
-                return std::make_pair(true, ptr);
+        auto it_factory                     = factory_map_.find(event_type);
+        if (it_factory == factory_map_.end()) return {false, nullptr};
+
+        EventPtr ptr          = it_factory->second();
+
+        // update_id
+        auto update_id_result = data_obj["u"].get_uint64();
+        if (update_id_result.error() != simdjson::SUCCESS)
+            return {false, nullptr};
+        ptr->SetUpdateId(update_id_result.value());
+
+        // symbol
+        simdjson::simdjson_result<std::string_view> symbol_result =
+            data_obj["s"].get_string();
+        if (symbol_result.error() != simdjson::SUCCESS) return {false, nullptr};
+
+        auto [status, trading_pair] =
+            trading_pair_factory_.Produce(symbol_result.value());
+        if (!status) return {false, nullptr};
+        ptr->SetTradingPair(trading_pair);
+
+        // bids
+        auto bids_result = data_obj["b"].get_array();
+        if (bids_result.error() == simdjson::SUCCESS) {
+            std::vector<aos::OrderBookLevelRaw<Price, Qty>> bids;
+            bids.reserve(1000);
+            for (auto bid_entry : bids_result.value()) {
+                simdjson::ondemand::array bid_pair = bid_entry.get_array();
+                auto it                            = bid_pair.begin();
+                auto price_result = (*it).get_double_in_string();
+                if (price_result.error() != simdjson::SUCCESS)
+                    return {false, nullptr};
+                ++it;
+
+                auto qty_result = (*it).get_double_in_string();
+                if (qty_result.error() != simdjson::SUCCESS)
+                    return {false, nullptr};
+                bids.emplace_back(price_result.value(), qty_result.value());
             }
+            ptr->SetBids(std::move(bids));
         }
-        return {false, nullptr};
+
+        // asks
+        auto asks_result = data_obj["a"].get_array();
+        if (asks_result.error() == simdjson::SUCCESS) {
+            std::vector<aos::OrderBookLevelRaw<Price, Qty>> asks;
+            asks.reserve(1000);
+            for (auto ask_entry : asks_result.value()) {
+                simdjson::ondemand::array ask_pair = ask_entry.get_array();
+                auto it                            = ask_pair.begin();
+                auto price_result = (*it).get_double_in_string();
+                if (price_result.error() != simdjson::SUCCESS)
+                    return {false, nullptr};
+                ++it;
+
+                auto qty_result = (*it).get_double_in_string();
+                if (qty_result.error() != simdjson::SUCCESS)
+                    return {false, nullptr};
+                asks.emplace_back(price_result.value(), qty_result.value());
+            }
+            ptr->SetAsks(std::move(asks));
+        }
+
+        return {true, ptr};
     }
 
   private:

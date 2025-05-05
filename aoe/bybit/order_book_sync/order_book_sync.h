@@ -18,6 +18,7 @@ class OrderBookSync : public OrderBookSyncInterface<Price, Qty, MemoryPool> {
         boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
             ptr) override {
         logi("listen message");
+        ptr->Accept(*this);
     };
 };
 };  // namespace impl

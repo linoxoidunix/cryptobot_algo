@@ -1,6 +1,12 @@
 #pragma once
-#include "aoe/bybit/order_book_event/i_order_book_event.h"
 #include "boost/intrusive_ptr.hpp"
+
+namespace aoe {
+namespace bybit {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class OrderBookEventInterface;
+};
+};  // namespace aoe
 namespace aoe {
 namespace bybit {
 

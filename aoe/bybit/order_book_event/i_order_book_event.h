@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "aoe/bybit/enums/enums.h"
+#include "aoe/bybit/order_book_sync/i_order_book_sync.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_book_event/i_order_book_event.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"
@@ -39,6 +40,9 @@ class OrderBookEventInterface
     std::vector<aos::OrderBookLevelRaw<Price, Qty>>& Asks() override {
         return asks_;
     }
+
+    virtual void Accept(
+        OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) = 0;
 
   protected:
     aoe::bybit::OrderStatus order_status_ = aoe::bybit::OrderStatus::kInvalid;
