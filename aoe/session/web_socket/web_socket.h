@@ -194,6 +194,7 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                 response_queue_.enqueue(std::move(data_copy));  // копия строки
                 logi("get data queue_size:{}", response_queue_.size_approx());
                 listener_.OnDataEnqueued();
+                logi("add message to queue");
             } else {
                 logd("No data was read");
             }

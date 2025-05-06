@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
         //-------------------------------------------------------------------------------
 
         boost::asio::io_context ioc_order_book_channel;
-        aoe::bybit::impl::test_net::spot::order_book_channel::SessionRW
+        aoe::bybit::impl::main_net::spot::order_book_channel::SessionRW
             session_trade_channel(ioc_order_book_channel, queue, listener);
         aos::impl::TradingPairPrinter printer;
         aoe::bybit::impl::spot::OrderBookSubscriptionBuilder sub_builder{
