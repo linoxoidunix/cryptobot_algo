@@ -13,8 +13,7 @@ namespace aoe {
 namespace bybit {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookEventInterface
-    : public aos::OrderBookTwoSideViewInterface<Price, Qty>,
-      public aos::OrderBookEventInterface<MemoryPool> {
+    : public aos::OrderBookEventInterface<Price, Qty, MemoryPool> {
   public:
     virtual ~OrderBookEventInterface() = default;
     virtual uint64_t UpdateId() const { return update_id_; };

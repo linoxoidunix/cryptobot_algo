@@ -14,6 +14,7 @@ class OrderBookSnapshotEventDefault
     ~OrderBookSnapshotEventDefault() override {};
     void Accept(OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
         logi("process event as snapshot");
+        sync.AcceptSnapshot(this);
     };
 };
 
@@ -25,6 +26,7 @@ class OrderBookDiffEventDefault
     ~OrderBookDiffEventDefault() override {};
     void Accept(OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
         logi("process event as diff");
+        sync.AcceptDiff(this);
     };
 };
 };  // namespace impl

@@ -25,11 +25,11 @@ int main(int argc, char** argv) {
         aos::OrderBookEventListener<
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
-            order_book{1000};
+            order_book{thread_pool, 1000};
         aoe::bybit::impl::OrderBookSync<
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
-            order_book_sync{order_book};
+            order_book_sync{thread_pool, order_book};
         aos::impl::TradingPairFactoryTest trading_pair_factory;
         aoe::bybit::impl::OrderBookEventParser<double, double,
                                                common::MemoryPoolThreadSafety>

@@ -148,17 +148,35 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBookEventListener
-    : public OrderBookEventListenerInterface<Price, Qty> {
+    : public OrderBookEventListenerInterface<Price, Qty, MemoryPool> {
+    boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     OrderBook<Price, Qty, MemoryPool, HashMap> order_book_;
 
   public:
-    OrderBookEventListener(size_t max_levels) : order_book_(max_levels) {}
-    OrderBookEventListener(common::ExchangeId exchange_id,
+    OrderBookEventListener(boost::asio::thread_pool& thread_pool,
+                           size_t max_levels)
+        : strand_(boost::asio::make_strand(thread_pool)),
+          order_book_(max_levels) {}
+    OrderBookEventListener(boost::asio::thread_pool& thread_pool,
+                           common::ExchangeId exchange_id,
                            common::TradingPair trading_pair, size_t max_level)
-        : order_book_(exchange_id, trading_pair, max_level) {}
+        : strand_(boost::asio::make_strand(thread_pool)),
+          order_book_(exchange_id, trading_pair, max_level) {}
     ~OrderBookEventListener() override = default;
     void OnEvent(
-        boost::intrusive_ptr<OrderBookTwoSideViewInterface<Price, Qty>> ptr) {
+        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+            ptr) {
+        boost::asio::co_spawn(strand_, ProcessEvent(ptr),
+                              boost::asio::detached);
+    }
+    void Clear() override {
+        boost::asio::co_spawn(strand_, ProcessClear(), boost::asio::detached);
+    }
+
+  private:
+    boost::asio::awaitable<void> ProcessEvent(
+        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+            ptr) {
         auto& bids = ptr->Bids();
         for (auto& it : bids) {
             order_book_.AddBidOrder(it.price, it.qty);
@@ -167,6 +185,11 @@ class OrderBookEventListener
         for (auto& it : asks) {
             order_book_.AddAskOrder(it.price, it.qty);
         }
+        co_return;
+    }
+    boost::asio::awaitable<void> ProcessClear() {
+        order_book_.Clear();
+        co_return;
     }
 };
 

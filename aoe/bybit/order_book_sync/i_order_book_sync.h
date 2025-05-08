@@ -17,6 +17,12 @@ class OrderBookSyncInterface {
     virtual void OnEvent(
         boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
             ptr) = 0;
+    virtual void AcceptSnapshot(
+        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+            ptr) = 0;
+    virtual void AcceptDiff(
+        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+            ptr) = 0;
 };
 };  // namespace bybit
 };  // namespace aoe

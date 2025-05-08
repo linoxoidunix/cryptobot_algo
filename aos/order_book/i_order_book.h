@@ -2,7 +2,7 @@
 #include <utility>  // std::pair
 
 #include "aos/bbo_full/bbo_full.h"
-#include "aos/order_book_view/i_order_book_view.h"
+#include "aos/order_book_event/i_order_book_event.h"
 #include "boost/intrusive_ptr.hpp"
 
 namespace aos {
@@ -29,24 +29,29 @@ class HasBBOInterface {
     virtual ~HasBBOInterface()                            = default;
 };
 
+class ClearOrderBookInterface {
+  public:
+    virtual void Clear()               = 0;
+    virtual ~ClearOrderBookInterface() = default;
+};
+
 template <typename Price, typename Qty>
-class OrderBookInterface {
+class OrderBookInterface : public ClearOrderBookInterface {
   public:
     // add bid level
     virtual void AddBidOrder(Price price, Qty qty) = 0;
     // remove bid lvl
     virtual void AddAskOrder(Price price, Qty qty) = 0;
     // remove ask lvl
-    virtual void Clear()                           = 0;
     virtual ~OrderBookInterface()                  = default;
 };
 
-template <typename Price, typename Qty>
-class OrderBookEventListenerInterface {
+template <typename Price, typename Qty, template <typename> class MemoryPool>
+class OrderBookEventListenerInterface : public ClearOrderBookInterface {
   public:
     // add bid level
-    virtual void OnEvent(
-        boost::intrusive_ptr<OrderBookTwoSideViewInterface<Price, Qty>>) = 0;
+    virtual void OnEvent(boost::intrusive_ptr<
+                         OrderBookEventInterface<Price, Qty, MemoryPool>>) = 0;
     virtual ~OrderBookEventListenerInterface() = default;
 };
 };  // namespace aos
