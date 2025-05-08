@@ -61,18 +61,24 @@ class OrderBookSync : public OrderBookSyncInterface<Price, Qty, MemoryPool> {
             // orderbook
             order_book_.Clear();
         }
+        current_diff_update_id_ = current_snapshot_update_id_;
         order_book_.OnEvent(ptr);
         co_return;
     }
     boost::asio::awaitable<void> ProcessDiff(
         boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
             ptr) {
+        if (!received_snapshot_success_) co_return;
         auto new_update_id = ptr->UpdateId();
         if (current_diff_update_id_ + 1 != new_update_id) {
             order_book_.Clear();
+            received_snapshot_success_  = false;
+            current_diff_update_id_     = 0;
+            current_snapshot_update_id_ = 0;
             co_return;
         }
         order_book_.OnEvent(ptr);
+        current_diff_update_id_ = new_update_id;
         co_return;
     }
 };

@@ -45,16 +45,22 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
     void Clear() override {
         price_to_bid_level_.clear();
         price_to_ask_level_.clear();
-        for (auto& elem : bid_levels_) {
-            bid_lvl_memory_pool_.Deallocate(&elem);
+        while (!bid_levels_.empty()) {
+            auto it    = bid_levels_.begin();
+            auto* node = &*it;
+            bid_levels_.erase(it);
+            bid_lvl_memory_pool_.Deallocate(node);
         }
-        bid_levels_.clear();
-        for (auto& elem : ask_levels_) {
-            ask_lvl_memory_pool_.Deallocate(&elem);
+
+        while (!ask_levels_.empty()) {
+            auto it    = ask_levels_.begin();
+            auto* node = &*it;
+            ask_levels_.erase(it);
+            ask_lvl_memory_pool_.Deallocate(node);
         }
-        ask_levels_.clear();
     }
     void AddBidLevel(Price price, Qty qty) {
+        logi("[ORDER_BOOK] add bid price:{} qty:{}", price, qty);
         auto contains = price_to_bid_level_.contains(price);
         if (contains) {
             price_to_bid_level_.at(price)->price = price;
@@ -66,6 +72,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         bid_levels_.insert_unique(*ptr);
     }
     void AddAskLevel(Price price, Qty qty) {
+        logi("[ORDER_BOOK] add ask price:{} qty:{}", price, qty);
         auto contains = price_to_ask_level_.contains(price);
         if (contains) {
             price_to_ask_level_.at(price)->price = price;
@@ -77,6 +84,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         ask_levels_.insert_unique(*ptr);
     }
     void RemoveBidLevel(Price price) {
+        logi("[ORDER_BOOK] rm bid price:{}", price);
         auto contains = price_to_bid_level_.contains(price);
         if (!contains) {
             return;
@@ -87,6 +95,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         bid_lvl_memory_pool_.Deallocate(ptr);
     }
     void RemoveAskLevel(Price price) {
+        logi("[ORDER_BOOK] rm ask price:{}", price);
         auto contains = price_to_ask_level_.contains(price);
         if (!contains) {
             return;
