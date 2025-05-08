@@ -59,7 +59,6 @@
 #include "aoe/bybit/session/web_socket/i_web_socket.h"
 #include "aoe/bybit/session/web_socket/web_socket.h"
 #include "aoe/bybit/subscription_builder/subscription_builder.h"
-#include "aoe/bybit/trading_pair_printer/ws/public/order_book_channel.h"
 #include "aoe/credentials/api_key/api_key.h"
 #include "aoe/credentials/api_key/i_api_key.h"
 #include "aoe/credentials/i_credentials.h"

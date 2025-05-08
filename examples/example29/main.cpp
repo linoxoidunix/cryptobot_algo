@@ -9,14 +9,14 @@
 // #include "aos/multi_order_manager/multi_order_manager.h"
 #include "aoe/aoe.h"
 #include "aos/aos.h"
-#include "aos/trading_pair_printer/trading_pair_printer.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/mem_pool.h"
 
 using BybitSpotBuyLimit =
     aoe::bybit::place_order::impl::SpotBuyLimit<common::MemoryPoolThreadSafety>;
-auto AllocatePlaceOrder(common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool,
-                        aos::impl::TradingPairPrinter& printer) {
-    auto ptr = pool.Allocate(printer);
+auto AllocatePlaceOrder(
+    common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool) {
+    auto ptr = pool.Allocate();
     ptr->SetMemoryPool(&pool);
     return ptr;
 }
@@ -24,9 +24,9 @@ auto AllocatePlaceOrder(common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool,
 using BybitSpotCancel =
     aoe::bybit::cancel_order::impl::Spot<common::MemoryPoolThreadSafety>;
 
-auto AllocateCancelOrder(common::MemoryPoolThreadSafety<BybitSpotCancel>& pool,
-                         aos::impl::TradingPairPrinter& printer) {
-    auto ptr = pool.Allocate(printer);
+auto AllocateCancelOrder(
+    common::MemoryPoolThreadSafety<BybitSpotCancel>& pool) {
+    auto ptr = pool.Allocate();
     ptr->SetMemoryPool(&pool);
     return ptr;
 }
@@ -36,9 +36,7 @@ int main(int argc, char** argv) {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
         //-------------------------------------------------------------------------
-        aos::impl::TradingPairPrinter trading_pair_printer;
 
-        BybitSpotBuyLimit order(trading_pair_printer);
         common::MemoryPoolThreadSafety<BybitSpotBuyLimit>
             memory_pool_bybit_spot_buy_limit{100};
         common::MemoryPoolThreadSafety<BybitSpotCancel>
@@ -59,18 +57,18 @@ int main(int argc, char** argv) {
         bool apikey_readed = private_session_setuper_order.Setup();
         if (!apikey_readed) return -1;
         //-------------------------------------------------------------------------
-        auto ptr_place_order = AllocatePlaceOrder(
-            memory_pool_bybit_spot_buy_limit, trading_pair_printer);
-        ptr_place_order->SetTradingPair({2, 1});
+        auto ptr_place_order =
+            AllocatePlaceOrder(memory_pool_bybit_spot_buy_limit);
+        ptr_place_order->SetTradingPair(aos::TradingPair::kBTCUSDT);
         ptr_place_order->SetOrderSide(aoe::bybit::Side::kBuy);
         ptr_place_order->SetOrderMode(aoe::bybit::OrderMode::kLimit);
         ptr_place_order->SetPrice(50000);
         ptr_place_order->SetQty(0.0001);
         ptr_place_order->SetTimeInForce(aoe::bybit::TimeInForce::kFOK);
         //-------------------------------------------------------------------------
-        auto ptr_cancel_order = AllocateCancelOrder(
-            memory_pool_bybit_spot_cancel, trading_pair_printer);
-        ptr_cancel_order->SetTradingPair({2, 1});
+        auto ptr_cancel_order =
+            AllocateCancelOrder(memory_pool_bybit_spot_cancel);
+        ptr_cancel_order->SetTradingPair(aos::TradingPair::kBTCUSDT);
         ptr_cancel_order->SetOrderId(0);
         //-------------------------------------------------------------------------
         aoe::impl::WebSocketSessionProvider<common::MemoryPoolThreadSafety>

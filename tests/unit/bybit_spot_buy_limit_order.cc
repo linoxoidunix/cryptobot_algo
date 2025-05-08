@@ -14,19 +14,10 @@ using namespace aoe::bybit::impl;
 using namespace aoe::bybit::place_order::impl;
 using namespace aos;
 
-// Мок для интерфейса TradingPairPrinterInterface
-class MockTradingPairPrinter : public TradingPairPrinterInterface {
-  public:
-    MOCK_METHOD((std::pair<bool, std::string_view>), Print,
-                (const aos::TradingPair&), (override));
-};
-
 // Тесты для SpotBuyLimitOrder
 class SpotBuyLimitOrderTest : public ::testing::Test {
   protected:
-    MockTradingPairPrinter mock_trading_pair_printer_;
-    SpotBuyLimit<common::MemoryPoolThreadSafety> order_{
-        mock_trading_pair_printer_};
+    SpotBuyLimit<common::MemoryPoolThreadSafety> order_;
 
     // Можно добавить дополнительные подготовительные шаги, если нужно
     void SetUp() override {
@@ -37,9 +28,6 @@ class SpotBuyLimitOrderTest : public ::testing::Test {
 // Тестирование успешного случая
 TEST_F(SpotBuyLimitOrderTest, AcceptReturnsValidJson) {
     // Мокируем метод Print
-    EXPECT_CALL(mock_trading_pair_printer_, Print(::testing::_))
-        .WillOnce(Return(
-            std::make_pair(true, "BTCUSDT")));  // Символ "BTCUSDT" возвращаем
 
     // Тестируем метод Accept
     auto [status, json] =
@@ -61,9 +49,6 @@ TEST_F(SpotBuyLimitOrderTest, AcceptReturnsValidJson) {
 // Тест на ошибку при некорректном символе
 TEST_F(SpotBuyLimitOrderTest, AcceptReturnsEmptyJsonOnInvalidSymbol) {
     // Мокируем метод Print, который вернёт ошибку
-    EXPECT_CALL(mock_trading_pair_printer_, Print(::testing::_))
-        .WillOnce(
-            Return(std::make_pair(false, "")));  // Ошибка при получении символа
 
     // Тестируем метод Accept
     auto [status, json] = order_.Accept(nullptr);
@@ -77,14 +62,7 @@ TEST_F(SpotBuyLimitOrderTest, AcceptReturnsEmptyJsonOnInvalidSymbol) {
 
 // Тест на ошибку при некорректном категории
 TEST_F(SpotBuyLimitOrderTest, AcceptReturnsEmptyJsonOnInvalidCategory) {
-    // Мокируем метод CategoryToString, чтобы он возвращал ошибку
-    EXPECT_CALL(mock_trading_pair_printer_, Print(::testing::_)).Times(0);
-
     // Мокируем CategoryToString на ошибку
-    EXPECT_CALL(mock_trading_pair_printer_, Print(::testing::_))
-        .WillOnce(Return(
-            std::make_pair(false, "")));  // Ошибка при получении категории
-
     // Тестируем метод Accept
     auto [status, json] = order_.Accept(nullptr);
 

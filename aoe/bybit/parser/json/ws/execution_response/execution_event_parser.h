@@ -4,6 +4,7 @@
 #include "aoe/bybit/execution_event/types.h"
 #include "aoe/bybit/parser/json/ws/execution_response/i_execution_event_parser.h"
 #include "aos/common/multi_pool.h"
+#include "aos/converters/big_string_view_to_trading_pair/big_string_view_to_trading_pair.h"
 #include "aos/trading_pair_factory/i_trading_pair_factory.h"
 #include "boost/intrusive_ptr.hpp"
 #include "simdjson.h"
@@ -24,7 +25,7 @@ class ExecutionEventParser
                    std::hash<std::string_view>{}(k.second);
         }
     };
-
+    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
 
     MemoryPool<ExecutionEventSpotSellDefault<MemoryPool, PositionT>>
@@ -35,18 +36,14 @@ class ExecutionEventParser
         pool_linear_sell_{200};
     MemoryPool<ExecutionEventLinearBuyDefault<MemoryPool, PositionT>>
         pool_linear_buy_{200};
-    aos::TradingPairFactoryInterface& trading_pair_factory_;
 
   public:
     ~ExecutionEventParser() override = default;
-    explicit ExecutionEventParser(
-        std::size_t pool_size,
-        aos::TradingPairFactoryInterface& trading_pair_factory)
+    explicit ExecutionEventParser(std::size_t pool_size)
         : pool_spot_sell_(pool_size),
           pool_spot_buy_(pool_size),
           pool_linear_sell_(pool_size),
-          pool_linear_buy_(pool_size),
-          trading_pair_factory_(trading_pair_factory) {
+          pool_linear_buy_(pool_size) {
         RegisterFromConfig();
     }
     std::pair<bool, EventPtr> ParseAndCreate(
@@ -89,7 +86,7 @@ class ExecutionEventParser
                 ptr->SetExecValue(exec_value.value());
                 ptr->SetOrderId(order_id.value());
                 auto [status, trading_pair] =
-                    trading_pair_factory_.Produce(symbol.value());
+                    trading_pair_factory_.Convert(symbol.value());
                 if (!status) return std::make_pair(false, nullptr);
                 ptr->SetTradingPair(trading_pair);
 

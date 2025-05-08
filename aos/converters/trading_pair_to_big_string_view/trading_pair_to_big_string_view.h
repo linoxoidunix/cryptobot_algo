@@ -8,7 +8,8 @@ namespace aos {
 namespace impl {
 // Хэш-таблица для конвертации торговой пары в строку
 class TradingPairToBigStringView {
-    constexpr static std::array<std::pair<TradingPair, std::string_view>, 3>
+    constexpr static std::array<std::pair<TradingPair, std::string_view>,
+                                static_cast<std::size_t>(TradingPair::kCount)>
         dictionary_ = {{
             {TradingPair::kBTCUSDT, "BTCUSDT"},
             {TradingPair::kETHUSDT, "ETHUSDT"},

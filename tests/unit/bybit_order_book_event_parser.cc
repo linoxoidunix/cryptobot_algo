@@ -10,10 +10,9 @@ TEST(OrderBookEventParserTest, ParsesBybitSnapshotCorrectly) {
     using Price = double;
     using Qty   = double;
 
-    aos::impl::TradingPairFactoryTest trading_pair_factory;
     aoe::bybit::impl::OrderBookEventParser<Price, Qty,
                                            common::MemoryPoolThreadSafety>
-        event_parser(10, trading_pair_factory);
+        event_parser(10);
 
     const std::string json = R"({
         "topic":"orderbook.50.BTCUSDT",
@@ -61,10 +60,9 @@ TEST(OrderBookEventParserTest, ParsesBybitDiffCorrectly) {
     using Price = double;
     using Qty   = double;
 
-    aos::impl::TradingPairFactoryTest trading_pair_factory;
     aoe::bybit::impl::OrderBookEventParser<Price, Qty,
                                            common::MemoryPoolThreadSafety>
-        event_parser(10, trading_pair_factory);
+        event_parser(10);
 
     const std::string json = R"({
         "topic":"orderbook.50.BTCUSDT",

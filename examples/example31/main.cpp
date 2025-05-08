@@ -30,10 +30,9 @@ int main(int argc, char** argv) {
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book_sync{thread_pool, order_book};
-        aos::impl::TradingPairFactoryTest trading_pair_factory;
         aoe::bybit::impl::OrderBookEventParser<double, double,
                                                common::MemoryPoolThreadSafety>
-            parser{1000, trading_pair_factory};
+            parser{1000};
         aoe::bybit::impl::order_book_response::Listener<
             double, double, common::MemoryPoolThreadSafety>
             listener(thread_pool, queue, parser, order_book_sync);
@@ -43,12 +42,9 @@ int main(int argc, char** argv) {
         boost::asio::io_context ioc_order_book_channel;
         aoe::bybit::impl::main_net::spot::order_book_channel::SessionRW
             session_trade_channel(ioc_order_book_channel, queue, listener);
-        aos::impl::TradingPairPrinter printer;
         aoe::bybit::impl::spot::OrderBookSubscriptionBuilder sub_builder{
-            session_trade_channel,
-            aoe::bybit::spot::Depth::k50,
-            {2, 1},
-            printer};
+            session_trade_channel, aoe::bybit::spot::Depth::k50,
+            aos::TradingPair::kBTCUSDT};
         sub_builder.Subscribe();
         auto thread_ = std::jthread(
             [&ioc_order_book_channel]() { ioc_order_book_channel.run(); });

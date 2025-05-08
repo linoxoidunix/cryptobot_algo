@@ -4,8 +4,8 @@
 #include "aoe/bybit/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/subscription_builder/i_subscription_builder.h"
+#include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
 namespace impl {
@@ -43,23 +43,19 @@ class OrderBookSubscriptionBuilder : public SubscriptionBuilderInterface {
     WebSocketPublicSessionRWInterface& ws_;
     aoe::bybit::spot::Depth depth_;
     aos::TradingPair trading_pair_;
-    aos::TradingPairPrinterInterface& printer_;
+    aos::impl::TradingPairToBigStringView printer_;
 
   public:
     OrderBookSubscriptionBuilder(WebSocketPublicSessionRWInterface& ws,
                                  aoe::bybit::spot::Depth depth,
-                                 aos::TradingPair trading_pair,
-                                 aos::TradingPairPrinterInterface& printer)
-        : ws_(ws),
-          depth_(depth),
-          trading_pair_(trading_pair),
-          printer_(printer) {}
+                                 aos::TradingPair trading_pair)
+        : ws_(ws), depth_(depth), trading_pair_(trading_pair) {}
     ~OrderBookSubscriptionBuilder() override = default;
     void Subscribe() override {
         nlohmann::json j_;
         j_["op"] = "subscribe";
         auto [status_trading_pair, result_trading_pair] =
-            printer_.Print(trading_pair_);
+            printer_.Convert(trading_pair_);
         if (!status_trading_pair) return;
         auto [status_depth, result_depth] = DepthToString(depth_);
         if (!status_depth) return;

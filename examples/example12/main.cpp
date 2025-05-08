@@ -6,6 +6,7 @@
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
 #include "aos/position_strategy/position_strategy.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/mem_pool.h"
 #include "boost/intrusive_ptr.hpp"
 
@@ -57,16 +58,16 @@ int main() {
             position_storage(position_strategy);
 
         // Добавить 100 единиц по цене 50
-        position_storage.AddPosition(common::ExchangeId::kBinance, {2, 1}, 50.0,
-                                     100);
+        position_storage.AddPosition(common::ExchangeId::kBinance,
+                                     aos::TradingPair::kBTCUSDT, 50.0, 100);
         // std::cout << "Длинная позиция: Чистая позиция: "
         //           << long_position.GetPosition()
         //           << "\nСредняя цена: " << long_position.GetAveragePrice()
         //           << "\n";
-        position_storage.AddPosition(common::ExchangeId::kBinance, {2, 1}, 60.0,
-                                     50);
-        position_storage.RemovePosition(common::ExchangeId::kBinance, {2, 1},
-                                        70.0, 150);
+        position_storage.AddPosition(common::ExchangeId::kBinance,
+                                     aos::TradingPair::kBTCUSDT, 60.0, 50);
+        position_storage.RemovePosition(common::ExchangeId::kBinance,
+                                        aos::TradingPair::kBTCUSDT, 70.0, 150);
         // // Добавить 50 единиц по цене 60
         // long_position.AddPosition(60.0, 50);
         // std::cout << "Длинная позиция: Чистая позиция: "

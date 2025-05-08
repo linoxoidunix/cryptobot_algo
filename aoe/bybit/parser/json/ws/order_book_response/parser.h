@@ -6,8 +6,9 @@
 
 #include "aoe/bybit/order_book_event/order_book_event.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/i_parser.h"
+#include "aos/converters/big_string_view_to_trading_pair/big_string_view_to_trading_pair.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"
-#include "aos/trading_pair_factory/i_trading_pair_factory.h"
+
 namespace aoe {
 namespace bybit {
 namespace impl {
@@ -24,7 +25,7 @@ class OrderBookEventParser
             return std::hash<std::string_view>{}(k);
         }
     };
-    aos::TradingPairFactoryInterface& trading_pair_factory_;
+    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
     MemoryPool<OrderBookSnapshotEventDefault<Price, Qty, MemoryPool>>
         pool_order_snapshot_;
@@ -33,11 +34,8 @@ class OrderBookEventParser
 
   public:
     ~OrderBookEventParser() override {}
-    OrderBookEventParser(std::size_t pool_size,
-                         aos::TradingPairFactoryInterface& trading_pair_factory)
-        : trading_pair_factory_(trading_pair_factory),
-          pool_order_snapshot_(pool_size),
-          pool_order_diff_(pool_size) {
+    OrderBookEventParser(std::size_t pool_size)
+        : pool_order_snapshot_(pool_size), pool_order_diff_(pool_size) {
         RegisterFromConfig();
     }
 
@@ -71,7 +69,7 @@ class OrderBookEventParser
         if (symbol_result.error() != simdjson::SUCCESS) return {false, nullptr};
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Produce(symbol_result.value());
+            trading_pair_factory_.Convert(symbol_result.value());
         if (!status) return {false, nullptr};
         ptr->SetTradingPair(trading_pair);
 

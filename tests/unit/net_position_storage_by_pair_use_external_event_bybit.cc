@@ -11,6 +11,7 @@
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
 #include "aos/position_strategy/position_strategy.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/mem_pool.h"
 using Price = double;
 using Qty   = double;
@@ -67,11 +68,11 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(3.0);
-    ptr_sell->SetTradingPair({2, 1});
+    ptr_sell->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell);
 
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_FALSE(position.has_value());
 }
 
@@ -81,18 +82,18 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr->SetMemoryPool(&spot_buy_pool_event);
     ptr->SetExecPrice(120);
     ptr->SetExecQty(3.0);
-    ptr->SetTradingPair({2, 1});
+    ptr->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr);
 
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetAveragePrice(),
                      120.0);  // Новая цена должна быть 110.0
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      3.0);  // Количество позиций должно быть 3.0
     auto position_binance = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBinance, {2, 1});
+        common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_FALSE(position_binance.has_value());
 }
 
@@ -102,22 +103,22 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(1.0);
-    ptr_sell->SetTradingPair({2, 1});
+    ptr_sell->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell);
 
-    auto [status, pnl] =
-        realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
+    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl, 20.0);  // PNL для лонга: (120 - 100) * 1.0 = 20.0
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      2.0);  // После удаления количество должно быть 2
@@ -131,24 +132,24 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell_linear->SetMemoryPool(&linear_sell_pool_event);
     ptr_sell_linear->SetExecPrice(120);
     ptr_sell_linear->SetExecQty(3.0);
-    ptr_sell_linear->SetTradingPair({2, 1});
+    ptr_sell_linear->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell_linear);
 
     auto ptr_buy_linear = linear_buy_pool_event.Allocate();
     ptr_buy_linear->SetMemoryPool(&linear_buy_pool_event);
     ptr_buy_linear->SetExecPrice(100);
     ptr_buy_linear->SetExecQty(1.0);
-    ptr_buy_linear->SetTradingPair({2, 1});
+    ptr_buy_linear->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy_linear);
 
-    auto [status, pnl] =
-        realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
+    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
 
     EXPECT_DOUBLE_EQ(pnl,
                      20.0);  // PNL для шорта: (120 - 100) * 1.0 = 20.0
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      -2.0);  // После удаления количество должно быть -2
@@ -162,24 +163,24 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(5.0);
-    ptr_sell->SetTradingPair({2, 1});
+    ptr_sell->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell);
 
-    auto [status, pnl] =
-        realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
+    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
 
     EXPECT_DOUBLE_EQ(pnl,
                      60.0);  // PNL для лонга: (120 - 100) * 3 = 60.0
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      -2.0);  // После удаления количество должно быть 0
@@ -193,23 +194,23 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_sell_linear->SetMemoryPool(&linear_sell_pool_event);
     ptr_sell_linear->SetExecPrice(120);
     ptr_sell_linear->SetExecQty(3.0);
-    ptr_sell_linear->SetTradingPair({2, 1});
+    ptr_sell_linear->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell_linear);
 
     auto ptr_buy_linear = linear_buy_pool_event.Allocate();
     ptr_buy_linear->SetMemoryPool(&linear_buy_pool_event);
     ptr_buy_linear->SetExecPrice(100);
     ptr_buy_linear->SetExecQty(5.0);
-    ptr_buy_linear->SetTradingPair({2, 1});
+    ptr_buy_linear->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy_linear);
 
-    auto [status, pnl] =
-        realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
+    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl,
                      60.0);  // PNL для шорта: (120 - 100) * 3 = 60.0
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      2.0);  // После удаления количество должно быть 0
@@ -223,22 +224,22 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(3.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
     auto ptr_sell = spot_sell_pool_event.Allocate();
     ptr_sell->SetMemoryPool(&spot_sell_pool_event);
     ptr_sell->SetExecPrice(120);
     ptr_sell->SetExecQty(0.0);
-    ptr_sell->SetTradingPair({2, 1});
+    ptr_sell->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_sell);
 
-    auto [status, pnl] =
-        realized_pnl_storage.GetRealizedPnl(common::ExchangeId::kBybit, {2, 1});
+    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl, 0.0);  // Нет изменения в PNL
     auto position = position_storage_by_pair.GetPosition(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
                      3.0);  // Количество не изменилось
@@ -252,14 +253,14 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(2.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 90.0,
-                                      110.0);
+    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit,
+                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
 
     auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status);
     EXPECT_DOUBLE_EQ(pnl, -20.0);  // buy 100 sell use bid 90. unrealized
                                    // (90-100)*2 = -20, совпадает с avg => 0
@@ -267,17 +268,17 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
 
 TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
        UnrealizedPnlWithPositionAfterBBO) {
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 90.0,
-                                      110.0);
+    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit,
+                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
     auto ptr_buy = spot_buy_pool_event.Allocate();
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(2.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
     auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status);
     EXPECT_DOUBLE_EQ(pnl, -20.0);  // (95+105)/2 = 100, (100 - 90) * 2 = 20
 }
@@ -288,21 +289,21 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
     ptr_buy->SetMemoryPool(&spot_buy_pool_event);
     ptr_buy->SetExecPrice(100);
     ptr_buy->SetExecQty(1.0);
-    ptr_buy->SetTradingPair({2, 1});
+    ptr_buy->SetTradingPair(aos::TradingPair::kBTCUSDT);
     watcher.OnEvent(ptr_buy);
 
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 90.0,
-                                      110.0);
+    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit,
+                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
 
     auto [status1, pnl1] = un_realized_pnl_storage.GetUnRealizedPnl(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status1);
     EXPECT_DOUBLE_EQ(pnl1, -10.0);  // (-100+90)*2 = -20
 
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit, {2, 1}, 95.0,
-                                      105.0);
+    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBybit,
+                                      aos::TradingPair::kBTCUSDT, 95.0, 105.0);
     auto [status2, pnl2] = un_realized_pnl_storage.GetUnRealizedPnl(
-        common::ExchangeId::kBybit, {2, 1});
+        common::ExchangeId::kBybit, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status2);
     EXPECT_DOUBLE_EQ(pnl2, -5);  // (95 - 100) * 1
 }
@@ -310,7 +311,7 @@ TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
 TEST_F(NetPositionStorageDefaultUseExternalEventBybitTest,
        GetUnrealizedPnlForNonexistentKey) {
     auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
-        common::ExchangeId::kBybit, {1, 2});
+        common::ExchangeId::kBybit, aos::TradingPair::kCount);
     EXPECT_FALSE(status);
 }
 

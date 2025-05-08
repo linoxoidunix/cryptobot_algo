@@ -3,6 +3,7 @@
 
 #include "aoe/bybit/order_event/order_event.h"
 #include "aoe/bybit/parser/json/ws/order_response/i_order_event_parser.h"
+#include "aos/converters/big_string_view_to_trading_pair/big_string_view_to_trading_pair.h"
 
 namespace aoe {
 namespace bybit {
@@ -18,7 +19,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
             return std::hash<std::string_view>{}(k);
         }
     };
-    aos::TradingPairFactoryInterface& trading_pair_factory_;
+    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
     MemoryPool<OrderEventNew<MemoryPool>> pool_order_new_;
     MemoryPool<OrderEventPartiallyFilled<MemoryPool>>
@@ -34,10 +35,8 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
 
   public:
     ~OrderEventParser() override = default;
-    OrderEventParser(std::size_t pool_size,
-                     aos::TradingPairFactoryInterface& trading_pair_factory)
-        : trading_pair_factory_(trading_pair_factory),
-          pool_order_new_(pool_size),
+    OrderEventParser(std::size_t pool_size)
+        : pool_order_new_(pool_size),
           pool_order_partially_filled_(pool_size),
           pool_order_untriggered_(pool_size),
           pool_order_rejected_(pool_size),
@@ -76,7 +75,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
                 ptr->SetLeavesQty(leaves_qty.value());
                 ptr->SetOrderId(order_id.value());
                 auto [status, trading_pair] =
-                    trading_pair_factory_.Produce(symbol.value());
+                    trading_pair_factory_.Convert(symbol.value());
                 if (!status) return std::make_pair(false, nullptr);
                 ptr->SetTradingPair(trading_pair);
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "aot/Logger.h"
 
 namespace aos {
 enum class TradingPair {
@@ -17,3 +18,15 @@ struct hash<aos::TradingPair> {
     }
 };
 };  // namespace std
+
+#include "magic_enum/magic_enum.hpp"
+template <>
+class fmt::formatter<aos::TradingPair> {
+  public:
+    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    template <typename Context>
+    constexpr auto format(const aos::TradingPair& foo, Context& ctx) const {
+        return fmt::format_to(ctx.out(), "TradingPair[]",
+                              magic_enum::enum_name(foo));
+    }
+};

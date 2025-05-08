@@ -4,7 +4,6 @@
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
 #include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
 #include "aos/aos.h"
-#include "aos/trading_pair_factory/trading_pair_factory.h"
 #include "aot/common/mem_pool.h"
 
 struct DummyPosition {};
@@ -30,8 +29,7 @@ int main() {
     simdjson::padded_string padded(json);
     auto doc = parser.iterate(padded);
 
-    aos::impl::TradingPairFactoryTest trading_pair_factory;
-    Parser event_parser(/*pool_size=*/100, trading_pair_factory);
+    Parser event_parser(/*pool_size=*/100);
     // event_parser.RegisterFromConfig(
     //     aoe::bybit::impl::GetDefaultEventConfig<common::MemoryPoolThreadSafety,
     //                                             PositionT>());

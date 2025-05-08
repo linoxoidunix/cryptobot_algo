@@ -7,7 +7,7 @@
 
 static void BM_MarketOrderBook2_Update(benchmark::State& state) {
     Trading::MarketOrderBook2 order_book(common::ExchangeId::kBinance,
-                                         aos::TradingPair::kBTCUSDT);
+                                         common::TradingPair{2, 1});
 
     std::vector<std::unique_ptr<Exchange::MEMarketUpdate2>> updates;
     updates.reserve(

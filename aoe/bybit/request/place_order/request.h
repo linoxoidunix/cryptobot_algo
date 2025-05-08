@@ -1,7 +1,7 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
 #include "aoe/bybit/request/place_order/i_request.h"
-#include "aos/trading_pair_printer/i_trading_pair_printer.h"
+#include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
 namespace aoe {
 namespace bybit {
 namespace place_order {
@@ -21,11 +21,10 @@ class Standart : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class SpotBuyLimit : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    SpotBuyLimit(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    SpotBuyLimit() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -42,7 +41,7 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -75,11 +74,10 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class SpotSellLimit : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    SpotSellLimit(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    SpotSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -96,7 +94,7 @@ class SpotSellLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -128,11 +126,10 @@ class SpotSellLimit : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class SpotBuyMarket : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    SpotBuyMarket(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    SpotBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -149,7 +146,7 @@ class SpotBuyMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -179,11 +176,10 @@ class SpotBuyMarket : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class SpotSellMarket : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    SpotSellMarket(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    SpotSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kSpot);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -200,7 +196,7 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -231,11 +227,10 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class LinearBuyLimit : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearBuyLimit(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    LinearBuyLimit() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -252,7 +247,7 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -283,11 +278,10 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class LinearSellLimit : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearSellLimit(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    LinearSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
@@ -304,7 +298,7 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -336,11 +330,10 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class LinearBuyMarket : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearBuyMarket(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    LinearBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -357,7 +350,7 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -387,11 +380,10 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class LinearSellMarket : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearSellMarket(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
+    LinearSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
         this->SetCategory(aoe::bybit::Category::kLinear);
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
@@ -408,7 +400,7 @@ class LinearSellMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }

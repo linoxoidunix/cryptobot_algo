@@ -1,6 +1,7 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
 #include "aoe/bybit/request/cancel_order/i_request.h"
+#include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
 namespace aoe {
 namespace bybit {
@@ -9,13 +10,10 @@ namespace impl {
 
 template <template <typename> typename MemoryPool>
 class Spot : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    Spot(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
-        this->SetCategory(aoe::bybit::Category::kSpot);
-    }
+    Spot() { this->SetCategory(aoe::bybit::Category::kSpot); }
     std::pair<bool, nlohmann::json> Accept(
         aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
@@ -28,7 +26,7 @@ class Spot : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -43,13 +41,10 @@ class Spot : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class Linear : public RequestInterface<MemoryPool> {
-    aos::TradingPairPrinterInterface& trading_pair_printer_;
+    aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    Linear(aos::TradingPairPrinterInterface& trading_pair_printer)
-        : trading_pair_printer_(trading_pair_printer) {
-        this->SetCategory(aoe::bybit::Category::kLinear);
-    }
+    Linear() { this->SetCategory(aoe::bybit::Category::kLinear); }
     std::pair<bool, nlohmann::json> Accept(
         aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
@@ -62,7 +57,7 @@ class Linear : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Print(this->TradingPair());
+                trading_pair_printer_.Convert(this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }

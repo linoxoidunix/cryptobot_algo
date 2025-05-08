@@ -7,23 +7,12 @@
 #include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
 #include "aos/aos.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/trading_pair_factory/trading_pair_factory.h"
 #include "aot/common/mem_pool.h"
 
 using PositionT = int;  // Или ваша реальная структура позиции
 using Parser =
     aoe::bybit::impl::ExecutionEventParser<common::MemoryPoolThreadSafety,
                                            PositionT>;
-
-class TradingPairFactoryFake : public aos::TradingPairFactoryInterface {
-  public:
-    std::pair<bool, aos::TradingPair> Produce(
-        std::string_view trading_pair) override {
-        if (trading_pair == "BTCUSDT")
-            return {true, aos::TradingPair::kBTCUSDT};
-        return {false, {}};
-    }
-};
 
 TEST(BybitExecutionEventParserTest, ParseSpotBuySuccess) {
     // JSON с полными корректными полями
@@ -47,8 +36,7 @@ TEST(BybitExecutionEventParserTest, ParseSpotBuySuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(/*pool_size=*/10, factory);
+    Parser event_parser(/*pool_size=*/10);
 
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
@@ -91,8 +79,7 @@ TEST(BybitExecutionEventParserTest, ParseSpotSellSuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_TRUE(ok);
@@ -129,8 +116,7 @@ TEST(BybitExecutionEventParserTest, ParseLinearBuySuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_TRUE(ok);
@@ -167,8 +153,7 @@ TEST(BybitExecutionEventParserTest, ParseLinearSellSuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_TRUE(ok);
@@ -193,8 +178,7 @@ TEST(BybitExecutionEventParserTest, ParseEmptyDoc) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_FALSE(ok);
@@ -220,8 +204,7 @@ TEST(BybitExecutionEventParserTest, ParseMissedCategorySuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_FALSE(ok);
@@ -247,8 +230,7 @@ TEST(BybitExecutionEventParserTest, ParseMissedSymbolSuccess) {
     auto doc = parser.iterate(padded);
     ASSERT_EQ(doc.error(), simdjson::SUCCESS);
 
-    TradingPairFactoryFake factory;
-    Parser event_parser(10, factory);
+    Parser event_parser(10);
     auto [ok, event] = event_parser.ParseAndCreate(doc.value());
 
     EXPECT_FALSE(ok);
