@@ -49,20 +49,7 @@ TEST_F(SpotBuyLimitOrderTest, AcceptReturnsValidJson) {
 // Тест на ошибку при некорректном символе
 TEST_F(SpotBuyLimitOrderTest, AcceptReturnsEmptyJsonOnInvalidSymbol) {
     // Мокируем метод Print, который вернёт ошибку
-
-    // Тестируем метод Accept
-    auto [status, json] = order_.Accept(nullptr);
-
-    // Проверяем, что статус неудачный
-    EXPECT_FALSE(status);
-
-    // Проверяем, что json пустой
-    EXPECT_TRUE(json.empty());
-}
-
-// Тест на ошибку при некорректном категории
-TEST_F(SpotBuyLimitOrderTest, AcceptReturnsEmptyJsonOnInvalidCategory) {
-    // Мокируем CategoryToString на ошибку
+    order_.SetTradingPair(aos::TradingPair::kCount);
     // Тестируем метод Accept
     auto [status, json] = order_.Accept(nullptr);
 
