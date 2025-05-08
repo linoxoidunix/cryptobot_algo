@@ -10,13 +10,13 @@ class RealizedPnlStorageDefault
   private:
     using RealizedPnl = PnlRealizedStorageInterface<Price, Qty>::RealizedPnl;
 
-    using Key         = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key         = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
 
             std::size_t h1         = std::hash<common::ExchangeId>{}(key.first);
-            std::size_t h2         = common::TradingPairHash{}(key.second);
+            std::size_t h2         = std::hash<aos::TradingPair>{}(key.second);
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -32,7 +32,7 @@ class RealizedPnlStorageDefault
         RealizedPnlCalculatorInterface<Price, Qty>& realized_pnl_calculator)
         : realized_pnl_calculator_(realized_pnl_calculator) {};
     RealizedPnl FixProfit(common::ExchangeId exchange,
-                          common::TradingPair tradingPair, Price avg_price,
+                          aos::TradingPair tradingPair, Price avg_price,
                           Qty net_qty, Price price, Qty qty) override {
         auto pnl =
             realized_pnl_calculator_.Calculate(avg_price, net_qty, price, qty);
@@ -47,7 +47,7 @@ class RealizedPnlStorageDefault
 
     std::pair<bool, RealizedPnl> GetRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = realized_pnl_.find(key);
         if (it == realized_pnl_.end()) {
@@ -63,13 +63,13 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
     using RealizedPnl =
         IPnlRealizedStorage<Price, Qty, MemoryPool>::RealizedPnl;
 
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
 
             std::size_t h1         = std::hash<common::ExchangeId>{}(key.first);
-            std::size_t h2         = common::TradingPairHash{}(key.second);
+            std::size_t h2         = std::hash<aos::TradingPair>{}(key.second);
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -80,7 +80,7 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
     std::unordered_map<Key, Price, KeyHash> realized_pnl_;
 
   public:
-    void Add(common::ExchangeId exchange, common::TradingPair tradingPair,
+    void Add(common::ExchangeId exchange, aos::TradingPair tradingPair,
              RealizedPnl pnl) override {
         Key key = {exchange, tradingPair};
         auto old_pnl =
@@ -92,7 +92,7 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
 
     std::pair<bool, RealizedPnl> GetRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = realized_pnl_.find(key);
         if (it == realized_pnl_.end()) {

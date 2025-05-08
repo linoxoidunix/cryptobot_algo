@@ -1,12 +1,13 @@
 #include <benchmark/benchmark.h>
 
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/Logger.h"
 #include "aot/common/types.h"
 #include "aot/strategy/market_order_book.h"
 
 static void BM_MarketOrderBook2_Update(benchmark::State& state) {
     Trading::MarketOrderBook2 order_book(common::ExchangeId::kBinance,
-                                         common::TradingPair{2, 1});
+                                         aos::TradingPair::kBTCUSDT);
 
     std::vector<std::unique_ptr<Exchange::MEMarketUpdate2>> updates;
     updates.reserve(

@@ -39,18 +39,17 @@ class GenericPositionStorageByPair
 
     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
         common::ExchangeId exchange,
-        common::TradingPair trading_pair) const override {
+        aos::TradingPair trading_pair) const override {
         return storage_.GetPosition(exchange, trading_pair);
     }
 
-    void AddPosition(common::ExchangeId exchange,
-                     common::TradingPair trading_pair, Price price,
-                     Qty qty) override {
+    void AddPosition(common::ExchangeId exchange, aos::TradingPair trading_pair,
+                     Price price, Qty qty) override {
         storage_.AddPosition(exchange, trading_pair, price, qty);
     }
 
     bool RemovePosition(common::ExchangeId exchange,
-                        common::TradingPair trading_pair, Price price,
+                        aos::TradingPair trading_pair, Price price,
                         Qty qty) override {
         return storage_.RemovePosition(exchange, trading_pair, price, qty);
     }
@@ -96,18 +95,18 @@ using HedgedPositionStorageByPairDefault = GenericPositionStorageByPair<
 //     ~NetPositionStorageByPairDefault() override {};
 //     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
 //         common::ExchangeId exchange,
-//         common::TradingPair trading_pair) const override {
+//         aos::TradingPair trading_pair) const override {
 //         return storage_.GetPosition(exchange, trading_pair);
 //     }
 
 //     void AddPosition(common::ExchangeId exchange,
-//                      common::TradingPair trading_pair, Price price,
+//                      aos::TradingPair trading_pair, Price price,
 //                      Qty qty) override {
 //         storage_.AddPosition(exchange, trading_pair, price, qty);
 //     }
 
 //     bool RemovePosition(common::ExchangeId exchange,
-//                         common::TradingPair trading_pair, Price price,
+//                         aos::TradingPair trading_pair, Price price,
 //                         Qty qty) override {
 //         return storage_.RemovePosition(exchange, trading_pair, price, qty);
 //     }
@@ -141,18 +140,18 @@ using HedgedPositionStorageByPairDefault = GenericPositionStorageByPair<
 //     ~HedgedPositionStorageByPairDefault() override {};
 //     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
 //         common::ExchangeId exchange,
-//         common::TradingPair trading_pair) const override {
+//         aos::TradingPair trading_pair) const override {
 //         return storage_.GetPosition(exchange, trading_pair);
 //     }
 
 //     void AddPosition(common::ExchangeId exchange,
-//                      common::TradingPair trading_pair, Price price,
+//                      aos::TradingPair trading_pair, Price price,
 //                      Qty qty) override {
 //         storage_.AddPosition(exchange, trading_pair, price, qty);
 //     }
 
 //     bool RemovePosition(common::ExchangeId exchange,
-//                         common::TradingPair trading_pair, Price price,
+//                         aos::TradingPair trading_pair, Price price,
 //                         Qty qty) override {
 //         return storage_.RemovePosition(exchange, trading_pair, price, qty);
 //     }

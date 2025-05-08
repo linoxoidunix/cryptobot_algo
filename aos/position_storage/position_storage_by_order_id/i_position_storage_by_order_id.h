@@ -1,7 +1,7 @@
 #pragma once
 #include "aos/common/ref_counted.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
-
 namespace aos {
 
 class PositionStorageByOrderIdInterface {
@@ -10,15 +10,15 @@ class PositionStorageByOrderIdInterface {
 
     // Получить позицию для определенной торговой пары на указанной бирже
     virtual std::pair<bool, double> GetPosition(common::ExchangeId exchange,
-                                                common::TradingPair tradingPair,
+                                                aos::TradingPair tradingPair,
                                                 std::size_t uid) const = 0;
 
     virtual void AddPosition(common::ExchangeId exchange,
-                             common::TradingPair& tradingPair, double qty,
+                             aos::TradingPair& tradingPair, double qty,
                              std::size_t uid)                          = 0;
 
     virtual bool RemovePosition(common::ExchangeId exchange,
-                                common::TradingPair& tradingPair, double qty,
+                                aos::TradingPair& tradingPair, double qty,
                                 std::size_t uid)                       = 0;
 };
 
@@ -31,15 +31,15 @@ class IPositionStorageByOrderId
 
     // Получить позицию для определенной торговой пары на указанной бирже
     virtual std::pair<bool, Qty> GetPosition(common::ExchangeId exchange,
-                                             common::TradingPair tradingPair,
+                                             aos::TradingPair tradingPair,
                                              Uid uid) const = 0;
 
     virtual void AddPosition(common::ExchangeId exchange,
-                             common::TradingPair& tradingPair, Qty qty,
+                             aos::TradingPair& tradingPair, Qty qty,
                              Uid uid)                       = 0;
 
     virtual bool RemovePosition(common::ExchangeId exchange,
-                                common::TradingPair& tradingPair, Qty qty,
+                                aos::TradingPair& tradingPair, Qty qty,
                                 Uid uid)                    = 0;
 };
 

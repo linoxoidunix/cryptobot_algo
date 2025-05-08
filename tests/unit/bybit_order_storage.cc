@@ -38,13 +38,13 @@ TEST(OrderStorageTest, GetByStatus) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 1,
-                    common::TradingPair{2, 1});
+                    aos::TradingPair::kBTCUSDT);
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
                     OrderStatus::kFilled, PendingAction::kNone, 2,
-                    common::TradingPair{3, 1});
+                    aos::TradingPair::kETHUSDT);
     storage.Emplace(Category::kInverse, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 3,
-                    common::TradingPair{4, 1});
+                    aos::TradingPair::kSOLUSDT);
 
     auto orders = storage.Get(OrderStatus::kNew);
     ASSERT_EQ(orders.size(), 2);
@@ -56,13 +56,13 @@ TEST(OrderStorageTest, GetByCategory) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 1,
-                    common::TradingPair{2, 1});
+                    aos::TradingPair::kBTCUSDT);
     storage.Emplace(Category::kInverse, Side::kSell, OrderMode::kMarket,
                     OrderStatus::kNew, PendingAction::kNone, 2,
-                    common::TradingPair{3, 1});
+                    aos::TradingPair::kETHUSDT);
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 3,
-                    common::TradingPair{4, 1});
+                    aos::TradingPair::kSOLUSDT);
 
     auto orders = storage.Get(Category::kLinear);
     ASSERT_EQ(orders.size(), 2);
@@ -74,13 +74,13 @@ TEST(OrderStorageTest, GetByCategorySide) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 1,
-                    common::TradingPair{2, 1});
+                    aos::TradingPair::kBTCUSDT);
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
                     OrderStatus::kNew, PendingAction::kNone, 2,
-                    common::TradingPair{3, 1});
+                    aos::TradingPair::kETHUSDT);
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 3,
-                    common::TradingPair{4, 1});
+                    aos::TradingPair::kSOLUSDT);
 
     auto orders = storage.Get(Category::kLinear, Side::kBuy);
     ASSERT_EQ(orders.size(), 2);
@@ -94,13 +94,13 @@ TEST(OrderStorageTest, GetByCategoryMode) {
     OrderStorage storage;
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 1,
-                    common::TradingPair{2, 1});
+                    aos::TradingPair::kBTCUSDT);
     storage.Emplace(Category::kLinear, Side::kSell, OrderMode::kMarket,
                     OrderStatus::kNew, PendingAction::kNone, 2,
-                    common::TradingPair{3, 1});
+                    aos::TradingPair::kETHUSDT);
     storage.Emplace(Category::kLinear, Side::kBuy, OrderMode::kLimit,
                     OrderStatus::kNew, PendingAction::kNone, 3,
-                    common::TradingPair{4, 1});
+                    aos::TradingPair::kSOLUSDT);
 
     auto orders = storage.Get(Category::kLinear, OrderMode::kLimit);
     ASSERT_EQ(orders.size(), 2);

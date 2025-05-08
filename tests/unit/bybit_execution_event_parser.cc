@@ -6,6 +6,7 @@
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
 #include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
 #include "aos/aos.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aos/trading_pair_factory/trading_pair_factory.h"
 #include "aot/common/mem_pool.h"
 
@@ -16,9 +17,10 @@ using Parser =
 
 class TradingPairFactoryFake : public aos::TradingPairFactoryInterface {
   public:
-    std::pair<bool, common::TradingPair> Produce(
+    std::pair<bool, aos::TradingPair> Produce(
         std::string_view trading_pair) override {
-        if (trading_pair == "BTCUSDT") return {true, common::TradingPair{2, 1}};
+        if (trading_pair == "BTCUSDT")
+            return {true, aos::TradingPair::kBTCUSDT};
         return {false, {}};
     }
 };
@@ -62,7 +64,7 @@ TEST(BybitExecutionEventParserTest, ParseSpotBuySuccess) {
     ASSERT_EQ(event->ExecValue(), 8.435);
     ASSERT_EQ(event->OrderId(), 123123);
     ASSERT_EQ(event->Fee(), 0.005061);
-    ASSERT_EQ(event->TradingPair(), common::TradingPair(2, 1));
+    ASSERT_EQ(event->TradingPair(), aos::TradingPair::kBTCUSDT);
 
     // Дополнительно можно проверить значения, если у event есть геттеры
     // Например: EXPECT_DOUBLE_EQ(event->GetExecPrice(), 0.3374);

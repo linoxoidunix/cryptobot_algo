@@ -1,6 +1,6 @@
 #pragma once
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
-
 namespace aos {
 namespace impl {
 template <typename Price, typename Qty>
@@ -20,7 +20,7 @@ class IRealizedPnlForTradingPair {
 
     // Метод для получения реализованной прибыли для заданной пары
     virtual std::pair<bool, RealizedPnl> GetRealizedPnl(
-        common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
+        common::ExchangeId exchange, aos::TradingPair tradingPair) const = 0;
 };
 };  // namespace impl
 };  // namespace aos

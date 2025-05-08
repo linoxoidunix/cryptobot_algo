@@ -1,6 +1,8 @@
 #pragma once
 #include <unordered_map>
 
+#include "aos/trading_pair/trading_pair.h"
+
 namespace aos {
 namespace impl {
 
@@ -8,7 +10,7 @@ class PositionStorageByOrderIdDefault
     : public PositionStorageByOrderIdInterface {
     struct Key {
         common::ExchangeId exchange;
-        common::TradingPair tradingPair;
+        aos::TradingPair tradingPair;
         size_t uid;
 
         bool operator==(const Key& other) const {
@@ -22,7 +24,7 @@ class PositionStorageByOrderIdDefault
             std::size_t hash_value = 0;
 
             std::size_t h1 = std::hash<common::ExchangeId>{}(k.exchange);
-            std::size_t h2 = common::TradingPairHash{}(k.tradingPair);
+            std::size_t h2 = std::hash<aos::TradingPair>{}(k.tradingPair);
             std::size_t h3 = std::hash<std::size_t>{}(k.uid);
 
             boost::hash_combine(hash_value, h1);
@@ -39,7 +41,7 @@ class PositionStorageByOrderIdDefault
     ~PositionStorageByOrderIdDefault() override = default;
 
     std::pair<bool, double> GetPosition(common::ExchangeId exchange,
-                                        common::TradingPair tradingPair,
+                                        aos::TradingPair tradingPair,
                                         std::size_t uid) const override {
         auto it = positions_.find({exchange, tradingPair, uid});
         if (it == positions_.end()) {
@@ -48,14 +50,13 @@ class PositionStorageByOrderIdDefault
         return {true, it->second};
     }
 
-    void AddPosition(common::ExchangeId exchange,
-                     common::TradingPair& tradingPair, double qty,
-                     std::size_t uid) override {
+    void AddPosition(common::ExchangeId exchange, aos::TradingPair& tradingPair,
+                     double qty, std::size_t uid) override {
         positions_[{exchange, tradingPair, uid}] += qty;
     }
 
     bool RemovePosition(common::ExchangeId exchange,
-                        common::TradingPair& tradingPair, double qty,
+                        aos::TradingPair& tradingPair, double qty,
                         std::size_t uid) override {
         // auto key = std::make_tuple(exchange, tradingPair, uid);
         auto it = positions_.find({exchange, tradingPair, uid});
@@ -80,7 +81,7 @@ class PositionStorageByOrderId
     : public IPositionStorageByOrderId<Qty, MemoryPool, Uid> {
     struct Key {
         common::ExchangeId exchange;
-        common::TradingPair tradingPair;
+        aos::TradingPair tradingPair;
         Uid uid;
 
         bool operator==(const Key& other) const {
@@ -94,7 +95,7 @@ class PositionStorageByOrderId
             std::size_t hash_value = 0;
 
             std::size_t h1 = std::hash<common::ExchangeId>{}(k.exchange);
-            std::size_t h2 = common::TradingPairHash{}(k.tradingPair);
+            std::size_t h2 = std::hash<aos::TradingPair>{}(k.tradingPair);
             std::size_t h3 = std::hash<Uid>{}(k.uid);
 
             boost::hash_combine(hash_value, h1);
@@ -113,7 +114,7 @@ class PositionStorageByOrderId
     ~PositionStorageByOrderId() override = default;
 
     std::pair<bool, Qty> GetPosition(common::ExchangeId exchange,
-                                     common::TradingPair tradingPair,
+                                     aos::TradingPair tradingPair,
                                      Uid uid) const override {
         auto it = positions_.find({exchange, tradingPair, uid});
         if (it == positions_.end()) {
@@ -122,14 +123,13 @@ class PositionStorageByOrderId
         return {true, it->second};
     }
 
-    void AddPosition(common::ExchangeId exchange,
-                     common::TradingPair& tradingPair, Qty qty,
-                     Uid uid) override {
+    void AddPosition(common::ExchangeId exchange, aos::TradingPair& tradingPair,
+                     Qty qty, Uid uid) override {
         positions_[{exchange, tradingPair, uid}] += qty;
     }
 
     bool RemovePosition(common::ExchangeId exchange,
-                        common::TradingPair& tradingPair, Qty qty,
+                        aos::TradingPair& tradingPair, Qty qty,
                         Uid uid) override {
         // auto key = std::make_tuple(exchange, tradingPair, uid);
         auto it = positions_.find({exchange, tradingPair, uid});

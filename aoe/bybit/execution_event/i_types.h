@@ -1,7 +1,9 @@
 #pragma once
 #include "aos/common/ref_counted.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
+
 namespace aoe {
 namespace bybit {
 template <template <typename> typename MemoryPool, typename PositionT>
@@ -17,14 +19,14 @@ class ExecutionEventInterface
     virtual double ExecValue() const { return exec_value_; }
     virtual uint64_t OrderId() const { return order_id_; };
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
-    virtual common::TradingPair TradingPair() const { return trading_pair_; };
+    virtual aos::TradingPair TradingPair() const { return trading_pair_; };
 
     virtual void SetFee(double fee) { fee_ = fee; };
     virtual void SetExecPrice(double exec_price) { exec_price_ = exec_price; };
     virtual void SetExecQty(double exec_qty) { exec_qty_ = exec_qty; };
     virtual void SetExecValue(double exec_value) { exec_value_ = exec_value; };
     virtual void SetOrderId(uint64_t order_id) { order_id_ = order_id; };
-    virtual void SetTradingPair(common::TradingPair trading_pair) {
+    virtual void SetTradingPair(aos::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };
 
@@ -39,7 +41,7 @@ class ExecutionEventInterface
     double exec_value_              = 0;
     uint64_t order_id_              = 0;
     common::ExchangeId exchange_id_ = common::ExchangeId::kBybit;
-    common::TradingPair trading_pair_;
+    aos::TradingPair trading_pair_;
 };
 };  // namespace bybit
 };  // namespace aoe

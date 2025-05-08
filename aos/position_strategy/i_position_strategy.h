@@ -1,8 +1,8 @@
 #pragma once
 
 #include "aos/common/ref_counted.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
-
 namespace aos {
 
 template <typename Price, typename Qty>
@@ -16,10 +16,10 @@ class NetPositionStrategyInterface {
 
     virtual ~NetPositionStrategyInterface()                       = default;
     virtual void Add(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price& avg_price,
+                     aos::TradingPair trading_pair, Price& avg_price,
                      Qty& net_qty, Price price, Qty qty) const    = 0;
     virtual void Remove(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price& avg_price,
+                        aos::TradingPair trading_pair, Price& avg_price,
                         Qty& net_qty, Price price, Qty qty) const = 0;
 };
 
@@ -35,10 +35,10 @@ class HedgePositionStrategyInterface {
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     virtual ~HedgePositionStrategyInterface()                       = default;
     virtual void Add(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price (&avg_price)[2],
+                     aos::TradingPair trading_pair, Price (&avg_price)[2],
                      Qty (&net_qty)[2], Price price, Qty qty) const = 0;
     virtual void Remove(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price (&avg_price)[2],
+                        aos::TradingPair trading_pair, Price (&avg_price)[2],
                         Qty (&net_qty)[2], Price price, Qty qty) const = 0;
 };
 
@@ -55,10 +55,10 @@ class INetPositionStrategy
 
     virtual ~INetPositionStrategy()                               = default;
     virtual void Add(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price& avg_price,
+                     aos::TradingPair trading_pair, Price& avg_price,
                      Qty& net_qty, Price price, Qty qty) const    = 0;
     virtual void Remove(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price& avg_price,
+                        aos::TradingPair trading_pair, Price& avg_price,
                         Qty& net_qty, Price price, Qty qty) const = 0;
 };
 
@@ -76,10 +76,10 @@ class IHedgePositionStrategy
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     virtual ~IHedgePositionStrategy()                               = default;
     virtual void Add(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price (&avg_price)[2],
+                     aos::TradingPair trading_pair, Price (&avg_price)[2],
                      Qty (&net_qty)[2], Price price, Qty qty) const = 0;
     virtual void Remove(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price (&avg_price)[2],
+                        aos::TradingPair trading_pair, Price (&avg_price)[2],
                         Qty (&net_qty)[2], Price price, Qty qty) const = 0;
 };
 };  // namespace aos

@@ -2,6 +2,7 @@
 
 #include "aos/pnl/i_pnl.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "boost/intrusive_ptr.hpp"
 namespace aos {
 namespace impl {
@@ -10,7 +11,7 @@ template <typename Price, typename Qty, typename PositionT>
 class PositionStorageByPair
     : public PositionStorageByPairInterface<Price, Qty, PositionT> {
   private:
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
@@ -18,7 +19,7 @@ class PositionStorageByPair
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -36,7 +37,7 @@ class PositionStorageByPair
     ~PositionStorageByPair() override {};
     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
         common::ExchangeId exchange,
-        common::TradingPair trading_pair) const override {
+        aos::TradingPair trading_pair) const override {
         auto it = storage_position_.find({exchange, trading_pair});
         if (it == storage_position_.end()) {
             return std::nullopt;
@@ -44,9 +45,8 @@ class PositionStorageByPair
         return std::cref(it->second);  // const reference wrapper
     }
 
-    void AddPosition(common::ExchangeId exchange,
-                     common::TradingPair trading_pair, Price price,
-                     Qty qty) override {
+    void AddPosition(common::ExchangeId exchange, aos::TradingPair trading_pair,
+                     Price price, Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
             storage_position_.emplace(
@@ -60,7 +60,7 @@ class PositionStorageByPair
     }
 
     bool RemovePosition(common::ExchangeId exchange,
-                        common::TradingPair trading_pair, Price price,
+                        aos::TradingPair trading_pair, Price price,
                         Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
@@ -84,7 +84,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool,
 class PositionStorageByPairDeprecated
     : public IPositionStorageByPair<Price, Qty, MemoryPool> {
   private:
-    using Key         = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key         = std::pair<common::ExchangeId, aos::TradingPair>;
     using RealizedPnl = IRealizedPnlForTradingPair<Price, Qty>::RealizedPnl;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
@@ -93,7 +93,7 @@ class PositionStorageByPairDeprecated
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -109,7 +109,7 @@ class PositionStorageByPairDeprecated
         : strategy_(strategy) {};
     std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = storage_position_.find(key);
         if (it == storage_position_.end()) {
@@ -118,9 +118,8 @@ class PositionStorageByPairDeprecated
         return {true, it->second.GetPosition()};
     }
 
-    void AddPosition(common::ExchangeId exchange,
-                     common::TradingPair trading_pair, Price price,
-                     Qty qty) override {
+    void AddPosition(common::ExchangeId exchange, aos::TradingPair trading_pair,
+                     Price price, Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
             storage_position_.emplace(
@@ -134,7 +133,7 @@ class PositionStorageByPairDeprecated
     }
 
     bool RemovePosition(common::ExchangeId exchange,
-                        common::TradingPair trading_pair, Price price,
+                        aos::TradingPair trading_pair, Price price,
                         Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {

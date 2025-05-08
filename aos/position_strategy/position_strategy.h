@@ -3,6 +3,8 @@
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
 #include "aos/pnl/unrealized_storage/i_pnl_unrealized_storage.h"
 #include "aos/position_strategy/i_position_strategy.h"
+#include "aos/trading_pair/trading_pair.h"
+
 namespace aos {
 namespace impl {
 
@@ -18,7 +20,7 @@ class NetPositionStrategyDefault
         PnlUnRealizedStorageInterface<Price, Qty>& pnl_unrealized_storage)
         : pnl_realized_storage_(pnl_realized_storage),
           pnl_unrealized_storage_(pnl_unrealized_storage) {}
-    void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+    void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price& avg_price, Qty& net_qty, Price price,
              Qty qty) const override {
         const Price total_value  = net_qty * avg_price + qty * price;
@@ -28,9 +30,9 @@ class NetPositionStrategyDefault
                                                avg_price, net_qty);
     }
 
-    void Remove(common::ExchangeId exchange_id,
-                common::TradingPair trading_pair, Price& avg_price,
-                Qty& net_qty, Price price, Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
+                Price& avg_price, Qty& net_qty, Price price,
+                Qty qty) const override {
         pnl_realized_storage_.FixProfit(exchange_id, trading_pair, avg_price,
                                         net_qty, price, qty);
         net_qty   -= qty;
@@ -56,7 +58,7 @@ class HedgedPositionStrategyDefault
         : pnl_realized_storage_(pnl_realized_storage),
           pnl_unrealized_storage_(pnl_unrealized_storage) {}
 
-    void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+    void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
              Qty qty) const override {
         int idx = (qty > 0) ? 1 : 0;  // Если цена положительная, то long (1),
@@ -68,9 +70,9 @@ class HedgedPositionStrategyDefault
                                                avg_price[idx], net_qty[idx]);
     }
 
-    void Remove(common::ExchangeId exchange_id,
-                common::TradingPair trading_pair, Price (&avg_price)[2],
-                Qty (&net_qty)[2], Price price, Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
+                Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
+                Qty qty) const override {
         const int idx     = (qty > 0);
         auto realized_pnl = pnl_realized_storage_.FixProfit(
             exchange_id, trading_pair, avg_price[idx], net_qty[idx], price,
@@ -116,7 +118,7 @@ class NetPositionStrategy
             pnl_unrealized_storage)
         : pnl_realized_storage_(pnl_realized_storage),
           pnl_unrealized_storage_(pnl_unrealized_storage) {}
-    void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+    void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price& avg_price, Qty& net_qty, Price price,
              Qty qty) const override {
         const Price total_value  = net_qty * avg_price + qty * price;
@@ -126,9 +128,9 @@ class NetPositionStrategy
                                                 avg_price, net_qty);
     }
 
-    void Remove(common::ExchangeId exchange_id,
-                common::TradingPair trading_pair, Price& avg_price,
-                Qty& net_qty, Price price, Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
+                Price& avg_price, Qty& net_qty, Price price,
+                Qty qty) const override {
         auto realized_pnl = RealizedPnlCalculator<Price, Qty>::Calculate(
             avg_price, net_qty, price, qty);
         net_qty   -= qty;
@@ -159,7 +161,7 @@ class HedgedPositionStrategy
         : pnl_realized_storage_(pnl_realized_storage),
           pnl_unrealized_storage_(pnl_unrealized_storage) {}
 
-    void Add(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+    void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
              Qty qty) const override {
         int idx = (qty > 0) ? 1 : 0;  // Если цена положительная, то long (1),
@@ -171,9 +173,9 @@ class HedgedPositionStrategy
                                                 avg_price[idx], net_qty[idx]);
     }
 
-    void Remove(common::ExchangeId exchange_id,
-                common::TradingPair trading_pair, Price (&avg_price)[2],
-                Qty (&net_qty)[2], Price price, Qty qty) const override {
+    void Remove(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
+                Price (&avg_price)[2], Qty (&net_qty)[2], Price price,
+                Qty qty) const override {
         const int idx     = (qty > 0);
         auto realized_pnl = RealizedPnlCalculator<Price, Qty>::Calculate(
             avg_price[idx], net_qty[idx], price, qty);

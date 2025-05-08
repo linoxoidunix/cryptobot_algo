@@ -43,7 +43,7 @@ TEST(OrderBookEventParserTest, ParsesBybitSnapshotCorrectly) {
     ASSERT_NE(derived, nullptr);
     // Проверим поля
     EXPECT_EQ(event->UpdateId(), 679109);
-    ASSERT_EQ(event->TradingPair(), common::TradingPair(2, 1));
+    ASSERT_EQ(event->TradingPair(), aos::TradingPair::kBTCUSDT);
 
     const auto& bids = event->Bids();
     const auto& asks = event->Asks();
@@ -107,7 +107,7 @@ TEST(OrderBookEventParserTest, ParsesBybitDiffCorrectly) {
     ASSERT_NE(derived, nullptr);
 
     EXPECT_EQ(event->UpdateId(), 729815);
-    ASSERT_EQ(event->TradingPair(), common::TradingPair(2, 1));
+    ASSERT_EQ(event->TradingPair(), aos::TradingPair::kBTCUSDT);
 
     const auto& bids = event->Bids();
     const auto& asks = event->Asks();

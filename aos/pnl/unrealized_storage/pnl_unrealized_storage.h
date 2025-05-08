@@ -33,7 +33,7 @@ class NetUnRealizedPnlStorageDefault
     using UnRealizedPnl =
         PnlUnRealizedStorageInterface<Price, Qty>::UnRealizedPnl;
 
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
@@ -41,7 +41,7 @@ class NetUnRealizedPnlStorageDefault
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -60,7 +60,7 @@ class NetUnRealizedPnlStorageDefault
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~NetUnRealizedPnlStorageDefault() = default;
     void UpdatePosition(common::ExchangeId exchange,
-                        common::TradingPair tradingPair, Price avg_price,
+                        aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
         Key key                       = {exchange, tradingPair};
         position_info_[key].avg_price = avg_price;
@@ -75,7 +75,7 @@ class NetUnRealizedPnlStorageDefault
                               : void();
     }
 
-    void UpdateBBO(common::ExchangeId exchange, common::TradingPair tradingPair,
+    void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
                    Price price_bid, Price price_ask) {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
@@ -91,7 +91,7 @@ class NetUnRealizedPnlStorageDefault
 
     std::pair<bool, UnRealizedPnl> GetUnRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = unrealized_pnl_.find(key);
         if (it == unrealized_pnl_.end()) {
@@ -107,7 +107,7 @@ class HedgedUnRealizedPnlStorageDefault
     using UnRealizedPnl =
         PnlUnRealizedStorageInterface<Price, Qty>::UnRealizedPnl;
 
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
@@ -115,7 +115,7 @@ class HedgedUnRealizedPnlStorageDefault
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -137,7 +137,7 @@ class HedgedUnRealizedPnlStorageDefault
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~HedgedUnRealizedPnlStorageDefault() = default;
     void UpdatePosition(common::ExchangeId exchange,
-                        common::TradingPair tradingPair, Price avg_price,
+                        aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
         Key key = {exchange, tradingPair};
         if (net_qty >= 0) {
@@ -178,7 +178,7 @@ class HedgedUnRealizedPnlStorageDefault
         }
     }
 
-    void UpdateBBO(common::ExchangeId exchange, common::TradingPair tradingPair,
+    void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
                    Price price_bid, Price price_ask) {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
@@ -212,7 +212,7 @@ class HedgedUnRealizedPnlStorageDefault
 
     std::pair<bool, UnRealizedPnl> GetUnRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = unrealized_pnl_.find(key);
         if (it == unrealized_pnl_.end()) {
@@ -229,7 +229,7 @@ class NetUnRealizedPnlStorage
     using UnRealizedPnl =
         IPnlUnRealizedStorage<Price, Qty, MemoryPool>::UnRealizedPnl;
 
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
@@ -237,7 +237,7 @@ class NetUnRealizedPnlStorage
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -258,7 +258,7 @@ class NetUnRealizedPnlStorage
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~NetUnRealizedPnlStorage() = default;
     void UpdatePosition(common::ExchangeId exchange,
-                        common::TradingPair tradingPair, Price avg_price,
+                        aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
         Key key                       = {exchange, tradingPair};
         position_info_[key].avg_price = avg_price;
@@ -273,7 +273,7 @@ class NetUnRealizedPnlStorage
                               : void();
     }
 
-    void UpdateBBO(common::ExchangeId exchange, common::TradingPair tradingPair,
+    void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
                    Price price_bid, Price price_ask) {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
@@ -289,7 +289,7 @@ class NetUnRealizedPnlStorage
 
     std::pair<bool, UnRealizedPnl> GetUnRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = unrealized_pnl_.find(key);
         if (it == unrealized_pnl_.end()) {
@@ -306,7 +306,7 @@ class HedgedUnRealizedPnlStorage
     using UnRealizedPnl =
         IPnlUnRealizedStorage<Price, Qty, MemoryPool>::UnRealizedPnl;
 
-    using Key = std::pair<common::ExchangeId, common::TradingPair>;
+    using Key = std::pair<common::ExchangeId, aos::TradingPair>;
     struct KeyHash {
         std::size_t operator()(const Key& key) const {
             std::size_t hash_value = 0;
@@ -314,7 +314,7 @@ class HedgedUnRealizedPnlStorage
             std::size_t h1 =
                 std::hash<int>{}(static_cast<int>(key.first));  // ExchangeId
             std::size_t h2 =
-                common::TradingPairHash{}(key.second);  // TradingPair
+                std::hash<aos::TradingPair>{}(key.second);  // TradingPair
 
             boost::hash_combine(hash_value, h1);
             boost::hash_combine(hash_value, h2);
@@ -338,7 +338,7 @@ class HedgedUnRealizedPnlStorage
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~HedgedUnRealizedPnlStorage() = default;
     void UpdatePosition(common::ExchangeId exchange,
-                        common::TradingPair tradingPair, Price avg_price,
+                        aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
         Key key = {exchange, tradingPair};
         if (net_qty >= 0) {
@@ -379,7 +379,7 @@ class HedgedUnRealizedPnlStorage
         }
     }
 
-    void UpdateBBO(common::ExchangeId exchange, common::TradingPair tradingPair,
+    void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
                    Price price_bid, Price price_ask) {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
@@ -413,7 +413,7 @@ class HedgedUnRealizedPnlStorage
 
     std::pair<bool, UnRealizedPnl> GetUnRealizedPnl(
         common::ExchangeId exchange,
-        common::TradingPair tradingPair) const override {
+        aos::TradingPair tradingPair) const override {
         Key key = {exchange, tradingPair};
         auto it = unrealized_pnl_.find(key);
         if (it == unrealized_pnl_.end()) {

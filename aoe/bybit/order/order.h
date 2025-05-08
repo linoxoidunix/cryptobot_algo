@@ -1,6 +1,6 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
-#include "aot/common/types.h"
+#include "aos/trading_pair/trading_pair.h"
 
 namespace aoe {
 namespace bybit {
@@ -12,7 +12,7 @@ struct Order {
     OrderStatus order_status;
     PendingAction pending_action;
     uint64_t order_id;
-    common::TradingPair trading_pair;
+    aos::TradingPair trading_pair;
     double price = 0;
     double qty   = 0;
 };

@@ -13,6 +13,7 @@
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 #include "aos/sliding_window_storage/sliding_window_storage.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/bus/bus.h"
 #include "aot/common/mem_pool.h"
 #include "aot/strategy/market_order_book.h"
@@ -52,14 +53,14 @@ int main() {
     Trading::OrderBookComponent order_book_spot_component(
         boost::asio::make_strand(thread_pool), bus, 1000,
         common::MarketType::kSpot);
-    common::TradingPair trading_pair{2, 1};
+    aos::TradingPair trading_pair = aos::TradingPair::kBTCUSDT;
     order_book_spot_component.AddOrderBook(common::ExchangeId::kBinance,
                                            trading_pair);
 
     Exchange::MEMarketUpdate2Pool me_market_update_pool(123);
     auto ptr = me_market_update_pool.Allocate(
         &me_market_update_pool, common::ExchangeId::kBinance,
-        common::TradingPair{2, 1}, Exchange::MarketUpdateType::DEFAULT, 1,
+        aos::TradingPair::kBTCUSDT, Exchange::MarketUpdateType::DEFAULT, 1,
         common::Side::kAsk, 10000, 123);
     Exchange::BusEventMEMarketUpdate2Pool pool_bus(123);
     auto bus_ptr = pool_bus.Allocate(
@@ -120,7 +121,7 @@ int main() {
             boost::asio::co_spawn(
                 strand,
                 [exchange_id  = common::ExchangeId::kBinance,
-                 trading_pair = common::TradingPair{2, 1},
+                 trading_pair = aos::TradingPair::kBTCUSDT,
                  &order_book_spot_component,
                  level = 0]() -> boost::asio::awaitable<void> {
                     auto [price, qty] =

@@ -3,6 +3,7 @@
 
 #include "aos/pnl/i_pnl.h"
 #include "aos/position_strategy/i_position_strategy.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "boost/intrusive_ptr.hpp"
 
 namespace aos {
@@ -21,15 +22,14 @@ class NetPositionDefault {
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price price, Qty qty) {
+                     aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_.Add(exchange_id, trading_pair, avg_price_, net_qty_, price,
                       qty);
     }
 
     // Удалить количество по заданной цене
     void RemovePosition(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price price,
-                        Qty qty) {
+                        aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_.Remove(exchange_id, trading_pair, avg_price_, net_qty_, price,
                          qty);
     }
@@ -57,15 +57,14 @@ class HedgedPositionDefault {
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price price, Qty qty) {
+                     aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_.Add(exchange_id, trading_pair, avg_price_, net_qty_, price,
                       qty);
     }
 
     // Удалить количество по заданной цене
     void RemovePosition(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price price,
-                        Qty qty) {
+                        aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_.Remove(exchange_id, trading_pair, avg_price_, net_qty_, price,
                          qty);
     }
@@ -121,15 +120,14 @@ class NetPosition {
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price price, Qty qty) {
+                     aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_->Add(exchange_id, trading_pair, avg_price_, net_qty_, price,
                        qty);
     }
 
     // Удалить количество по заданной цене
     void RemovePosition(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price price,
-                        Qty qty) {
+                        aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_->Remove(exchange_id, trading_pair, avg_price_, net_qty_,
                           price, qty);
     }
@@ -160,15 +158,14 @@ class HedgePosition {
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,
-                     common::TradingPair trading_pair, Price price, Qty qty) {
+                     aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_->Add(exchange_id, trading_pair, avg_price_, net_qty_, price,
                        qty);
     }
 
     // Удалить количество по заданной цене
     void RemovePosition(common::ExchangeId exchange_id,
-                        common::TradingPair trading_pair, Price price,
-                        Qty qty) {
+                        aos::TradingPair trading_pair, Price price, Qty qty) {
         strategy_->Remove(exchange_id, trading_pair, avg_price_, net_qty_,
                           price, qty);
     }

@@ -3,6 +3,7 @@
 #include "aoe/bybit/request_maker/for_web_socket/place_order/i_request_maker.h"
 #include "aos/common/common.h"
 #include "aos/request/i_request.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
 
 namespace aoe {
@@ -13,7 +14,7 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
   public:
     virtual ~RequestInterface() = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
-    virtual const common::TradingPair& TradingPair() const {
+    virtual const aos::TradingPair& TradingPair() const {
         return trading_pair_;
     };
     virtual aoe::bybit::Category Category() const { return category_; };
@@ -29,7 +30,7 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
     };
     virtual aoe::bybit::OrderMode OrderMode() const { return order_mode_; };
 
-    virtual void SetTradingPair(common::TradingPair trading_pair) {
+    virtual void SetTradingPair(aos::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };
     virtual void SetCategory(aoe::bybit::Category category) {
@@ -55,7 +56,7 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
 
   protected:
     common::ExchangeId exchange_id_ = common::ExchangeId::kBybit;
-    common::TradingPair trading_pair_;
+    aos::TradingPair trading_pair_;
     aoe::bybit::Category category_ = aoe::bybit::Category::kInvalid;
     double price_                  = 0;
     double qty_                    = 0;

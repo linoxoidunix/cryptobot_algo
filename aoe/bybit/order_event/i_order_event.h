@@ -3,6 +3,7 @@
 #include "aoe/bybit/order_mutator/i_order_mutator.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_event/i_order_event.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
 
 namespace aoe {
@@ -18,7 +19,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     virtual double CumExecValue() const { return cum_exec_value_; };
 
     virtual common::ExchangeId ExchangeId() const { return exchange_id; };
-    virtual common::TradingPair TradingPair() const { return trading_pair_; };
+    virtual aos::TradingPair TradingPair() const { return trading_pair_; };
     virtual double Price() const { return price_; };
 
     virtual void SetLeavesQty(double leaves_qty) { leaves_qty_ = leaves_qty; };
@@ -33,7 +34,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     };
 
     virtual void SetOrderId(uint64_t order_id) { order_id_ = order_id; };
-    virtual void SetTradingPair(common::TradingPair trading_pair) {
+    virtual void SetTradingPair(aos::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };
     virtual void SetPrice(double price) { price_ = price; };
@@ -46,7 +47,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     double cum_exec_qty_                  = 0;
     double cum_exec_value_                = 0;
     common::ExchangeId exchange_id        = common::ExchangeId::kBybit;
-    common::TradingPair trading_pair_;
+    aos::TradingPair trading_pair_;
     uint64_t order_id_;
     double price_ = 0;
 };

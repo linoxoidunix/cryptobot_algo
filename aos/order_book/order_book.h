@@ -1,9 +1,9 @@
 #pragma once
 #include "aos/order_book/i_order_book.h"
 #include "aos/order_book_level/order_book_level.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
 #include "boost/intrusive/avltree.hpp"
-
 namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
@@ -28,7 +28,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
     AskTree ask_levels_;
 
     common::ExchangeId exchange_id_;
-    common::TradingPair trading_pair_;
+    aos::TradingPair trading_pair_;
     MemoryPool<OrderBookLevel<Price, Qty>> bid_lvl_memory_pool_;
     MemoryPool<OrderBookLevel<Price, Qty>> ask_lvl_memory_pool_;
 
@@ -36,7 +36,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
     OrderBookInner(size_t max_level)
         : bid_lvl_memory_pool_(max_level), ask_lvl_memory_pool_(max_level) {};
     OrderBookInner(common::ExchangeId exchange_id,
-                   common::TradingPair trading_pair, size_t max_level)
+                   aos::TradingPair trading_pair, size_t max_level)
         : exchange_id_(exchange_id),
           trading_pair_(trading_pair),
           bid_lvl_memory_pool_(max_level),
@@ -120,7 +120,7 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
 
   public:
     OrderBook(size_t max_levels) : inner_order_book_(max_levels) {}
-    OrderBook(common::ExchangeId exchange_id, common::TradingPair trading_pair,
+    OrderBook(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
               size_t max_level)
         : inner_order_book_(exchange_id, trading_pair, max_level) {}
     void AddBidOrder(Price price, Qty qty) override {
@@ -159,7 +159,7 @@ class OrderBookEventListener
           order_book_(max_levels) {}
     OrderBookEventListener(boost::asio::thread_pool& thread_pool,
                            common::ExchangeId exchange_id,
-                           common::TradingPair trading_pair, size_t max_level)
+                           aos::TradingPair trading_pair, size_t max_level)
         : strand_(boost::asio::make_strand(thread_pool)),
           order_book_(exchange_id, trading_pair, max_level) {}
     ~OrderBookEventListener() override = default;

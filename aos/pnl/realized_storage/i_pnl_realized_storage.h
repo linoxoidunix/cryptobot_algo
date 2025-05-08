@@ -1,5 +1,6 @@
 #pragma once
 #include "aos/common/ref_counted.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
 
 namespace aos {
@@ -8,11 +9,10 @@ class PnlRealizedStorageInterface {
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     virtual RealizedPnl FixProfit(common::ExchangeId exchange,
-                                  common::TradingPair tradingPair,
-                                  Price avg_price, Qty net_qty, Price price,
-                                  Qty qty) = 0;
+                                  aos::TradingPair tradingPair, Price avg_price,
+                                  Qty net_qty, Price price, Qty qty) = 0;
     virtual std::pair<bool, RealizedPnl> GetRealizedPnl(
-        common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
+        common::ExchangeId exchange, aos::TradingPair tradingPair) const = 0;
     virtual ~PnlRealizedStorageInterface() = default;
 };
 
@@ -22,9 +22,9 @@ class IPnlRealizedStorage
                                 IPnlRealizedStorage<Price, Qty, MemoryPool>> {
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    virtual void Add(common::ExchangeId exchange,
-                     common::TradingPair tradingPair, RealizedPnl pnl) = 0;
+    virtual void Add(common::ExchangeId exchange, aos::TradingPair tradingPair,
+                     RealizedPnl pnl) = 0;
     virtual std::pair<bool, RealizedPnl> GetRealizedPnl(
-        common::ExchangeId exchange, common::TradingPair tradingPair) const = 0;
+        common::ExchangeId exchange, aos::TradingPair tradingPair) const = 0;
 };
 };  // namespace aos
