@@ -35,9 +35,11 @@ FetchContent_Declare(
   GIT_TAG        stable 
 )
 
-FetchContent_Populate(libsodium)
+FetchContent_MakeAvailable(libsodium)
 build_libsodium(${libsodium_SOURCE_DIR})
+include_directories(${libsodium_SOURCE_DIR}/src/libsodium/include)
 link_directories(${LIBSODIUM_LIBRARY_DIR})
+
 
 set(BUILD_TESTS OFF CACHE BOOL "Disable building tests in cryptobot" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building examples in cryptobot" FORCE)
