@@ -2,6 +2,7 @@
 
 #include "aoe/aoe.h"
 #include "aoe/auth/web_socket/i_auth.h"
+#include "aoe/binance/auth/web_socket/auth.h"
 #include "aoe/bybit/auth/web_socket/auth.h"
 #include "aoe/bybit/bybit_api/external/rest/exchange_api.h"
 #include "aoe/bybit/bybit_api/external/web_socket/exchange_api_default.h"
@@ -73,6 +74,8 @@
 #include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/web_socket.h"
+#include "aoe/signer/ed25519/i_signer.h"
+#include "aoe/signer/ed25519/signer.h"
 #include "aoe/signer/hmac_sha256/i_signer.h"
 #include "aoe/signer/hmac_sha256/signer.h"
 #include "aoe/subscription_builder/i_subscription_builder.h"

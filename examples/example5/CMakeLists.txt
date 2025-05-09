@@ -21,6 +21,7 @@ aos
 aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
+sodium
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

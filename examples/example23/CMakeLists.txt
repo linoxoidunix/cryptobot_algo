@@ -21,6 +21,7 @@ aos
 aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
+sodium
 concurrentqueue
 nlohmann_json::nlohmann_json
 simdjson::simdjson

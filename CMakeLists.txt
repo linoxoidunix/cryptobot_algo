@@ -28,6 +28,17 @@ FetchContent_Declare(
     GIT_TAG        v3.4.0
 )
 
+include(${CMAKE_SOURCE_DIR}/cmake/BuildLibsodium.cmake)
+FetchContent_Declare(
+  libsodium
+  GIT_REPOSITORY https://github.com/jedisct1/libsodium.git
+  GIT_TAG        stable 
+)
+
+FetchContent_Populate(libsodium)
+build_libsodium(${libsodium_SOURCE_DIR})
+link_directories(${LIBSODIUM_LIBRARY_DIR})
+
 set(BUILD_TESTS OFF CACHE BOOL "Disable building tests in cryptobot" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building examples in cryptobot" FORCE)
 FetchContent_Declare(
@@ -144,6 +155,7 @@ target_link_libraries(${PROJECT_NAME}
     ${Boost_LIBRARIES}
     tomlplusplus::tomlplusplus
     nlohmann_json::nlohmann_json
+    sodium
     aot
 )
 
