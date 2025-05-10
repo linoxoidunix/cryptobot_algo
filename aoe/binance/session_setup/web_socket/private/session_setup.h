@@ -31,7 +31,8 @@ class PrivateSessionSetup {
         aoe::impl::StaticApiKey api_key_manager(api_key);
         aoe::ed25519::impl::StaticSecretKeyBase64URLSafetyNoPadding
             secret_key_manager(secret_key);
-        aoe::ed25519::impl::Signer signer(api_key_manager, secret_key_manager);
+        aoe::ed25519::impl::SignerBase64URLKey signer(api_key_manager,
+                                                      secret_key_manager);
         Authentificator authentificator(ws_, signer);
         authentificator.Auth();
         return true;
@@ -59,7 +60,8 @@ class PrivateSessionSetup {
         aoe::impl::StaticApiKey api_key_manager(api_key);
         aoe::ed25519::impl::StaticSecretKeyBase64URLSafetyNoPadding
             secret_key_manager(secret_key);
-        aoe::ed25519::impl::Signer signer(api_key_manager, secret_key_manager);
+        aoe::ed25519::impl::SignerBase64URLKey signer(api_key_manager,
+                                                      secret_key_manager);
         aoe::binance::impl::Authentificator authentificator(ws_, signer);
         authentificator.Auth();
         return true;
