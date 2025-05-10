@@ -6,36 +6,41 @@ def generate_ed25519_keys():
     # 1. Генерация приватного ключа Ed25519
     private_key = ed25519.Ed25519PrivateKey.generate()
     
-    # 2. Получение публичного ключа
-    public_key = private_key.public_key()
-    
-    # 3. Сериализация ключей в PEM формат
+    # 2. Сериализация ключей в PEM формат
     pem_private = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption()
     )
     
-    pem_public = public_key.public_bytes(
+    pem_public = private_key.public_key().public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
     
-    # 4. Конвертация приватного ключа в base64url-safe без padding
-    # Сначала получаем сырые байты приватного ключа
-    raw_private = private_key.private_bytes(
+    # 3. Получаем raw байты приватного и публичного ключей
+    sk = private_key.private_bytes(
         encoding=serialization.Encoding.Raw,
         format=serialization.PrivateFormat.Raw,
         encryption_algorithm=serialization.NoEncryption()
     )
     
-    # Конвертируем в base64url-safe без padding
-    b64url_private = base64.urlsafe_b64encode(raw_private).decode('utf-8').rstrip('=')
+    pk = private_key.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
     
-    return pem_private, pem_public, b64url_private
+    # 4. Склеиваем приватный и публичный ключи (64 байта)
+    full = sk + pk
+    
+    # 5. Конвертируем в base64url-safe без padding
+    b64_full = base64.urlsafe_b64encode(full).rstrip(b'=')
+    b64_pk = base64.urlsafe_b64encode(pk).rstrip(b'=')
+    
+    return pem_private, pem_public, b64_full.decode('utf-8'), b64_pk.decode('utf-8')
 
 # Генерация ключей
-private_pem, public_pem, private_b64url = generate_ed25519_keys()
+private_pem, public_pem, b64_full, b64_pk = generate_ed25519_keys()
 
 # Вывод результатов
 print("1. ED25519 Private Key (PEM):")
@@ -44,5 +49,8 @@ print(private_pem.decode('utf-8'))
 print("\n2. ED25519 Public Key (PEM):")
 print(public_pem.decode('utf-8'))
 
-print("\n3. Private Key as base64url-safe no padding:")
-print(private_b64url)
+print("\n3. Full key (sk+pk) as base64url-safe no padding:")
+print(b64_full)
+
+print("\n4. Public key only as base64url-safe no padding:")
+print(b64_pk)
