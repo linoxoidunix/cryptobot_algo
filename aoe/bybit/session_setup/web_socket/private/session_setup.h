@@ -26,8 +26,9 @@ class PrivateSessionSetup {
           ping_manager_(ping_manager) {}
 
     bool Setup() {
-        auto [ok1, api_key]    = credentials_loader_.ApiKeyMainNet();
-        auto [ok2, secret_key] = credentials_loader_.SecretKeyMainNet();
+        auto [ok1, api_key] = credentials_loader_.ApiKeyHmacSha256MainNet();
+        auto [ok2, secret_key] =
+            credentials_loader_.SecretKeyHmacSha256MainNet();
         if (!ok1 || !ok2) {
             return false;
         }
@@ -58,8 +59,9 @@ class PrivateSessionSetup {
           ping_manager_(ping_manager) {}
 
     bool Setup() {
-        auto [ok1, api_key]    = credentials_loader_.ApiKeyTestNet();
-        auto [ok2, secret_key] = credentials_loader_.SecretKeyTestNet();
+        auto [ok1, api_key] = credentials_loader_.ApiKeyHmacSha256TestNet();
+        auto [ok2, secret_key] =
+            credentials_loader_.SecretKeyHmacSha256TestNet();
         if (!ok1 || !ok2) {
             return false;
         }

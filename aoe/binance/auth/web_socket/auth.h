@@ -1,29 +1,33 @@
 #pragma once
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/session/web_socket/i_web_socket.h"
-#include "aoe/signer/hmac_sha256/i_signer.h"
+#include "aoe/signer/ed25519/i_signer.h"
 #include "aot/Logger.h"
 namespace aoe {
 namespace binance {
 namespace impl {
 class Authentificator : public AuthInterface {
     WebSocketSessionWritableInterface& web_socket_session_;
-    aoe::hmac_sha256::SignerInterface& signer_;
+    aoe::ed25519::SignerInterface& signer_;
 
   public:
     Authentificator(WebSocketSessionWritableInterface& web_socket_session,
-                    aoe::hmac_sha256::SignerInterface& signer)
+                    aoe::ed25519::SignerInterface& signer)
         : web_socket_session_(web_socket_session), signer_(signer) {}
     void Auth() override {
-        // https://github.com/bybit-exchange/api-usage-examples/blob/master/V5_demo/wss_demo/c%2B%2B/ws_trade_api_demo.cpp
-        // wait 10ms to expire
-        long expires = std::time(nullptr) * 1000 +
-                       10000;  // Unix timestamp in milliseconds
-        std::string request    = fmt::format("GET/realtime{}", expires);
-        std::string signature  = signer_.Sign(request);
-        nlohmann::json message = {
-            {"op", "auth"},
-            {"args", {signer_.ApiKey(), expires, std::move(signature)}}};
+        auto api_key = signer_.ApiKey();
+        long timestamp =
+            std::time(nullptr) * 1000;  // Unix timestamp in milliseconds
+        auto request =
+            fmt::format("apiKey={}&timestamp={}", api_key, timestamp);
+        auto [status, signature] = signer_.SignBase64EncodeStandard(request);
+        if (!status) return;
+        nlohmann::json message = {{"id", nullptr},  // Уникальный ID запроса
+                                  {"method", "session.logon"},
+                                  {"params",
+                                   {{"apiKey", api_key},
+                                    {"signature", std::move(signature)},
+                                    {"timestamp", timestamp}}}};
         web_socket_session_.AsyncWrite(std::move(message));
     }
 };

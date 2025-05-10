@@ -8,7 +8,7 @@
 #include "toml++/toml.hpp"
 
 namespace aoe {
-namespace bybit {
+namespace binance {
 namespace impl {
 class CredentialsLoader : public CredentialsLoaderInterface {
     toml::table config_;
@@ -23,30 +23,32 @@ class CredentialsLoader : public CredentialsLoaderInterface {
         }
     };
     std::pair<bool, std::string_view> ApiKeyHmacSha256MainNet() override {
-        return Get("bybit", "hmac_sha256", "mainnet", "api_key");
+        return {false, {}};
     };
     std::pair<bool, std::string_view> SecretKeyHmacSha256MainNet() override {
-        return Get("bybit", "hmac_sha256", "mainnet", "secret_key");
+        return {false, {}};
     };
     std::pair<bool, std::string_view> ApiKeyHmacSha256TestNet() override {
-        return Get("bybit", "hmac_sha256", "testnet", "api_key");
+        return {false, {}};
     };
     std::pair<bool, std::string_view> SecretKeyHmacSha256TestNet() override {
-        return Get("bybit", "hmac_sha256", "testnet", "secret_key");
+        return {false, {}};
     };
     std::pair<bool, std::string_view> ApiKeyEd25519MainNet() override {
-        return {false, {}};
+        return Get("binance", "ed25519", "mainnet", "api_key");
     };
     std::pair<bool, std::string_view>
     SecretKeyEd25519MainNetBase64URLSafetyNoPadding() override {
-        return {false, {}};
+        return Get("binance", "ed25519", "base64_url_safety_no_padding",
+                   "mainnet", "secret_key");
     };
     std::pair<bool, std::string_view> ApiKeyEd25519TestNet() override {
-        return {false, {}};
+        return Get("binance", "ed25519", "testnet", "api_key");
     };
     std::pair<bool, std::string_view>
     SecretKeyEd25519TestNetBase64URLSafetyNoPadding() override {
-        return {false, {}};
+        return Get("binance", "ed25519", "base64_url_safety_no_padding",
+                   "testnet", "secret_key");
     };
 
   private:
@@ -64,7 +66,23 @@ class CredentialsLoader : public CredentialsLoaderInterface {
 
         return {true, std::string_view(value->get())};
     }
+    std::pair<bool, std::string_view> Get(std::string_view group,
+                                          std::string_view type_key,
+                                          std::string_view sub_type_key,
+                                          std::string_view network,
+                                          std::string_view key) const {
+        if (!config_loaded_) return {false, {}};
+
+        auto* table =
+            config_[group][type_key][sub_type_key][network].as_table();
+        if (!table) return {false, {}};
+
+        const auto* value = table->get_as<std::string>(key);
+        if (!value) return {false, {}};
+
+        return {true, std::string_view(value->get())};
+    }
 };
 };  // namespace impl
-};  // namespace bybit
+};  // namespace binance
 };  // namespace aoe
