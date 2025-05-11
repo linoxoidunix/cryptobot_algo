@@ -31,7 +31,7 @@ TEST(SignerTest, Sign) {
 
     // Подготовка заглушек
     MockApiKey mock_api_key;
-    aoe::ed25519::impl::StaticSecretKeyBase64 mock_secret_key(sk);
+    aoe::ed25519::impl::StaticSecretKeyByte64 mock_secret_key(sk);
 
     aoe::ed25519::impl::SignerRaw64ByteKey signer(mock_api_key,
                                                   mock_secret_key);

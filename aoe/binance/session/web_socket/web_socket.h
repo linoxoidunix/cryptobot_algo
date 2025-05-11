@@ -2,6 +2,7 @@
 
 #include "aoe/binance/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/web_socket.h"
+
 namespace aoe {
 namespace binance {
 namespace impl {
@@ -136,29 +137,27 @@ namespace order_book_channel {
 class SessionRW : public WebSocketPublicSessionRWInterface {
     boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
     aoe::impl::WebSocketSessionRW ws_;
+    moodycamel::ConcurrentQueue<std::vector<char>> unused_queue_;
 
   public:
-    SessionRW(boost::asio::io_context& ioc,
-              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
-              ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "ws-api.testnet.binance.vision", "443",
-              "/v5/public/spot", response_queue, listener) {}
-    void AsyncWrite(nlohmann::json&& j) override {
-        ws_.AsyncWrite(std::move(j));
-    };
+    SessionRW()                            = delete;
+    SessionRW(const SessionRW&)            = delete;
+    SessionRW(SessionRW&&)                 = delete;
+    SessionRW& operator=(const SessionRW&) = delete;
+    SessionRW& operator=(SessionRW&&)      = delete;
+    ~SessionRW() override                  = default;
+    void AsyncWrite(nlohmann::json&& j) override {};
     moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
         override {
-        return ws_.GetResponseQueue();
+        return unused_queue_;
     }
-
-    ~SessionRW() override = default;
 };
 };  // namespace order_book_channel
 };  // namespace spot
 };  // namespace test_net
 
 namespace test_net {
-namespace linear {
+namespace futures {
 namespace order_book_channel {
 class SessionRW : public WebSocketPublicSessionRWInterface {
     boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
@@ -168,8 +167,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     SessionRW(boost::asio::io_context& ioc,
               moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
               ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "ws-api.testnet.binance.vision", "443",
-              "/v5/public/linear", response_queue, listener) {}
+        : ws_(ioc, ctx_, "stream.testnet.binancefuture.com", "443", "/ws",
+              response_queue, listener) {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
@@ -181,7 +180,7 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     ~SessionRW() override = default;
 };
 };  // namespace order_book_channel
-};  // namespace linear
+};  // namespace futures
 };  // namespace test_net
 
 namespace main_net {
@@ -195,8 +194,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     SessionRW(boost::asio::io_context& ioc,
               moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
               ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "stream.bybit.com", "443", "/v5/public/spot",
-              response_queue, listener) {}
+        : ws_(ioc, ctx_, "stream.binance.com", "9443", "/ws", response_queue,
+              listener) {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
@@ -212,7 +211,7 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
 };  // namespace main_net
 
 namespace main_net {
-namespace linear {
+namespace futures {
 namespace order_book_channel {
 class SessionRW : public WebSocketPublicSessionRWInterface {
     boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
@@ -222,8 +221,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     SessionRW(boost::asio::io_context& ioc,
               moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
               ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "stream.bybit.com", "443", "/v5/public/linear",
-              response_queue, listener) {}
+        : ws_(ioc, ctx_, "fstream.bybit.com", "443", "/ws", response_queue,
+              listener) {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
@@ -235,7 +234,7 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     ~SessionRW() override = default;
 };
 };  // namespace order_book_channel
-};  // namespace linear
+};  // namespace futures
 };  // namespace main_net
 
 };  // namespace impl

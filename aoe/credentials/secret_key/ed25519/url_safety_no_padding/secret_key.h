@@ -54,17 +54,17 @@ class StaticSecretKeyBase64URLSafetyNoPadding
     ~StaticSecretKeyBase64URLSafetyNoPadding() override = default;
 };
 
-class StaticSecretKeyBase64 : public SecretKeyByte64Interface {
+class StaticSecretKeyByte64 : public SecretKeyByte64Interface {
     unsigned char sk_[crypto_sign_SECRETKEYBYTES];
 
   public:
-    StaticSecretKeyBase64(unsigned char (&sk)[crypto_sign_SECRETKEYBYTES]) {
+    StaticSecretKeyByte64(unsigned char (&sk)[crypto_sign_SECRETKEYBYTES]) {
         std::memcpy(sk_, sk, crypto_sign_SECRETKEYBYTES);
     }
     std::pair<bool, const unsigned char*> GetSecretKey64Bytes() const override {
         return std::make_pair(true, sk_);
     }
-    ~StaticSecretKeyBase64() override = default;
+    ~StaticSecretKeyByte64() override = default;
 };
 }  // namespace impl
 };  // namespace ed25519
