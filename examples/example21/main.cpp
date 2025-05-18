@@ -28,14 +28,14 @@ int main() {
 
         aoe::bybit::impl::external::ws::SingleOrderAPI<
             common::MemoryPoolThreadSafety>
-            bybit_api(wss_provider, place_order_maker, cancel_order_maker,
-                      amend_order_maker);
+            api(wss_provider, place_order_maker, cancel_order_maker,
+                amend_order_maker);
         aos::impl::MultiOrderManagerDefault<common::MemoryPoolThreadSafety>
             multi_order_manager;
         aoe::bybit::impl::OrderStorage order_storage;
         auto ptr = std::make_unique<
             aoe::bybit::impl::OrderManager<common::MemoryPoolThreadSafety>>(
-            order_storage, bybit_api, uid_manager);
+            order_storage, api, uid_manager);
         multi_order_manager.Register(common::ExchangeId::kBybit,
                                      std::move(ptr));
     }

@@ -5,7 +5,7 @@ int main() {
     {
         aoe::bybit::impl::internal::SingleOrderAPI<
             common::MemoryPoolThreadSafety>
-            bybit_api;
+            api;
     }
     return 0;
 }

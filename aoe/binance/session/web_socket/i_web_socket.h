@@ -1,7 +1,5 @@
 #pragma once
 #include "aoe/session/web_socket/i_web_socket.h"
-
-#pragma once
 #include "boost/intrusive_ptr.hpp"
 #include "concurrentqueue.h"
 #include "nlohmann/json.hpp"

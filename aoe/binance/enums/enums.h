@@ -1,6 +1,30 @@
 #pragma once
+#include <string_view>
 namespace aoe {
 namespace binance {
+constexpr std::string_view kContentType = "application/x-www-form-urlencoded";
+constexpr std::string_view kRESTPort    = "443";
+
+namespace main_net {
+namespace rest {
+
+namespace spot {
+// https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-api-information
+constexpr std::string_view kRESTHost1 = "api.binance.com";
+constexpr std::string_view kRESTHost2 = "api-gcp.binance.com";
+};  // namespace spot
+};  // namespace rest
+};  // namespace main_net
+
+namespace main_net {
+namespace rest {
+namespace futures {
+// https://developers.binance.com/docs/binance-spot-api-docs/rest-api/general-api-information
+constexpr std::string_view kRESTHost1 = "fapi.binance.com";
+};  // namespace futures
+};  // namespace rest
+};  // namespace main_net
+
 enum class ExecType { kTrade, kUnknown };
 enum class Category {
     kInvalid,

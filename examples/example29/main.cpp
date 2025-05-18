@@ -81,13 +81,13 @@ int main(int argc, char** argv) {
 
         aoe::bybit::impl::external::ws::SingleOrderAPIDefault<
             common::MemoryPoolThreadSafety>
-            bybit_api(wss_provider);
+            api(wss_provider);
         aos::impl::MultiOrderManagerDefault<common::MemoryPoolThreadSafety>
             multi_order_manager;
         aoe::bybit::impl::OrderStorage order_storage;
         auto ptr = std::make_unique<
             aoe::bybit::impl::OrderManager<common::MemoryPoolThreadSafety>>(
-            order_storage, bybit_api, uid_manager);
+            order_storage, api, uid_manager);
         multi_order_manager.Register(common::ExchangeId::kBybit,
                                      std::move(ptr));
         //-------------------------------------------------------------------------
