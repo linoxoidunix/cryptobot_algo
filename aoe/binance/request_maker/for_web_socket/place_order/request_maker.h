@@ -1,11 +1,11 @@
 #pragma once
 #include <boost/pointer_cast.hpp>  // обязательно!
 
-#include "aoe/bybit/request/place_order/i_request.h"
-#include "aoe/bybit/request_maker/for_web_socket/place_order/i_request_maker.h"
+#include "aoe/binance/request/place_order/i_request.h"
+#include "aoe/binance/request_maker/for_web_socket/place_order/i_request_maker.h"
 #include "aot/common/time_utils.h"
 namespace aoe {
-namespace bybit {
+namespace binance {
 namespace place_order {
 template <template <typename> typename MemoryPool>
 class RequestMaker : public RequestMakerInterface<MemoryPool> {
@@ -33,14 +33,14 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
     std::pair<bool, nlohmann::json> CreateArgsEntryJson(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
         auto derived_ptr = boost::static_pointer_cast<
-            aoe::bybit::place_order::RequestInterface<MemoryPool>>(event);
+            aoe::binance::place_order::RequestInterface<MemoryPool>>(event);
         auto [status, json_object] = derived_ptr->Accept(this);
         return std::make_pair(status, json_object);
     }
     std::pair<bool, nlohmann::json> CreateRequestJson(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>> event) {
         // auto derived_ptr = boost::static_pointer_cast<
-        //     aoe::bybit::OrderTypeInterface<MemoryPool>>(event);
+        //     aoe::binance::OrderTypeInterface<MemoryPool>>(event);
         auto [status, value] = CreateArgsEntryJson(event);
         return std::make_pair(
             status, nlohmann::json{{"header", CreateHeaderJson()},
@@ -49,5 +49,5 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
     }
 };
 };  // namespace place_order
-};  // namespace bybit
+};  // namespace binance
 };  // namespace aoe

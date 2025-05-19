@@ -25,6 +25,8 @@ int main(int argc, char** argv) {
             common::MemoryPoolThreadSafety>
             request;
         request.SetTradingPair(aos::TradingPair::kBTCUSDT);
+        request.SetLimit(1);
+
         sender.Send(request);
         auto thread_ = std::jthread([&ioc]() { ioc.run(); });
         // std::this_thread::sleep_for(std::chrono::seconds(15));

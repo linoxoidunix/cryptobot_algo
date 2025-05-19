@@ -226,13 +226,13 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
 };
 
 template <template <typename> typename MemoryPool>
-class LinearBuyLimit : public RequestInterface<MemoryPool> {
+class FuturesBuyLimit : public RequestInterface<MemoryPool> {
     aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearBuyLimit() {
+    FuturesBuyLimit() {
         this->SetOrderSide(aoe::binance::Side::kBuy);
-        this->SetCategory(aoe::binance::Category::kLinear);
+        this->SetCategory(aoe::binance::Category::kFutures);
         this->SetOrderMode(aoe::binance::OrderMode::kLimit);
     }
     nlohmann::json Accept(
@@ -274,16 +274,16 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~LinearBuyLimit() override = default;
+    ~FuturesBuyLimit() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearSellLimit : public RequestInterface<MemoryPool> {
+class FuturesSellLimit : public RequestInterface<MemoryPool> {
     aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearSellLimit() {
+    FuturesSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
-        this->SetCategory(aoe::binance::Category::kLinear);
+        this->SetCategory(aoe::binance::Category::kFutures);
         this->SetOrderMode(aoe::binance::OrderMode::kLimit);
     }
     nlohmann::json Accept(
@@ -325,17 +325,17 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~LinearSellLimit() override = default;
+    ~FuturesSellLimit() override = default;
 };
 
 template <template <typename> typename MemoryPool>
-class LinearBuyMarket : public RequestInterface<MemoryPool> {
+class FuturesBuyMarket : public RequestInterface<MemoryPool> {
     aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearBuyMarket() {
+    FuturesBuyMarket() {
         this->SetOrderSide(aoe::binance::Side::kBuy);
-        this->SetCategory(aoe::binance::Category::kLinear);
+        this->SetCategory(aoe::binance::Category::kFutures);
         this->SetOrderMode(aoe::binance::OrderMode::kMarket);
     }
     nlohmann::json Accept(
@@ -376,16 +376,16 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~LinearBuyMarket() override = default;
+    ~FuturesBuyMarket() override = default;
 };
 template <template <typename> typename MemoryPool>
-class LinearSellMarket : public RequestInterface<MemoryPool> {
+class FuturesSellMarket : public RequestInterface<MemoryPool> {
     aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    LinearSellMarket() {
+    FuturesSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
-        this->SetCategory(aoe::binance::Category::kLinear);
+        this->SetCategory(aoe::binance::Category::kFutures);
         this->SetOrderMode(aoe::binance::OrderMode::kMarket);
     }
     nlohmann::json Accept(
@@ -426,7 +426,7 @@ class LinearSellMarket : public RequestInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~LinearSellMarket() override = default;
+    ~FuturesSellMarket() override = default;
 };
 };  // namespace impl
 };  // namespace place_order

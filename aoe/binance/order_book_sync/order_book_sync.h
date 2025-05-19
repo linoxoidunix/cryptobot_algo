@@ -1,10 +1,11 @@
 #pragma once
+#include "aoe/binance/order_book_sync/i_order_book_sync.h"
 #include "aos/order_book/order_book.h"
 #include "aot/Logger.h"
 #include "boost/asio.hpp"
 
 namespace aoe {
-namespace bybit {
+namespace binance {
 namespace impl {
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
@@ -83,5 +84,5 @@ class OrderBookSync : public OrderBookSyncInterface<Price, Qty, MemoryPool> {
     }
 };
 };  // namespace impl
-};  // namespace bybit
+};  // namespace binance
 };  // namespace aoe

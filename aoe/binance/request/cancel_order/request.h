@@ -40,11 +40,11 @@ class Spot : public RequestInterface<MemoryPool> {
     ~Spot() override = default;
 };
 template <template <typename> typename MemoryPool>
-class Linear : public RequestInterface<MemoryPool> {
+class Futures : public RequestInterface<MemoryPool> {
     aos::impl::TradingPairToBigStringView trading_pair_printer_;
 
   public:
-    Linear() { this->SetCategory(aoe::binance::Category::kLinear); }
+    Futures() { this->SetCategory(aoe::binance::Category::kFutures); }
     std::pair<bool, nlohmann::json> Accept(
         aoe::binance::place_order::RequestMakerInterface<MemoryPool>*
             request_maker) override {
@@ -68,7 +68,7 @@ class Linear : public RequestInterface<MemoryPool> {
         }
         return {true, order};
     };
-    ~Linear() override = default;
+    ~Futures() override = default;
 };
 };  // namespace impl
 };  // namespace cancel_order
