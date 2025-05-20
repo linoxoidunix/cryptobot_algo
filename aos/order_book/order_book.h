@@ -41,7 +41,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
           trading_pair_(trading_pair),
           bid_lvl_memory_pool_(max_level),
           ask_lvl_memory_pool_(max_level) {}
-    ~OrderBookInner() override = default;
+    ~OrderBookInner() override { Clear(); };
     void Clear() override {
         price_to_bid_level_.clear();
         price_to_ask_level_.clear();

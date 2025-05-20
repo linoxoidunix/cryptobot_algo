@@ -195,6 +195,7 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                 logi("get data queue_size:{}", response_queue_.size_approx());
                 listener_.OnDataEnqueued();
                 logi("add message to queue");
+                buffer_.consume(buffer_.size());  // очищаем буфер
             } else {
                 logd("No data was read");
             }

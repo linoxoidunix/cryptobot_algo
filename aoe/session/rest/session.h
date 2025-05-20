@@ -111,11 +111,16 @@ class RestSessionRW : public RestSessionWritableInterface,
             // Читаем ответ
             co_await http::async_read(stream_, buffer_, res,
                                       net::use_awaitable);
+            // Копируем body в вектор
+            std::vector<char> data_copy(res.body().begin(), res.body().end());
+            response_queue_.enqueue(std::move(data_copy));
 
-            // Обрабатываем ответ
-            logi("{}", res.body());
+            logi("get data queue_size:{}", response_queue_.size_approx());
+            listener_.OnDataEnqueued();
+            logi("add message to queue");
+
+            buffer_.consume(buffer_.size());  // опционально, если буфер общий
         } catch (const std::exception& e) {
-            // std::cerr << "Request error: " << e.what() << "\n";
             loge("{}", e.what());
         }
 

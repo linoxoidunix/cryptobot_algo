@@ -4,7 +4,7 @@
 #include "aoe/binance/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/subscription_builder/i_subscription_builder.h"
-#include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
+#include "aos/converters/trading_pair_to_small_string_view/trading_pair_to_small_string_view.h"
 #include "aos/trading_pair/trading_pair.h"
 namespace aoe {
 namespace binance {
@@ -46,19 +46,18 @@ class OrderSubscriptionBuilder : public SubscriptionBuilderInterface {
 };
 
 namespace spot {
-class OrderBookSubscriptionBuilder : public SubscriptionBuilderInterface {
+class DiffSubscriptionBuilder : public SubscriptionBuilderInterface {
     WebSocketPublicSessionRWInterface& ws_;
     aoe::binance::spot::DiffUpdateSpeed_ms update_speed_;
     aos::TradingPair trading_pair_;
-    aos::impl::TradingPairToBigStringView printer_;
+    aos::impl::TradingPairToSmallStringView printer_;
 
   public:
-    OrderBookSubscriptionBuilder(
-        WebSocketPublicSessionRWInterface& ws,
-        aoe::binance::spot::DiffUpdateSpeed_ms update_speed,
-        aos::TradingPair trading_pair)
+    DiffSubscriptionBuilder(WebSocketPublicSessionRWInterface& ws,
+                            aoe::binance::spot::DiffUpdateSpeed_ms update_speed,
+                            aos::TradingPair trading_pair)
         : ws_(ws), update_speed_(update_speed), trading_pair_(trading_pair) {}
-    ~OrderBookSubscriptionBuilder() override = default;
+    ~DiffSubscriptionBuilder() override = default;
     void Subscribe() override {
         nlohmann::json j_;
         j_["id"]     = nullptr;
@@ -69,7 +68,7 @@ class OrderBookSubscriptionBuilder : public SubscriptionBuilderInterface {
         auto [status_depth, result_speed_update] =
             DiffUpdateSpeed_ms_ToString(update_speed_);
         if (!status_depth) return;
-        j_["params"] = {fmt::format("{}@depth@{}", result_speed_update,
+        j_["params"] = {fmt::format("{}@depth@{}", result_trading_pair,
                                     result_speed_update)};
         ws_.AsyncWrite(std::move(j_));
     }

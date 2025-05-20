@@ -153,9 +153,9 @@ namespace spot {
 EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
     switch (speed) {
         case DiffUpdateSpeed_ms::k100:
-            return {true, "100"};
+            return {true, "100ms"};
         case DiffUpdateSpeed_ms::k1000:
-            return {true, "1000"};
+            return {true, "1000ms"};
         default:
             return {false, ""};
     }

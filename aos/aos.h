@@ -17,6 +17,7 @@
 #include "aos/converters/big_string_view_to_trading_pair/big_string_view_to_trading_pair.h"
 #include "aos/converters/tickers_to_trading_pair/converter.h"
 #include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
+#include "aos/converters/trading_pair_to_small_string_view/trading_pair_to_small_string_view.h"
 #include "aos/converters/trading_pair_to_tickers/converter.h"
 #include "aos/deviation_tracker/deviation_tracker.h"
 #include "aos/deviation_tracker/i_deviation_tracker.h"

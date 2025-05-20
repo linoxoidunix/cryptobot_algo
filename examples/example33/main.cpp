@@ -15,7 +15,19 @@ int main(int argc, char** argv) {
         boost::asio::thread_pool thread_pool;
         boost::asio::io_context ioc;
         moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
-        aoe::impl::ResponseQueueListener listener(thread_pool, response_queue_);
+        aos::OrderBookEventListener<
+            double, double, common::MemoryPoolThreadSafety,
+            std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
+            order_book{thread_pool, 1000};
+        aoe::binance::impl::OrderBookSync<
+            double, double, common::MemoryPoolThreadSafety,
+            std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
+            order_book_sync{thread_pool, order_book};
+        aoe::binance::impl::SnapshotEventParser<double, double,
+                                                common::MemoryPoolThreadSafety>
+            snapshot_parser(100);
+        aoe::binance::impl::snapshot::Listener listener(
+            thread_pool, response_queue_, snapshot_parser, order_book_sync);
         aoe::binance::impl::main_net::spot::RestSessionRW session(
             ioc, response_queue_, listener);
         aoe::binance::snapshot::impl::SnapshotRequestSender<
@@ -29,7 +41,7 @@ int main(int argc, char** argv) {
 
         sender.Send(request);
         auto thread_ = std::jthread([&ioc]() { ioc.run(); });
-        // std::this_thread::sleep_for(std::chrono::seconds(15));
+        // std::this_thread::sleep_for(std::chrono::seconds(1000));
     }
     fmtlog::poll();
     return 0;

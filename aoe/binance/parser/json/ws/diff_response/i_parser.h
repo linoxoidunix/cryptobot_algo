@@ -9,8 +9,8 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class DiffEventParserInterface {
   public:
     virtual ~DiffEventParserInterface() = default;
-    using EventPtr =
-        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>;
+    using EventPtr                      = boost::intrusive_ptr<
+                             OrderBookDiffEventInterface<Price, Qty, MemoryPool>>;
     virtual std::pair<bool, EventPtr> ParseAndCreate(
         simdjson::ondemand::document& doc) = 0;
 };

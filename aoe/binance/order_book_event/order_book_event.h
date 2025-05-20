@@ -8,7 +8,7 @@ namespace binance {
 namespace impl {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSnapshotEventDefault
-    : public OrderBookEventInterface<Price, Qty, MemoryPool> {
+    : public OrderBookSnapshotEventInterface<Price, Qty, MemoryPool> {
   public:
     OrderBookSnapshotEventDefault() = default;
     ~OrderBookSnapshotEventDefault() override {};
@@ -20,7 +20,7 @@ class OrderBookSnapshotEventDefault
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookDiffEventDefault
-    : public OrderBookEventInterface<Price, Qty, MemoryPool> {
+    : public OrderBookDiffEventInterface<Price, Qty, MemoryPool> {
   public:
     OrderBookDiffEventDefault() = default;
     ~OrderBookDiffEventDefault() override {};
