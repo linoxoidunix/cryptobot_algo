@@ -43,13 +43,15 @@ class Listener : public ResponseQueueListenerInterface {
             simdjson::ondemand::document doc;
             simdjson::error_code error = parser.iterate(padded_json).get(doc);
             std::string str(msg.data(), msg.size());
-            logi("parsed JSON: {}", str);
+            // logi("parsed JSON: {}", str);
             if (error) {
                 logi("parsing error: {}", simdjson::error_message(error));
                 co_return;
             }
             auto [status, ptr] = parser_.ParseAndCreate(doc);
+            logd("status_parsed_snapshot:{}", status);
             if (!status) co_return;
+            logd("send snapshot to sync");
             sync_.OnEvent(ptr);
         }
         co_return;

@@ -20,8 +20,10 @@ class BigStringViewToTradingPair {
     // Используем constexpr хэш-таблицу для O(1) доступа
     std::pair<bool, TradingPair> Convert(std::string_view trading_pair) const {
         if (auto it = dictionary_.find(trading_pair); it != dictionary_.end()) {
+            logd("found {} for {}", it->second, trading_pair);
             return {true, it->second};
         }
+        logd("not found {} size_dict:{}", trading_pair, dictionary_.size());
         return {false, TradingPair::kCount};
     }
 };

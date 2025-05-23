@@ -65,7 +65,7 @@ class DiffEventParser
         auto update_first_id_result = doc["U"].get_uint64();
         if (update_first_id_result.error() != simdjson::SUCCESS)
             return {false, nullptr};
-        ptr->SetFinalUpdateId(update_first_id_result.value());
+        ptr->SetFirstUpdateId(update_first_id_result.value());
 
         // symbol
         simdjson::simdjson_result<std::string_view> symbol_result =
@@ -76,7 +76,7 @@ class DiffEventParser
             trading_pair_factory_.Convert(symbol_result.value());
         if (!status) return {false, nullptr};
         ptr->SetTradingPair(trading_pair);
-
+        logd("raw={} {}", symbol_result.value(), trading_pair);
         // bids
         auto bids_result = doc["b"].get_array();
         if (bids_result.error() == simdjson::SUCCESS) {

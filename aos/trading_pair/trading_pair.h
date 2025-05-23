@@ -26,7 +26,7 @@ class fmt::formatter<aos::TradingPair> {
     constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
     template <typename Context>
     constexpr auto format(const aos::TradingPair& foo, Context& ctx) const {
-        return fmt::format_to(ctx.out(), "TradingPair[]",
+        return fmt::format_to(ctx.out(), "TradingPair[{}]",
                               magic_enum::enum_name(foo));
     }
 };

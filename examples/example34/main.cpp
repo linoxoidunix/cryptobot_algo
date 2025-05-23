@@ -8,6 +8,9 @@
 
 int main(int argc, char** argv) {
     {
+        fmtlog::setLogLevel(fmtlog::LogLevel::DBG);
+        logd("{}", aos::TradingPair::kBTCUSDT);
+
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
 
@@ -17,7 +20,7 @@ int main(int argc, char** argv) {
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book{thread_pool, 1000};
-        aoe::binance::impl::OrderBookSync<
+        aoe::binance::impl::main_net::spot::OrderBookSync<
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book_sync{thread_pool, order_book};

@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book{thread_pool, 1000};
-        aoe::binance::impl::OrderBookSync<
+        aoe::binance::impl::main_net::spot::OrderBookSync<
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book_sync{thread_pool, order_book};

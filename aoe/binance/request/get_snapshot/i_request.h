@@ -39,8 +39,9 @@ class RequestInterface : public aos::RequestInterface<MemoryPool> {
     common::ExchangeId exchange_id_ = common::ExchangeId::kBinance;
     aos::TradingPair trading_pair_;
     // default value limit is 100 for binance
+    // maximum value 5000
     // https://developers.binance.com/docs/binance-spot-api-docs/rest-api/market-data-endpoints
-    int limit_ = 100;
+    int limit_ = 5000;
 };
 };  // namespace snapshot
 };  // namespace binance
