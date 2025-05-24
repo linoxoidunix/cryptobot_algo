@@ -11,116 +11,72 @@
 
 namespace aoe {
 namespace binance {
-namespace impl {
-template <typename Price, typename Qty, template <typename> typename MemoryPool>
-class DiffEventParser
-    : public DiffEventParserInterface<Price, Qty, MemoryPool> {
-    using EventPtr = DiffEventParserInterface<Price, Qty, MemoryPool>::EventPtr;
-    using Key      = std::string_view;
+
+namespace details {
+
+// Common base class for diff event parsing
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename DiffEventType>
+class DiffEventParserBase
+    : public DiffEventParserInterface<Price, Qty, MemoryPool, DiffEventType> {
+    using EventPtr  = typename DiffEventParserInterface<Price, Qty, MemoryPool,
+                                                        DiffEventType>::EventPtr;
     using FactoryFn = std::function<EventPtr()>;
 
-    struct PairHash {
-        std::size_t operator()(const Key& k) const {
-            return std::hash<std::string_view>{}(k);
-        }
-    };
+  protected:
     aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     FactoryFn factory_event_;
-    MemoryPool<OrderBookDiffEventDefault<Price, Qty, MemoryPool>>
-        pool_order_diff_;
+    MemoryPool<DiffEventType> pool_order_diff_;
 
   public:
-    ~DiffEventParser() override {}
-    DiffEventParser(std::size_t pool_size) : pool_order_diff_(pool_size) {
+    ~DiffEventParserBase() override = default;
+
+    DiffEventParserBase(std::size_t pool_size) : pool_order_diff_(pool_size) {
         RegisterFromConfig();
     }
 
     std::pair<bool, EventPtr> ParseAndCreate(
         simdjson::ondemand::document& doc) override {
+        // Validate event type
         std::string_view event_type;
-        auto status_type_event = doc["e"].get_string().get(event_type);
-        if (status_type_event != simdjson::SUCCESS) return {false, nullptr};
-        if (event_type != "depthUpdate") return {false, nullptr};
-
-        // simdjson::simdjson_result<simdjson::ondemand::object> data_obj_result
-        // =
-        //     doc["data"].get_object();
-        // if (data_obj_result.error() != simdjson::SUCCESS)
-        //     return {false, nullptr};
-
-        // simdjson::ondemand::object doc = data_obj_result.value();
-
-        // auto it_factory                     = factory_map_.find(event_type);
-        // if (it_factory == factory_map_.end()) return {false, nullptr};
-
-        EventPtr ptr                = factory_event_();
-
-        // update final id
-        auto update_final_id_result = doc["u"].get_uint64();
-        if (update_final_id_result.error() != simdjson::SUCCESS)
+        if (doc["e"].get_string().get(event_type) != simdjson::SUCCESS ||
+            event_type != "depthUpdate") {
             return {false, nullptr};
-        ptr->SetFinalUpdateId(update_final_id_result.value());
-
-        // update first id
-        auto update_first_id_result = doc["U"].get_uint64();
-        if (update_first_id_result.error() != simdjson::SUCCESS)
-            return {false, nullptr};
-        ptr->SetFirstUpdateId(update_first_id_result.value());
-
-        // symbol
-        simdjson::simdjson_result<std::string_view> symbol_result =
-            doc["s"].get_string();
-        if (symbol_result.error() != simdjson::SUCCESS) return {false, nullptr};
-
-        auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol_result.value());
-        if (!status) return {false, nullptr};
-        ptr->SetTradingPair(trading_pair);
-        logd("raw={} {}", symbol_result.value(), trading_pair);
-        // bids
-        auto bids_result = doc["b"].get_array();
-        if (bids_result.error() == simdjson::SUCCESS) {
-            std::vector<aos::OrderBookLevelRaw<Price, Qty>> bids;
-            bids.reserve(1000);
-            for (auto bid_entry : bids_result.value()) {
-                simdjson::ondemand::array bid_pair = bid_entry.get_array();
-                auto it                            = bid_pair.begin();
-                auto price_result = (*it).get_double_in_string();
-                if (price_result.error() != simdjson::SUCCESS)
-                    return {false, nullptr};
-                ++it;
-
-                auto qty_result = (*it).get_double_in_string();
-                if (qty_result.error() != simdjson::SUCCESS)
-                    return {false, nullptr};
-                bids.emplace_back(price_result.value(), qty_result.value());
-            }
-            ptr->SetBids(std::move(bids));
         }
 
-        // asks
-        auto asks_result = doc["a"].get_array();
-        if (asks_result.error() == simdjson::SUCCESS) {
-            std::vector<aos::OrderBookLevelRaw<Price, Qty>> asks;
-            asks.reserve(1000);
-            for (auto ask_entry : asks_result.value()) {
-                simdjson::ondemand::array ask_pair = ask_entry.get_array();
-                auto it                            = ask_pair.begin();
-                auto price_result = (*it).get_double_in_string();
-                if (price_result.error() != simdjson::SUCCESS)
-                    return {false, nullptr};
-                ++it;
+        EventPtr ptr = factory_event_();
 
-                auto qty_result = (*it).get_double_in_string();
-                if (qty_result.error() != simdjson::SUCCESS)
-                    return {false, nullptr};
-                asks.emplace_back(price_result.value(), qty_result.value());
+        // Parse common fields
+        if (!ParseCommonFields(doc, ptr)) {
+            return {false, nullptr};
+        }
+
+        // Parse futures-specific field if needed
+        if constexpr (requires { ptr->SetPreviousUpdateId(0); }) {
+            if (auto pu_result = doc["pu"].get_uint64();
+                pu_result.error() != simdjson::SUCCESS) {
+                return {false, nullptr};
+            } else {
+                ptr->SetPreviousUpdateId(pu_result.value());
             }
-            ptr->SetAsks(std::move(asks));
+        }
+
+        // Parse trading pair
+        if (!ParseTradingPair(doc, ptr)) {
+            return {false, nullptr};
+        }
+
+        // Parse order book levels
+        if (!ParseOrderBookLevels(
+                doc, "b", ptr,
+                &OrderBookEventInterface<Price, Qty, MemoryPool>::SetBids) ||
+            !ParseOrderBookLevels(
+                doc, "a", ptr,
+                &OrderBookEventInterface<Price, Qty, MemoryPool>::SetAsks)) {
+            return {false, nullptr};
         }
 
         return {true, ptr};
-        // return {false, nullptr};
     }
 
   private:
@@ -131,7 +87,121 @@ class DiffEventParser
             return ptr;
         };
     }
+
+    bool ParseCommonFields(simdjson::ondemand::document& doc, EventPtr ptr) {
+        if (auto u_result = doc["u"].get_uint64();
+            u_result.error() != simdjson::SUCCESS) {
+            return false;
+        } else {
+            ptr->SetFinalUpdateId(u_result.value());
+        }
+
+        if (auto U_result = doc["U"].get_uint64();
+            U_result.error() != simdjson::SUCCESS) {
+            return false;
+        } else {
+            ptr->SetFirstUpdateId(U_result.value());
+        }
+
+        return true;
+    }
+
+    bool ParseTradingPair(simdjson::ondemand::document& doc, EventPtr ptr) {
+        simdjson::simdjson_result<std::string_view> symbol_result =
+            doc["s"].get_string();
+        if (symbol_result.error() != simdjson::SUCCESS) {
+            return false;
+        }
+
+        auto [status, trading_pair] =
+            trading_pair_factory_.Convert(symbol_result.value());
+        if (!status) {
+            return false;
+        }
+
+        ptr->SetTradingPair(trading_pair);
+        logd("raw={} {}", symbol_result.value(), trading_pair);
+        return true;
+    }
+
+    bool ParseOrderBookLevels(
+        simdjson::ondemand::document& doc, const char* side, EventPtr ptr,
+        void (OrderBookEventInterface<Price, Qty, MemoryPool>::*setter)(
+            std::vector<aos::OrderBookLevelRaw<Price, Qty>>&&)) {
+        auto levels_result = doc[side].get_array();
+        if (levels_result.error() != simdjson::SUCCESS) {
+            return true;  // Not an error if field is missing
+        }
+
+        std::vector<aos::OrderBookLevelRaw<Price, Qty>> levels;
+        levels.reserve(1000);
+
+        for (auto entry : levels_result.value()) {
+            simdjson::ondemand::array level_pair = entry.get_array();
+            auto it                              = level_pair.begin();
+
+            auto price_result                    = (*it).get_double_in_string();
+            if (price_result.error() != simdjson::SUCCESS) {
+                return false;
+            }
+            ++it;
+
+            auto qty_result = (*it).get_double_in_string();
+            if (qty_result.error() != simdjson::SUCCESS) {
+                return false;
+            }
+
+            levels.emplace_back(price_result.value(), qty_result.value());
+        }
+
+        (ptr.get()->*setter)(std::move(levels));
+        return true;
+    }
 };
-};  // namespace impl
-};  // namespace binance
-};  // namespace aoe
+
+}  // namespace details
+
+namespace spot {
+namespace impl {
+
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class DiffEventParser
+    : public aoe::binance::details::DiffEventParserBase<
+          Price, Qty, MemoryPool,
+          aoe::binance::impl::spot::OrderBookDiffEventDefault<Price, Qty,
+                                                              MemoryPool>> {
+  public:
+    using Base = aoe::binance::details::DiffEventParserBase<
+        Price, Qty, MemoryPool,
+        aoe::binance::impl::spot::OrderBookDiffEventDefault<Price, Qty,
+                                                            MemoryPool>>;
+
+    DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
+};
+
+}  // namespace impl
+}  // namespace spot
+
+namespace futures {
+namespace impl {
+
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class DiffEventParser
+    : public aoe::binance::details::DiffEventParserBase<
+          Price, Qty, MemoryPool,
+          aoe::binance::impl::futures::OrderBookDiffEventDefault<Price, Qty,
+                                                                 MemoryPool>> {
+  public:
+    using Base = aoe::binance::details::DiffEventParserBase<
+        Price, Qty, MemoryPool,
+        aoe::binance::impl::futures::OrderBookDiffEventDefault<Price, Qty,
+                                                               MemoryPool>>;
+
+    DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
+};
+
+}  // namespace impl
+}  // namespace futures
+
+}  // namespace binance
+}  // namespace aoe

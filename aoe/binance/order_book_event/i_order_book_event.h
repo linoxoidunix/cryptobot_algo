@@ -42,8 +42,6 @@ class OrderBookEventInterface
     std::vector<aos::OrderBookLevelRaw<Price, Qty>>& Asks() override {
         return asks_;
     }
-    virtual void Accept(
-        OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) = 0;
 
   protected:
     common::ExchangeId exchange_id_ = common::ExchangeId::kBinance;
@@ -60,6 +58,10 @@ class OrderBookSnapshotEventInterface
 
     virtual uint64_t UpdateId() const { return update_id_; }
     virtual void SetUpdateId(uint64_t update_id) { update_id_ = update_id; }
+    virtual void Accept(
+        spot::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) = 0;
+    virtual void Accept(
+        futures::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) = 0;
 
   protected:
     uint64_t update_id_ = 0;
@@ -81,5 +83,31 @@ class OrderBookDiffEventInterface
     uint64_t first_update_id_ = 0;
     uint64_t final_update_id_ = 0;
 };
+namespace spot {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class OrderBookDiffEventInterface
+    : public aoe::binance::OrderBookDiffEventInterface<Price, Qty, MemoryPool> {
+  public:
+    virtual void Accept(
+        aoe::binance::spot::OrderBookSyncInterface<Price, Qty, MemoryPool>&
+            sync) = 0;
+};
+};  // namespace spot
+namespace futures {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class OrderBookDiffEventInterface
+    : public aoe::binance::OrderBookDiffEventInterface<Price, Qty, MemoryPool> {
+  public:
+    virtual ~OrderBookDiffEventInterface() = default;
+    virtual uint64_t PreviousUpdateId() const { return previoues_update_id_; }
+    virtual void SetPreviousUpdateId(uint64_t id) { previoues_update_id_ = id; }
+    virtual void Accept(
+        aoe::binance::futures::OrderBookSyncInterface<Price, Qty, MemoryPool>&
+            sync) = 0;
+
+  protected:
+    uint64_t previoues_update_id_ = 0;
+};
+};  // namespace futures
 };  // namespace binance
 };  // namespace aoe

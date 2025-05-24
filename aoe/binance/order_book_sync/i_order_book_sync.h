@@ -8,28 +8,48 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookEventInterface;
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSnapshotEventInterface;
+namespace spot {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookDiffEventInterface;
-}  // namespace binance
-}  // namespace aoe
+};
+namespace futures {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class OrderBookDiffEventInterface;
+};
+};  // namespace binance
+};  // namespace aoe
 
 namespace aoe {
 namespace binance {
-
+namespace spot {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSyncInterface {
   public:
     virtual ~OrderBookSyncInterface() = default;
-    virtual void OnEvent(
-        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+    virtual void AcceptDiff(
+        boost::intrusive_ptr<aoe::binance::spot::OrderBookDiffEventInterface<
+            Price, Qty, MemoryPool>>
             ptr) = 0;
     virtual void AcceptSnapshot(
         boost::intrusive_ptr<
             OrderBookSnapshotEventInterface<Price, Qty, MemoryPool>>
-            ptr)                     = 0;
-    virtual void AcceptDiff(boost::intrusive_ptr<
-                            OrderBookDiffEventInterface<Price, Qty, MemoryPool>>
-                                ptr) = 0;
+            ptr) = 0;
 };
+};  // namespace spot
+namespace futures {
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
+class OrderBookSyncInterface {
+  public:
+    virtual ~OrderBookSyncInterface() = default;
+    virtual void AcceptDiff(
+        boost::intrusive_ptr<aoe::binance::futures::OrderBookDiffEventInterface<
+            Price, Qty, MemoryPool>>
+            ptr) = 0;
+    virtual void AcceptSnapshot(
+        boost::intrusive_ptr<
+            OrderBookSnapshotEventInterface<Price, Qty, MemoryPool>>
+            ptr) = 0;
+};
+};  // namespace futures
 };  // namespace binance
 };  // namespace aoe

@@ -8,6 +8,7 @@
 #include "aoe/binance/api/i_exchange_api.h"
 #include "aoe/binance/api/internal/exchange_api.h"
 #include "aoe/binance/auth/web_socket/auth.h"
+#include "aoe/binance/constants/constants.h"
 #include "aoe/binance/credentials_loader/credentials_loader.h"
 #include "aoe/binance/enum_printer/enum_printer.h"
 #include "aoe/binance/enums/enums.h"

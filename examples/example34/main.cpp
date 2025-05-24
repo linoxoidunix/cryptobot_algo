@@ -24,12 +24,9 @@ int main(int argc, char** argv) {
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book_sync{thread_pool, order_book};
-        aoe::binance::impl::DiffEventParser<double, double,
-                                            common::MemoryPoolThreadSafety>
-            parser{1000};
-        aoe::binance::impl::diff_response::Listener<
+        aoe::binance::impl::diff_response::spot::Listener<
             double, double, common::MemoryPoolThreadSafety>
-            listener(thread_pool, queue, parser, order_book_sync);
+            listener(thread_pool, queue, order_book_sync);
 
         //-------------------------------------------------------------------------------
 
