@@ -26,18 +26,75 @@ enum class StopOrderType {
     kPartialStopLoss
 };
 
+/**
+ * @enum OrderStatus
+ * @brief Enumeration of possible order statuses on an exchange.
+ *
+ * Represents the lifecycle stages of an order, including open, closed, and
+ * conditional states.
+ */
 enum class OrderStatus {
+    /**
+     * @brief Invalid or uninitialized order status.
+     */
     kInvalid,
-    // open status below
+
+    // ===== Open statuses =====
+
+    /**
+     * @brief A newly created order that is active and placed in the order book.
+     */
     kNew,
+
+    /**
+     * @brief An order that has been partially filled; the remaining quantity is
+     * still active.
+     */
     kPartiallyFilled,
+
+    /**
+     * @brief A conditional order that has been created but not yet triggered
+     * (e.g., stop orders).
+     */
     kUntriggered,
-    // closed status below
+
+    // ===== Closed statuses =====
+
+    /**
+     * @brief The order was rejected (e.g., due to insufficient funds or invalid
+     * parameters).
+     */
     kRejected,
+
+    /**
+     * @brief The order was partially filled and then canceled.
+     * Only applicable on the spot market.
+     */
     kPartiallyFilledCanceled,
+
+    /**
+     * @brief The order was completely filled.
+     */
     kFilled,
+
+    /**
+     * @brief The order was canceled.
+     * On derivatives markets, canceled orders may still have some executed
+     * quantity.
+     */
     kCancelled,
+
+    /**
+     * @brief A conditional order was triggered and immediately transitioned
+     * from `Untriggered` to `New`.
+     */
     kTriggered,
+
+    /**
+     * @brief The order was deactivated before being triggered.
+     * Used for take-profit/stop-loss, conditional, or OCO orders on the spot
+     * market.
+     */
     kDeactivated
 };
 

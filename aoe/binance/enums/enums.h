@@ -48,18 +48,72 @@ enum class StopOrderType {
     kTakeProfitLimit,
 };
 
+/**
+ * @enum OrderStatus
+ * @brief Represents the status of an order in the trading engine.
+ *
+ * This enum defines the various stages an order may go through during its
+ * lifecycle on an exchange, from creation to completion or cancellation.
+ */
 enum class OrderStatus {
+    /**
+     * @brief Invalid or uninitialized status.
+     */
     kInvalid,
-    // open status below
+
+    // ===== Open statuses =====
+
+    /**
+     * @brief The order has been accepted by the matching engine and is active.
+     */
     kNew,
+
+    /**
+     * @brief The order is in a pending state until the working order of an
+     * order list is fully filled.
+     */
     kPendingNew,
+
+    /**
+     * @brief A portion of the order has been filled; the remainder is still
+     * active.
+     */
     kPartiallyFilled,
-    // closed status below
+
+    // ===== Closed statuses =====
+
+    /**
+     * @brief The order has been fully filled and completed.
+     */
     kFilled,
+
+    /**
+     * @brief The order has been canceled by the user.
+     */
     kCancelled,
+
+    /**
+     * @brief The order is in the process of being canceled. Currently unused.
+     */
     kPendingCancel,
+
+    /**
+     * @brief The order was rejected and not processed by the matching engine.
+     */
     kRejected,
+
+    /**
+     * @brief The order expired based on its type rules (e.g., LIMIT FOK with no
+     * fill), or was canceled by the exchange (e.g., during liquidation or
+     * maintenance).
+     */
     kExpired,
+
+    /**
+     * @brief The order was expired by the exchange due to Self-Trade Prevention
+     * (STP), such as when an EXPIRE_TAKER order would match against another
+     * order from the same account or trade group.
+     */
     kExpiredInMatch
 };
 

@@ -30,7 +30,7 @@ class OrderEventPartiallyFilled : public OrderEventInterface<MemoryPool> {
     ~OrderEventPartiallyFilled() override {};
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
-                                   aoe::bybit::OrderStatus::kNew,
+                                   aoe::bybit::OrderStatus::kPartiallyFilled,
                                    aoe::bybit::PendingAction::kNone);
         order_mutator.UpdateState(this->order_id_, this->price_,
                                   this->LeavesQty());
@@ -42,7 +42,11 @@ class OrderEventUntriggered : public OrderEventInterface<MemoryPool> {
   public:
     OrderEventUntriggered() = default;
     ~OrderEventUntriggered() override {};
-    void Accept(OrderMutatorInterface& order_mutator) override {};
+    void Accept(OrderMutatorInterface& order_mutator) override {
+        order_mutator.UpdateStatus(this->order_id_,
+                                   aoe::bybit::OrderStatus::kUntriggered,
+                                   aoe::bybit::PendingAction::kNone);
+    };
 };
 
 template <template <typename> typename MemoryPool>

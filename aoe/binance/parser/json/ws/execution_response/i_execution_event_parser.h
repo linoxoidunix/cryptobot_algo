@@ -1,10 +1,10 @@
 // #pragma once
-// #include "aoe/bybit/execution_event/i_types.h"
+// #include "aoe/binance/execution_event/i_types.h"
 // #include "boost/intrusive_ptr.hpp"
 // #include "simdjson.h"
 
 // namespace aoe {
-// namespace bybit {
+// namespace binance {
 // template <template <typename> typename MemoryPool, typename PositionT>
 // class ExecutionEventParserInterface {
 //   public:
@@ -14,5 +14,5 @@
 //     virtual std::pair<bool, EventPtr> ParseAndCreate(
 //         simdjson::ondemand::document& doc) = 0;
 // };
-// };  // namespace bybit
+// };  // namespace binance
 // };  // namespace aoe
