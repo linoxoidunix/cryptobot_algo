@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
         aoe::binance::impl::SnapshotEventParser<double, double,
                                                 common::MemoryPoolThreadSafety>
             snapshot_parser(100);
-        aoe::binance::impl::snapshot::Listener listener(
+        aoe::binance::impl::snapshot::spot::Listener listener(
             thread_pool, response_queue_, snapshot_parser, order_book_sync);
         aoe::binance::impl::main_net::spot::RestSessionRW session(
             ioc, response_queue_, listener);
