@@ -60,6 +60,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
         auto order_id = doc["c"].get_uint64();
         if (order_id.error() != simdjson::SUCCESS) return {false, nullptr};
 
+        // X - current status order
         auto order_status = doc["X"].get_string();
         if (order_status.error() != simdjson::SUCCESS) return {false, nullptr};
 

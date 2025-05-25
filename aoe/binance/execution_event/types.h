@@ -1,7 +1,7 @@
 #pragma once
-#include "aoe/bybit/execution_event/i_types.h"
+#include "aoe/binance/execution_event/i_types.h"
 namespace aoe {
-namespace bybit {
+namespace binance {
 template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
@@ -42,13 +42,13 @@ class ExecutionEventSpotBuyDefault
 };
 
 template <template <typename> typename MemoryPool, typename PositionT>
-class ExecutionEventLinearSellDefault
+class ExecutionEventFuturesSellDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventLinearSellDefault() = default;
-    ~ExecutionEventLinearSellDefault() override {};
+    ExecutionEventFuturesSellDefault() = default;
+    ~ExecutionEventFuturesSellDefault() override {};
     double ExecQty() const override {
-        return -this->exec_qty_;  // minus is determine that sell for Linear
+        return -this->exec_qty_;  // minus is determine that sell for futures
     };
     void Accept(aos::PositionStorageByPairInterface<double, double, PositionT>&
                     position_storage) override {
@@ -58,13 +58,13 @@ class ExecutionEventLinearSellDefault
 };
 
 template <template <typename> typename MemoryPool, typename PositionT>
-class ExecutionEventLinearBuyDefault
+class ExecutionEventFuturesBuyDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventLinearBuyDefault() = default;
-    ~ExecutionEventLinearBuyDefault() override {};
+    ExecutionEventFuturesBuyDefault() = default;
+    ~ExecutionEventFuturesBuyDefault() override {};
     double ExecQty() const override {
-        return -this->exec_qty_;  // minus is determine that buy for Linear
+        return -this->exec_qty_;  // minus is determine that buy for futures
     };
     void Accept(aos::PositionStorageByPairInterface<double, double, PositionT>&
                     position_storage) override {
@@ -72,5 +72,5 @@ class ExecutionEventLinearBuyDefault
                                         this->ExecPrice(), this->ExecQty());
     }
 };
-};  // namespace bybit
+};  // namespace binance
 };  // namespace aoe
