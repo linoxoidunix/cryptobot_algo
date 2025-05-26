@@ -18,13 +18,12 @@ class ExecutionEventParser
     : public ExecutionEventParserInterface<MemoryPool, PositionT> {
     using EventPtr =
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>;
-    using Key       = std::pair<std::string_view, std::string_view>;
+    using Key       = std::string_view;
     using FactoryFn = std::function<EventPtr()>;
 
     struct PairHash {
         std::size_t operator()(const Key& k) const {
-            return std::hash<std::string_view>{}(k.first) ^
-                   std::hash<std::string_view>{}(k.second);
+            return std::hash<std::string_view>{}(k);
         }
     };
     aos::impl::BigStringViewToTradingPair trading_pair_factory_;
@@ -69,7 +68,7 @@ class ExecutionEventParser
         if (exec_value.error() != simdjson::SUCCESS) return {false, nullptr};
 
         // client order id
-        auto order_id = doc["c"].get_uint64();
+        auto order_id = doc["c"].get_uint64_in_string();
         if (order_id.error() != simdjson::SUCCESS) return {false, nullptr};
 
         auto it = factory_map_.find(side.value());
@@ -162,7 +161,7 @@ class ExecutionEventParser
         if (exec_value.error() != simdjson::SUCCESS) return {false, nullptr};
 
         // client order id
-        auto order_id = doc["c"].get_uint64();
+        auto order_id = doc["c"].get_uint64_in_string();
         if (order_id.error() != simdjson::SUCCESS) return {false, nullptr};
 
         auto it = factory_map_.find(side.value());

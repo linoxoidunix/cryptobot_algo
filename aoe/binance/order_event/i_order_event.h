@@ -15,9 +15,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     virtual void SetTradingPair(aos::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };
-    virtual aos::TradingPair TradingPair(aos::TradingPair trading_pair) {
-        return trading_pair_;
-    };
+    virtual aos::TradingPair TradingPair() { return trading_pair_; };
 
     virtual aoe::binance::OrderStatus OrderStatus() const {
         return order_status_;

@@ -44,10 +44,13 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
           pool_order_pending_cancel_(pool_size),
           pool_order_rejected_(pool_size),
           pool_order_expired_(pool_size),
-          pool_order_expired_in_match_(pool_size) {}
+          pool_order_expired_in_match_(pool_size) {
+        RegisterFromConfig();
+    }
 
     std::pair<bool, EventPtr> ParseAndCreate(
         simdjson::ondemand::document& doc) override {
+        // acording binance this are mandatory fields
         auto event_type = doc["e"].get_string();
         if (event_type.error() != simdjson::SUCCESS ||
             event_type.value() != "executionReport")
@@ -57,7 +60,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
         if (symbol.error() != simdjson::SUCCESS) return {false, nullptr};
 
         // client order id
-        auto order_id = doc["c"].get_uint64();
+        auto order_id = doc["c"].get_uint64_in_string();
         if (order_id.error() != simdjson::SUCCESS) return {false, nullptr};
 
         // X - current status order

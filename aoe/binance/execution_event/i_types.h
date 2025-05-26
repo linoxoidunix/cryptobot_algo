@@ -41,7 +41,7 @@ class ExecutionEventInterface
     double exec_qty_                = 0;
     double exec_value_              = 0;
     uint64_t order_id_              = 0;
-    common::ExchangeId exchange_id_ = common::ExchangeId::kBybit;
+    common::ExchangeId exchange_id_ = common::ExchangeId::kBinance;
     aos::TradingPair trading_pair_;
 };
 };  // namespace binance
