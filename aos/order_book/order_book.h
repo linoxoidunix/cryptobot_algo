@@ -1,6 +1,7 @@
 #pragma once
 #include "aos/order_book/i_order_book.h"
 #include "aos/order_book_level/order_book_level.h"
+#include "aos/order_book_subscriber/i_order_book_subscriber.h"
 #include "aos/trading_pair/trading_pair.h"
 #include "aot/common/types.h"
 #include "boost/intrusive/avltree.hpp"
@@ -8,7 +9,8 @@ namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
-                       public HasBBOInterface<Price, Qty> {
+                       public HasBBOInterface<Price, Qty>,
+                       public OrderBookUpdaterInterface<Price, Qty> {
     using MemberOption =
         boost::intrusive::member_hook<OrderBookLevel<Price, Qty>,
                                       boost::intrusive::avl_set_member_hook<>,
@@ -119,6 +121,100 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         bbo.ask_qty   = ask_levels_.begin()->qty;
         return std::make_pair(true, bbo);
     }
+    bool UpdateTopBid(BestBid<Price, Qty>& bid) const override {
+        bool update_exist = false;
+        if (bid_levels_.empty()) return update_exist;
+        auto first_bid = bid_levels_.begin();
+        auto bid_price = first_bid->price;
+        auto bid_qty   = first_bid->qty;
+        if (bid.bid_price != bid_price || bid.bid_qty != bid_qty) {
+            bid.bid_price = bid_price;
+            bid.bid_qty   = bid_qty;
+            update_exist  = true;
+        }
+        return update_exist;
+    };
+    bool UpdateTopAsk(BestAsk<Price, Qty>& ask) const override {
+        bool update_exist = false;
+        if (ask_levels_.empty()) return update_exist;
+        auto first_ask = ask_levels_.begin();
+        auto ask_price = first_ask->price;
+        auto ask_qty   = first_ask->qty;
+        if (ask.ask_price != ask_price || ask.ask_qty != ask_qty) {
+            ask.ask_price = ask_price;
+            ask.ask_qty   = ask_qty;
+            update_exist  = true;
+        }
+        return update_exist;
+    };
+    bool UpdateTop5Bids(std::array<BestBid<Price, Qty>, 5>& array_5_bids,
+                        std::size_t& max_valid_lvl) const override {
+        std::size_t i     = 0;
+        bool update_exist = false;
+        for (auto it = bid_levels_.begin(); it != bid_levels_.end() && i < 5;
+             ++it, ++i) {
+            if (array_5_bids[i].bid_price != it->price ||
+                array_5_bids[i].bid_qty != it->qty) {
+                array_5_bids[i].bid_price = it->price;
+                array_5_bids[i].bid_qty   = it->qty;
+                update_exist              = true;
+                max_valid_lvl             = i;
+            }
+        }
+        return update_exist;
+    };
+    bool UpdateTop5Asks(std::array<BestAsk<Price, Qty>, 5>& array_5_asks,
+                        std::size_t& max_valid_lvl) const override {
+        std::size_t i     = 0;
+        bool update_exist = false;
+        for (auto it = ask_levels_.begin(); it != ask_levels_.end() && i < 5;
+             ++it, ++i) {
+            if (array_5_asks[i].ask_price != it->price ||
+                array_5_asks[i].ask_qty != it->qty) {
+                array_5_asks[i].ask_price = it->price;
+                array_5_asks[i].ask_qty   = it->qty;
+                update_exist              = true;
+                max_valid_lvl             = i;
+            }
+        }
+        return update_exist;
+    };
+    bool UpdateTopNBids(std::size_t n, std::vector<BestBid<Price, Qty>>& bids,
+                        std::size_t& max_valid_lvl) const override {
+        bool update_exist = false;
+        if (bids.size() < n) {
+            return false;  // Не обрабатываем, если текущий вектор меньше чем n
+        }
+        std::size_t i = 0;
+        for (auto it = bid_levels_.begin(); it != bid_levels_.end() && i < n;
+             ++it, ++i) {
+            if (bids[i].bid_price != it->price || bids[i].bid_qty != it->qty) {
+                bids[i].bid_price = it->price;
+                bids[i].bid_qty   = it->qty;
+                update_exist      = true;
+                max_valid_lvl     = i;
+            }
+        }
+        return update_exist;
+    };
+    bool UpdateTopNAsks(std::size_t n, std::vector<BestAsk<Price, Qty>>& asks,
+                        std::size_t& max_valid_lvl) const override {
+        bool update_exist = false;
+        if (asks.size() < n) {
+            return false;  // Не обрабатываем, если текущий вектор меньше чем n
+        }
+        std::size_t i = 0;
+        for (auto it = ask_levels_.begin(); it != ask_levels_.end() && i < n;
+             ++it, ++i) {
+            if (asks[i].ask_price != it->price || asks[i].ask_qty != it->qty) {
+                asks[i].ask_price = it->price;
+                asks[i].ask_qty   = it->qty;
+                update_exist      = true;
+                max_valid_lvl     = i;
+            }
+        }
+        return update_exist;
+    };
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
@@ -199,6 +295,46 @@ class OrderBookEventListener
     boost::asio::awaitable<void> ProcessClear() {
         order_book_.Clear();
         co_return;
+    }
+};
+
+template <typename Price, typename Qty, template <typename> typename MemoryPool,
+          typename HashMap>
+class OrderBookNotifier
+    : public OrderBookEventListenerInterface<Price, Qty, MemoryPool> {
+    OrderBookEventListener<Price, Qty, MemoryPool, HashMap> order_book_;
+    std::vector<std::reference_wrapper<OrderBookSubscriberInterface>>
+        subscribers_;
+
+  public:
+    OrderBookNotifier(boost::asio::thread_pool& thread_pool, size_t max_levels)
+        : order_book_(thread_pool, max_levels) {}
+
+    OrderBookNotifier(boost::asio::thread_pool& thread_pool,
+                      common::ExchangeId exchange_id,
+                      aos::TradingPair trading_pair, size_t max_level)
+        : order_book_(thread_pool, exchange_id, trading_pair, max_level) {}
+
+    ~OrderBookNotifier() override = default;
+
+    void OnEvent(
+        boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
+            ptr) override {
+        order_book_.OnEvent(ptr);
+        for (auto& sub : subscribers_) {
+            sub.get().OnOrderBookUpdate();
+        }
+    }
+
+    void Clear() override { order_book_.Clear(); }
+
+    void AddSubscriber(OrderBookSubscriberInterface& sub) {
+        subscribers_.emplace_back(sub);
+    }
+
+    void RemoveSubscriber(OrderBookSubscriberInterface& sub) {
+        std::erase_if(subscribers_,
+                      [&sub](auto& ref) { return &ref.get() == &sub; });
     }
 };
 

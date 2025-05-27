@@ -4,6 +4,8 @@
 
 #include "aoe/aoe.h"  // Ваш класс
 #include "aos/aos.h"  // Ваш класс
+#include "aos/best_ask/best_ask.h"
+#include "aos/best_bid/best_bid.h"
 #include "aos/order_book_level/order_book_level.h"
 #include "aot/common/mem_pool.h"
 #include "gmock/gmock.h"
@@ -104,6 +106,102 @@ TEST(OrderBookTest, RemoveOneSideExpectBBOFalse) {
 
     auto [has_bbo, _] = book.GetBBO();
     EXPECT_FALSE(has_bbo);
+}
+
+TEST(OrderBookTest, UpdateTopNBidsRejectsIfVectorTooSmall) {
+    TestOrderBookInner book{100};
+    book.AddBidLevel(100.0, 1.0);
+    book.AddBidLevel(99.0, 2.0);
+    using Price = double;
+    using Qty   = double;
+    std::vector<aos::BestBid<Price, Qty>> bids(1);  // меньше чем n
+    std::size_t max_lvl = 0;
+
+    bool updated        = book.UpdateTopNBids(2, bids, max_lvl);
+    EXPECT_FALSE(updated);
+    EXPECT_EQ(max_lvl, 0);
+}
+
+TEST(OrderBookTest, UpdateTopNBidsUpdatesCorrectly) {
+    TestOrderBookInner book{100};
+    book.AddBidLevel(100.0, 1.0);
+    book.AddBidLevel(99.0, 2.0);
+    book.AddBidLevel(98.0, 3.0);
+    using Price = double;
+    using Qty   = double;
+    std::vector<aos::BestBid<Price, Qty>> bids(3);
+    std::size_t max_lvl = 99;  // должен быть перезаписан
+
+    bool updated        = book.UpdateTopNBids(3, bids, max_lvl);
+    EXPECT_TRUE(updated);
+    EXPECT_EQ(bids[0].bid_price, 100.0);
+    EXPECT_EQ(bids[0].bid_qty, 1.0);
+    EXPECT_EQ(bids[1].bid_price, 99.0);
+    EXPECT_EQ(bids[1].bid_qty, 2.0);
+    EXPECT_EQ(bids[2].bid_price, 98.0);
+    EXPECT_EQ(bids[2].bid_qty, 3.0);
+    EXPECT_EQ(max_lvl, 2);
+}
+
+TEST(OrderBookTest, UpdateTopNBidsNoChangesReturnsFalse) {
+    TestOrderBookInner book{100};
+    book.AddBidLevel(100.0, 1.0);
+    book.AddBidLevel(99.0, 2.0);
+    using Price                                = double;
+    using Qty                                  = double;
+    std::vector<aos::BestBid<Price, Qty>> bids = {BestBid{100.0, 1.0},
+                                                  BestBid{99.0, 2.0}};
+    std::size_t max_lvl = 42;  // должен остаться нетронутым
+
+    bool updated        = book.UpdateTopNBids(2, bids, max_lvl);
+    EXPECT_FALSE(updated);
+    EXPECT_EQ(max_lvl, 42);
+}
+
+TEST(OrderBookTest, UpdateTopNAsksRejectsIfVectorTooSmall) {
+    TestOrderBookInner book{100};
+    book.AddAskLevel(101.0, 1.0);
+    using Price = double;
+    using Qty   = double;
+    std::vector<aos::BestAsk<Price, Qty>> asks(0);  // пустой
+    std::size_t max_lvl = 0;
+
+    bool updated        = book.UpdateTopNAsks(1, asks, max_lvl);
+    EXPECT_FALSE(updated);
+    EXPECT_EQ(max_lvl, 0);
+}
+
+TEST(OrderBookTest, UpdateTopNAsksUpdatesCorrectly) {
+    TestOrderBookInner book{100};
+    book.AddAskLevel(101.0, 1.0);
+    book.AddAskLevel(102.0, 2.0);
+    using Price = double;
+    using Qty   = double;
+    std::vector<aos::BestAsk<Price, Qty>> asks(2);
+    std::size_t max_lvl = 999;
+
+    bool updated        = book.UpdateTopNAsks(2, asks, max_lvl);
+    EXPECT_TRUE(updated);
+    EXPECT_EQ(asks[0].ask_price, 101.0);
+    EXPECT_EQ(asks[0].ask_qty, 1.0);
+    EXPECT_EQ(asks[1].ask_price, 102.0);
+    EXPECT_EQ(asks[1].ask_qty, 2.0);
+    EXPECT_EQ(max_lvl, 1);
+}
+
+TEST(OrderBookTest, UpdateTopNAsksNoChangesReturnsFalse) {
+    TestOrderBookInner book{100};
+    book.AddAskLevel(101.0, 1.0);
+    book.AddAskLevel(102.0, 2.0);
+    using Price                                = double;
+    using Qty                                  = double;
+    std::vector<aos::BestAsk<Price, Qty>> asks = {aos::BestAsk{101.0, 1.0},
+                                                  aos::BestAsk{102.0, 2.0}};
+    std::size_t max_lvl                        = 555;
+
+    bool updated = book.UpdateTopNAsks(2, asks, max_lvl);
+    EXPECT_FALSE(updated);
+    EXPECT_EQ(max_lvl, 555);
 }
 
 int main(int argc, char** argv) {
