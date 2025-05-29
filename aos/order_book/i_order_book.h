@@ -35,7 +35,7 @@ class OrderBookInnerInterface {
  * @tparam Qty Type representing the quantity.
  */
 template <typename Price, typename Qty>
-class OrderBookUpdaterInterface {
+class TopLevelsExporterInterface {
   public:
     /**
      * @brief Update the best bid level.
@@ -124,7 +124,45 @@ class OrderBookUpdaterInterface {
     /**
      * @brief Virtual destructor.
      */
-    virtual ~OrderBookUpdaterInterface()                          = default;
+    virtual ~TopLevelsExporterInterface()                         = default;
+};
+
+/**
+ * @brief Async interface for updating order book levels.
+ *
+ * This interface defines methods to update the top bid and ask levels
+ * in an order book. It supports updating individual best levels, fixed-size
+ * arrays of the top 5 levels, and dynamic vectors of arbitrary size.
+ *
+ * @tparam Price Type representing the price.
+ * @tparam Qty Type representing the quantity.
+ */
+template <typename Price, typename Qty>
+class TopLevelsAsyncExporterInterface {
+  public:
+    virtual ~TopLevelsAsyncExporterInterface() = default;
+
+    virtual boost::asio::awaitable<bool> UpdateTopBid(
+        BestBid<Price, Qty>& bid) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTopAsk(
+        BestAsk<Price, Qty>& ask) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTop5Bids(
+        std::array<BestBid<Price, Qty>, 5>& array_5_bids,
+        std::size_t& max_valid_lvl) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTop5Asks(
+        std::array<BestAsk<Price, Qty>, 5>& array_5_asks,
+        std::size_t& max_valid_lvl) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTopNBids(
+        std::size_t n, std::vector<BestBid<Price, Qty>>& bids,
+        std::size_t& max_valid_lvl) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTopNAsks(
+        std::size_t n, std::vector<BestAsk<Price, Qty>>& asks,
+        std::size_t& max_valid_lvl) const = 0;
 };
 
 template <typename Price, typename Qty>

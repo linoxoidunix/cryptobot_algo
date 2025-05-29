@@ -10,7 +10,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
                        public HasBBOInterface<Price, Qty>,
-                       public OrderBookUpdaterInterface<Price, Qty> {
+                       public TopLevelsExporterInterface<Price, Qty> {
     using MemberOption =
         boost::intrusive::member_hook<OrderBookLevel<Price, Qty>,
                                       boost::intrusive::avl_set_member_hook<>,
@@ -220,7 +220,8 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBook : public OrderBookInterface<Price, Qty>,
-                  public HasBBOInterface<Price, Qty> {
+                  public HasBBOInterface<Price, Qty>,
+                  public TopLevelsExporterInterface<Price, Qty> {
     OrderBookInner<Price, Qty, MemoryPool, HashMap> inner_order_book_;
 
   public:
@@ -247,13 +248,37 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
     std::pair<bool, BBOFull<Price, Qty>> GetBBO() override {
         return inner_order_book_.GetBBO();
     }
+    bool UpdateTopBid(BestBid<Price, Qty>& bid) const override {
+        return inner_order_book_.UpdateTopBid(bid);
+    };
+    bool UpdateTopAsk(BestAsk<Price, Qty>& bid) const override {
+        return inner_order_book_.UpdateTopAsk(bid);
+    };
+    bool UpdateTop5Bids(std::array<BestBid<Price, Qty>, 5>& array_5_bids,
+                        std::size_t& max_valid_lvl) const override {
+        return inner_order_book_.UpdateTop5Bids(array_5_bids, max_valid_lvl);
+    };
+    bool UpdateTop5Asks(std::array<BestAsk<Price, Qty>, 5>& array_5_asks,
+                        std::size_t& max_valid_lvl) const override {
+        return inner_order_book_.UpdateTop5Asks(array_5_asks, max_valid_lvl);
+    };
+    bool UpdateTopNBids(std::size_t n, std::vector<BestBid<Price, Qty>>& bids,
+                        std::size_t& max_valid_lvl) const override {
+        return inner_order_book_.UpdateTopNBids(n, bids, max_valid_lvl);
+    };
+    bool UpdateTopNAsks(std::size_t n, std::vector<BestAsk<Price, Qty>>& asks,
+                        std::size_t& max_valid_lvl) const override {
+        return inner_order_book_.UpdateTopNAsks(n, asks, max_valid_lvl);
+    };
+
     ~OrderBook() = default;
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBookEventListener
-    : public OrderBookEventListenerInterface<Price, Qty, MemoryPool> {
+    : public OrderBookEventListenerInterface<Price, Qty, MemoryPool>,
+      public TopLevelsAsyncExporterInterface<Price, Qty> {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     OrderBook<Price, Qty, MemoryPool, HashMap> order_book_;
 
@@ -277,6 +302,40 @@ class OrderBookEventListener
     void Clear() override {
         boost::asio::co_spawn(strand_, ProcessClear(), boost::asio::detached);
     }
+    boost::asio::awaitable<bool> UpdateTopBid(
+        BestBid<Price, Qty>& bid) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopBid(bid);
+    };
+    boost::asio::awaitable<bool> UpdateTopAsk(
+        BestAsk<Price, Qty>& bid) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopAsk(bid);
+    };
+    boost::asio::awaitable<bool> UpdateTop5Bids(
+        std::array<BestBid<Price, Qty>, 5>& array_5_bids,
+        std::size_t& max_valid_lvl) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTop5Bids(array_5_bids, max_valid_lvl);
+    };
+    boost::asio::awaitable<bool> UpdateTop5Asks(
+        std::array<BestAsk<Price, Qty>, 5>& array_5_asks,
+        std::size_t& max_valid_lvl) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTop5Asks(array_5_asks, max_valid_lvl);
+    };
+    boost::asio::awaitable<bool> UpdateTopNBids(
+        std::size_t n, std::vector<BestBid<Price, Qty>>& bids,
+        std::size_t& max_valid_lvl) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopNBids(n, bids, max_valid_lvl);
+    };
+    boost::asio::awaitable<bool> UpdateTopNAsks(
+        std::size_t n, std::vector<BestAsk<Price, Qty>>& asks,
+        std::size_t& max_valid_lvl) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopNAsks(n, asks, max_valid_lvl);
+    };
 
   private:
     boost::asio::awaitable<void> ProcessEvent(

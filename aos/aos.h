@@ -52,6 +52,7 @@
 #include "aos/order_book/order_book.h"
 #include "aos/order_book_snapshot/i_order_book_snapshot.h"
 #include "aos/order_book_subscriber/i_order_book_subscriber.h"
+#include "aos/order_book_subscriber/order_book_subscribers.h"
 #include "aos/order_book_view/i_order_book_view.h"
 #include "aos/order_event/i_order_event.h"
 #include "aos/order_manager/i_order_manager.h"
