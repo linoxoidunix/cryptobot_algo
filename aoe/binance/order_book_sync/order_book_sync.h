@@ -7,7 +7,8 @@
 #include "aoe/binance/response_queue_listener/json/rest/snapshot/listener.h"
 #include "aoe/binance/rest_request_sender/rest_request_sender.h"
 #include "aoe/binance/session/rest/session.h"
-#include "aos/order_book/order_book.h"
+#include "aos/order_book/i_order_book.h"
+// #include "aos/order_book/order_book.h"
 #include "aot/Logger.h"
 #include "boost/asio.hpp"
 
@@ -31,7 +32,7 @@ class OrderBookSync
   protected:
     boost::asio::thread_pool& thread_pool_;
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
-    aos::OrderBookEventListener<Price, Qty, MemoryPool, HashMap>& order_book_;
+    aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book_;
     uint64_t last_diff_update_id_       = 0;
     uint64_t last_snapshot_update_id_   = 0;
 
@@ -50,7 +51,7 @@ class OrderBookSync
 
   public:
     OrderBookSync(boost::asio::thread_pool& thread_pool,
-                  aos::OrderBookEventListener<Price, Qty, MemoryPool, HashMap>&
+                  aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>&
                       order_book)
         : listener_(thread_pool, response_queue_, snapshot_parser_, *this),
           thread_pool_(thread_pool),
@@ -217,7 +218,7 @@ class OrderBookSync
   protected:
     boost::asio::thread_pool& thread_pool_;
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
-    aos::OrderBookEventListener<Price, Qty, MemoryPool, HashMap>& order_book_;
+    aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book_;
     uint64_t last_diff_update_id_       = 0;
     uint64_t last_snapshot_update_id_   = 0;
 
@@ -236,7 +237,7 @@ class OrderBookSync
 
   public:
     OrderBookSync(boost::asio::thread_pool& thread_pool,
-                  aos::OrderBookEventListener<Price, Qty, MemoryPool, HashMap>&
+                  aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>&
                       order_book)
         : listener_(thread_pool, response_queue_, snapshot_parser_, *this),
           thread_pool_(thread_pool),

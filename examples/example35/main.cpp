@@ -20,13 +20,25 @@ int main(int argc, char** argv) {
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
             order_book{thread_pool, 1000};
+        aos::OrderBookNotifier<double, double, common::MemoryPoolThreadSafety>
+            order_book_notifier{order_book};
         aoe::binance::impl::main_net::spot::OrderBookSync<
             double, double, common::MemoryPoolThreadSafety,
             std::unordered_map<double, aos::OrderBookLevel<double, double>*>>
-            order_book_sync{thread_pool, order_book};
+            order_book_sync{thread_pool, order_book_notifier};
         aoe::binance::impl::diff_response::spot::Listener<
             double, double, common::MemoryPoolThreadSafety>
             listener(thread_pool, queue, order_book_sync);
+        //-------------------------------------------------------------------------------
+        aos::impl::BestBidOrBestAskNotifier<double, double>
+            best_bid_or_best_ask_notifier{thread_pool, order_book};
+        aos::impl::BestBidNotifier<double, double> best_bid_notifier{
+            thread_pool, order_book};
+        aos::impl::BestAskNotifier<double, double> best_ask_notifier{
+            thread_pool, order_book};
+        order_book_notifier.AddSubscriber(best_bid_or_best_ask_notifier);
+        order_book_notifier.AddSubscriber(best_bid_notifier);
+        order_book_notifier.AddSubscriber(best_ask_notifier);
 
         //-------------------------------------------------------------------------------
 

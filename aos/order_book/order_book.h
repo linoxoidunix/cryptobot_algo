@@ -357,22 +357,17 @@ class OrderBookEventListener
     }
 };
 
-template <typename Price, typename Qty, template <typename> typename MemoryPool,
-          typename HashMap>
+template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookNotifier
     : public OrderBookEventListenerInterface<Price, Qty, MemoryPool> {
-    OrderBookEventListener<Price, Qty, MemoryPool, HashMap> order_book_;
+    OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book_;
     std::vector<std::reference_wrapper<OrderBookSubscriberInterface>>
         subscribers_;
 
   public:
-    OrderBookNotifier(boost::asio::thread_pool& thread_pool, size_t max_levels)
-        : order_book_(thread_pool, max_levels) {}
-
-    OrderBookNotifier(boost::asio::thread_pool& thread_pool,
-                      common::ExchangeId exchange_id,
-                      aos::TradingPair trading_pair, size_t max_level)
-        : order_book_(thread_pool, exchange_id, trading_pair, max_level) {}
+    OrderBookNotifier(
+        OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book)
+        : order_book_(order_book) {}
 
     ~OrderBookNotifier() override = default;
 
