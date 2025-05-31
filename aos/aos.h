@@ -56,6 +56,7 @@
 #include "aos/order_book_view/i_order_book_view.h"
 #include "aos/order_event/i_order_event.h"
 #include "aos/order_manager/i_order_manager.h"
+#include "aos/order_min_qty_calculator/i_calculator.h"
 #include "aos/pnl/i_pnl.h"
 #include "aos/pnl/realized_calculator/i_pnl_realized_calculator.h"
 #include "aos/pnl/realized_calculator/pnl_realized_calculator.h"

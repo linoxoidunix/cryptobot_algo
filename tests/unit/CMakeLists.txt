@@ -34,6 +34,7 @@ cxx_executable(bybit_place_order_request_maker ${CMAKE_CURRENT_LIST_DIR} aos aot
 cxx_executable(bybit_cancel_order_request_maker ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
 cxx_executable(order_book ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
 cxx_executable(bybit_order_book_event_parser ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
+cxx_executable(bybit_min_qty_calculator ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
 cxx_executable(converter_trading_pair_to_big_string_view ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
 cxx_executable(ed25519_signer ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
 cxx_executable(binance_order_event_parser ${CMAKE_CURRENT_LIST_DIR} aos aot gtest_main gmock_main magic_enum concurrentqueue simdjson::simdjson nlohmann_json::nlohmann_json tomlplusplus::tomlplusplus sodium)
