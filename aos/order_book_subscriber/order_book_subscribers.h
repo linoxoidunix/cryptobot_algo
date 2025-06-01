@@ -57,10 +57,12 @@ class BestBidOrBestAskNotifier : public OrderBookSubscriberInterface {
 };
 
 template <typename Price, typename Qty>
-class BestBidNotifier : public OrderBookSubscriberInterface {
+class BestBidNotifier : public BestBidNotifierInterface<Price, Qty> {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter_;
     BestBid<Price, Qty> best_bid_;
+    std::function<void(BestBid<Price, Qty>& new_bid)>
+        on_best_bid_update_callback_;
 
   public:
     BestBidNotifier(
@@ -71,6 +73,10 @@ class BestBidNotifier : public OrderBookSubscriberInterface {
     void OnOrderBookUpdate() override {
         boost::asio::co_spawn(strand_, ProcessOnOrderBookUpdate(),
                               boost::asio::detached);
+    }
+    void SetCallback(
+        std::function<void(BestBid<Price, Qty>& new_bid)> cb) override {
+        on_best_bid_update_callback_ = std::move(cb);
     }
     ~BestBidNotifier() override = default;
 
@@ -86,16 +92,20 @@ class BestBidNotifier : public OrderBookSubscriberInterface {
             logi("    New: price={}, qty={}", best_bid_.bid_price,
                  best_bid_.bid_qty);
             logi("    Sending signal to strategy.");
+            logi("[BestBidNotifier] invoke custom callback:");
+            on_best_bid_update_callback_(best_bid_);
         }
         co_return;
     }
 };
 
 template <typename Price, typename Qty>
-class BestAskNotifier : public OrderBookSubscriberInterface {
+class BestAskNotifier : public BestAskNotifierInterface<Price, Qty> {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter_;
     BestAsk<Price, Qty> best_ask_;
+    std::function<void(BestAsk<Price, Qty>& new_ask)>
+        on_best_ask_update_callback_;
 
   public:
     BestAskNotifier(
@@ -107,6 +117,10 @@ class BestAskNotifier : public OrderBookSubscriberInterface {
         boost::asio::co_spawn(strand_, ProcessOnOrderBookUpdate(),
                               boost::asio::detached);
     }
+    void SetCallback(
+        std::function<void(BestAsk<Price, Qty>& new_ask)> cb) override {
+        on_best_ask_update_callback_ = std::move(cb);
+    };
     ~BestAskNotifier() override = default;
 
   private:
@@ -121,6 +135,8 @@ class BestAskNotifier : public OrderBookSubscriberInterface {
             logi("    New: price={}, qty={}", best_ask_.ask_price,
                  best_ask_.ask_qty);
             logi("    Sending signal to strategy.");
+            logi("[BestAskNotifier] invoke custom callback:");
+            on_best_ask_update_callback_(best_ask_);
         }
         co_return;
     }
