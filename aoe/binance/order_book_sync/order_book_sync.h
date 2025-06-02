@@ -141,12 +141,12 @@ class OrderBookSync
         // проверка что следующий дифф равен
         if (snapshot_was_processed_) {
             bool packet_lost = CheckPacketLost(ptr);
+            logd("packet lost:{}", packet_lost);
             if (!packet_lost) {
                 order_book_.OnEvent(ptr);
                 SetLastDiffUpdateId(ptr->FinalUpdateId());
                 co_return;
             }
-            logd("packet lost:{}", packet_lost);
         }
         diffs_.push(ptr);
         if (need_make_snapshot_) {
@@ -259,10 +259,11 @@ class OrderBookSync
     }
 
   protected:
-    bool CheckPacketLost(boost::intrusive_ptr<
-                         OrderBookDiffEventInterface<Price, Qty, MemoryPool>>
-                             diff) {
-        // реализация для main_net spot
+    bool CheckPacketLost(
+        boost::intrusive_ptr<aoe::binance::futures::OrderBookDiffEventInterface<
+            Price, Qty, MemoryPool>>
+            diff) {
+        // реализация для main_net futures
         logd("diff_first_id:{} last_diff_update_id:{}",
              diff->PreviousUpdateId(),
              OrderBookSync<Price, Qty, MemoryPool,
@@ -319,7 +320,7 @@ class OrderBookSync
         co_return;
     }
     boost::asio::awaitable<void> ProcessDiff(
-        boost::intrusive_ptr<aoe::binance::spot::OrderBookDiffEventInterface<
+        boost::intrusive_ptr<aoe::binance::futures::OrderBookDiffEventInterface<
             Price, Qty, MemoryPool>>
             ptr) {
         logd("Received diff: FirstUpdateId={}, FinalUpdateId={} {}",
@@ -327,12 +328,12 @@ class OrderBookSync
         // проверка что следующий дифф равен
         if (snapshot_was_processed_) {
             bool packet_lost = CheckPacketLost(ptr);
+            logd("packet lost:{}", packet_lost);
             if (!packet_lost) {
                 order_book_.OnEvent(ptr);
                 SetLastDiffUpdateId(ptr->FinalUpdateId());
                 co_return;
             }
-            logd("packet lost:{}", packet_lost);
         }
         diffs_.push(ptr);
         if (need_make_snapshot_) {

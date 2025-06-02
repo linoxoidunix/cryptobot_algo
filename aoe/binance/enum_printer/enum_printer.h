@@ -162,5 +162,20 @@ EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
 };
 };  // namespace spot
 
+namespace futures {
+EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
+    switch (speed) {
+        case DiffUpdateSpeed_ms::k100:
+            return {true, "100ms"};
+        case DiffUpdateSpeed_ms::k250:
+            return {true, "250ms"};
+        case DiffUpdateSpeed_ms::k500:
+            return {true, "250ms"};
+        default:
+            return {false, ""};
+    }
+};
+};  // namespace futures
+
 };  // namespace binance
 };  // namespace aoe

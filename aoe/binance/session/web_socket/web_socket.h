@@ -1,5 +1,6 @@
 #pragma once
 
+#include "aoe/binance/enums/enums.h"
 #include "aoe/binance/session/web_socket/i_web_socket.h"
 #include "aoe/session/web_socket/web_socket.h"
 
@@ -194,8 +195,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     SessionRW(boost::asio::io_context& ioc,
               moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
               ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "stream.binance.com", "9443", "/ws", response_queue,
-              listener) {}
+        : ws_(ioc, ctx_, aoe::binance::main_net::ws::spot::kWSHost1, "9443",
+              "/ws", response_queue, listener) {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
@@ -221,8 +222,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
     SessionRW(boost::asio::io_context& ioc,
               moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
               ResponseQueueListenerInterface& listener)
-        : ws_(ioc, ctx_, "fstream.bybit.com", "443", "/ws", response_queue,
-              listener) {}
+        : ws_(ioc, ctx_, aoe::binance::main_net::ws::futures::kWSHost1, "443",
+              "/ws", response_queue, listener) {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };

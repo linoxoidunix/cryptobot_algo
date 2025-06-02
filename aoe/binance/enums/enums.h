@@ -25,6 +25,22 @@ constexpr std::string_view kRESTHost1 = "fapi.binance.com";
 };  // namespace rest
 };  // namespace main_net
 
+namespace main_net {
+namespace ws {
+namespace spot {
+constexpr std::string_view kWSHost1 = "stream.binance.com";
+};  // namespace spot
+};  // namespace ws
+};  // namespace main_net
+
+namespace main_net {
+namespace ws {
+namespace futures {
+constexpr std::string_view kWSHost1 = "fstream.binance.com";
+};  // namespace futures
+};  // namespace ws
+};  // namespace main_net
+
 enum class ExecType { kTrade, kUnknown };
 enum class Category {
     kInvalid,
@@ -158,6 +174,17 @@ enum class Depth { k1, k5, k10, k20 };
 namespace spot {
 enum class DiffUpdateSpeed_ms { k100, k1000 };
 };
+
+namespace futures {
+// it is unused. used for partiatial depth
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
+enum class Depth { k5, k10, k20 };
+};  // namespace futures
+
+namespace futures {
+// https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
+enum class DiffUpdateSpeed_ms { k100, k250, k500 };
+};  // namespace futures
 
 // namespace linear {
 // enum class Depth { k1, k50, k200, k500 };

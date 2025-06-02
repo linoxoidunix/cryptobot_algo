@@ -2,6 +2,7 @@
 #include "aoe/binance/constants/constants.h"
 #include "aoe/binance/order_book_sync/i_order_book_sync.h"
 #include "aoe/binance/parser/json/ws/diff_response/i_parser.h"
+#include "aoe/binance/parser/json/ws/diff_response/parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aot/Logger.h"
 #include "boost/asio.hpp"

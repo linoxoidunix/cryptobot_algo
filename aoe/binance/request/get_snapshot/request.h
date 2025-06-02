@@ -63,14 +63,41 @@ class Request
 
 namespace main_net {
 namespace futures::impl {
+
+/**
+ * @brief Request class for fetching order book snapshot from Binance Futures
+ * REST API.
+ *
+ * This class sets up the endpoint and default parameters to request the
+ * order book depth snapshot for a specified trading pair from Binance's
+ * Futures REST API.
+ *
+ * @tparam MemoryPool Memory pool template for internal allocations.
+ */
 template <template <typename> typename MemoryPool>
 class Request
     : public aoe::binance::snapshot::details::BaseRequest<MemoryPool> {
   public:
+    /**
+     * @brief Constructs a request for the Binance Futures order book snapshot.
+     *
+     * Initializes the request with the endpoint `/fapi/v1/depth` and sets the
+     * REST host for Binance mainnet futures.
+     *
+     * @note For Binance USDⓈ-M Futures, the maximum allowable limit for order
+     * book depth is 1000. This constructor sets that limit by default.
+     *
+     * @details According to the Binance Futures API documentation:
+     *          https://developers.binance.com/docs/derivatives/usds-margined-futures/market-data/rest-api/Order-Book,
+     *          valid values for the `limit` parameter are: 5, 10, 20, 50, 100,
+     * 500, and 1000.
+     */
     Request()
         : details::BaseRequest<MemoryPool>(
               "/fapi/v1/depth",
-              aoe::binance::main_net::rest::futures::kRESTHost1) {}
+              aoe::binance::main_net::rest::futures::kRESTHost1) {
+        this->SetLimit(1000);
+    }
     ~Request() override = default;
 };
 };  // namespace futures::impl
