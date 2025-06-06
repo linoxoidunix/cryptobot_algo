@@ -1,4 +1,5 @@
 #pragma once
+#include "boost/functional/hash.hpp"
 #include "aos/pnl/realized_calculator/i_pnl_realized_calculator.h"
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
 namespace aos {

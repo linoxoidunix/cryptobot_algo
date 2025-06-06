@@ -2,8 +2,8 @@
 #include <map>
 
 #include "aos/max_tracker/i_max_tracker.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+
 namespace aos {
 namespace impl {
 
@@ -83,9 +83,9 @@ class MaxTrackerDefault : public MaxTrackerInterface<HashT, T> {
         max_element_;  // Карта для отслеживания максимальных элементов
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class MaxTracker
-    : public aos::IMaxTracker<HashT, T, common::MemoryPoolNotThreadSafety> {
+    : public aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
     void OnAdd(const HashT hash_asset, const T& value) override {
         if (max_element_.find(hash_asset) == max_element_.end()) {
@@ -160,22 +160,22 @@ class MaxTracker
         max_element_;  // Карта для отслеживания максимальных элементов
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class MaxTrackerBuilder {
   public:
     explicit MaxTrackerBuilder(
-        common::MemoryPoolNotThreadSafety<MaxTracker<HashT, T>>& pool)
+        MemoryPoolNotThreadSafety<MaxTracker<HashT, T, MemoryPoolNotThreadSafety>>& pool)
         : pool_(pool) {}
 
     // Строим объект MinTracker с заданным пулом памяти
-    boost::intrusive_ptr<MaxTracker<HashT, T>> build() {
+    boost::intrusive_ptr<MaxTracker<HashT, T, MemoryPoolNotThreadSafety>> build() {
         auto* obj = pool_.Allocate();
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<MaxTracker<HashT, T>>(obj);
+        return boost::intrusive_ptr<MaxTracker<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    common::MemoryPoolNotThreadSafety<MaxTracker<HashT, T>>&
+    MemoryPoolNotThreadSafety<MaxTracker<HashT, T, MemoryPoolNotThreadSafety>>&
         pool_;  // Пул памяти
 };
 };  // namespace impl

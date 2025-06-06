@@ -1,7 +1,7 @@
 #pragma once
 #include "aos/common/ref_counted.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aot/common/types.h"
+#include "aos/common/exchange_id.h"
 namespace aos {
 
 class PositionStorageByOrderIdInterface {

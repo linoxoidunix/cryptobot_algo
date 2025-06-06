@@ -4,7 +4,9 @@
 #include "aoe/bybit/order_book_sync/order_book_sync.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
 #include "aos/aos.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
+#include "aos/logger/logger.h"
+
 
 int main(int argc, char** argv) {
     {

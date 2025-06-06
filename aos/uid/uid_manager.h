@@ -3,7 +3,7 @@
 #include "aos/uid/i_uid_manager.h"
 #include "aos/uid/number_pool.h"
 #include "aos/uid/unique_id_generator.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 #include "boost/intrusive_ptr.hpp"
 
 namespace aos {

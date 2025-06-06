@@ -3,7 +3,7 @@
 #include "aoe/aoe.h"  // Ваш класс
 #include "aos/aos.h"  // Ваш класс
 #include "aos/trading_pair/trading_pair.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 #include "gmock/gmock.h"
 #include "nlohmann/json.hpp"
 using ::testing::Return;

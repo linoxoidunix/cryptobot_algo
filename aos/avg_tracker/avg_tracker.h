@@ -2,8 +2,8 @@
 #include <unordered_map>
 
 #include "aos/avg_tracker/i_avg_tracker.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+
 namespace aos {
 namespace impl {
 
@@ -38,9 +38,9 @@ class AvgTrackerDefault : public AvgTrackerInterface<HashT, T> {
     std::unordered_map<HashT, size_t> counts_;  // Хранение количества элементов
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class AvgTracker
-    : public aos::IAvgTracker<HashT, T, common::MemoryPoolNotThreadSafety> {
+    : public aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
     void OnAdd(const HashT hash_asset, const T& value) override {
         sums_[hash_asset]   += value;
@@ -70,22 +70,22 @@ class AvgTracker
     std::unordered_map<HashT, size_t> counts_;  // Хранение количества элементов
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class AvgTrackerBuilder {
   public:
     explicit AvgTrackerBuilder(
-        common::MemoryPoolNotThreadSafety<AvgTracker<HashT, T>>& pool)
+        MemoryPoolNotThreadSafety<AvgTracker<HashT, T, MemoryPoolNotThreadSafety>>& pool)
         : pool_(pool) {}
 
     // Строим объект AvgTracker с заданным пулом памяти
-    boost::intrusive_ptr<AvgTracker<HashT, T>> build() {
+    boost::intrusive_ptr<AvgTracker<HashT, T, MemoryPoolNotThreadSafety>> build() {
         auto* obj = pool_.Allocate();
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<AvgTracker<HashT, T>>(obj);
+        return boost::intrusive_ptr<AvgTracker<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    common::MemoryPoolNotThreadSafety<AvgTracker<HashT, T>>&
+    MemoryPoolNotThreadSafety<AvgTracker<HashT, T, MemoryPoolNotThreadSafety>>&
         pool_;  // Пул памяти
 };
 };  // namespace impl

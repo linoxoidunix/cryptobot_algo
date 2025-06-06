@@ -1,6 +1,6 @@
 #pragma once
 #include "aos/order_book/order_book.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 #include "boost/asio.hpp"
 
 namespace aoe {

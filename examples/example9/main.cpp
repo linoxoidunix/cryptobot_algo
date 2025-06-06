@@ -6,8 +6,8 @@
 #include "aos/uid/number_pool.h"
 #include "aos/uid/uid_manager.h"
 #include "aos/uid/unique_id_generator.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+#include "aos/common/mem_pool.h"
 
 int main() {
     aos::impl::UIDManagerContainer uid_manager_container(1);

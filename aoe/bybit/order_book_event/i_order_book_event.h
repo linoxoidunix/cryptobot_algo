@@ -7,7 +7,7 @@
 #include "aos/order_book_event/i_order_book_event.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"
 #include "aos/order_book_view/i_order_book_view.h"
-#include "aot/common/types.h"
+#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace bybit {

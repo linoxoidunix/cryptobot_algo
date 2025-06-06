@@ -18,7 +18,6 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
 aos
-aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium

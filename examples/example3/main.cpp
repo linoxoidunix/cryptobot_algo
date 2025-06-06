@@ -11,52 +11,53 @@
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 #include "aos/sliding_window_storage/sliding_window_storage.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 
 int main() {
-    common::MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double>>
+    common::MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double, common::MemoryPoolNotThreadSafety>>
         hc_pool(2);
     common::MemoryPoolNotThreadSafety<
-        aos::impl::JointHistogramCalculator<double>>
+        aos::impl::JointHistogramCalculator<double, common::MemoryPoolNotThreadSafety>>
         jhc_pool(2);
     common::MemoryPoolNotThreadSafety<
-        aos::impl::MutualInformationCalculator<size_t, double>>
+        aos::impl::MutualInformationCalculator<size_t, double, common::MemoryPoolNotThreadSafety>>
         mi_pool(2);
     common::MemoryPoolNotThreadSafety<
-        aos::impl::SlidingWindowStorage<std::size_t, double>>
+        aos::impl::SlidingWindowStorage<std::size_t, double, common::MemoryPoolNotThreadSafety>>
         sw_pool(2);
-    common::MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t>>
+    common::MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t, common::MemoryPoolNotThreadSafety>>
         mt_pool(2);
-    common::MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double>>
+    common::MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double, common::MemoryPoolNotThreadSafety>>
         avg_pool(2);
     common::MemoryPoolNotThreadSafety<
-        aos::impl::DeviationTracker<size_t, double>>
+        aos::impl::DeviationTracker<size_t, double, common::MemoryPoolNotThreadSafety>>
         deviation_pool(2);
-    common::MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double>>
+    common::MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double, common::MemoryPoolNotThreadSafety>>
         min_pool(2);
-    common::MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double>>
+    common::MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double, common::MemoryPoolNotThreadSafety>>
         max_pool(2);
 
     auto hist_calculator =
-        aos::impl::HistogramCalculator<double>::Create(hc_pool);
+        aos::impl::HistogramCalculator<double, common::MemoryPoolNotThreadSafety>::Create(hc_pool);
     auto joint_hist_calculator =
-        aos::impl::JointHistogramCalculator<double>::Create(jhc_pool);
+        aos::impl::JointHistogramCalculator<double, common::MemoryPoolNotThreadSafety>::Create(jhc_pool);
     auto mi_calculator =
-        aos::impl::MutualInformationCalculator<size_t, double>::Create(
+        aos::impl::MutualInformationCalculator<size_t, double, common::MemoryPoolNotThreadSafety>::Create(
             mi_pool, hist_calculator, joint_hist_calculator);
     auto avg_tracker =
-        aos::impl::AvgTrackerBuilder<std::size_t, double>(avg_pool).build();
+        aos::impl::AvgTrackerBuilder<std::size_t, double, common::MemoryPoolNotThreadSafety>(avg_pool).build();
     auto deviation_tracker =
-        aos::impl::DeviationTrackerBuilder<std::size_t, double>(deviation_pool)
+        aos::impl::DeviationTrackerBuilder<std::size_t, double, common::MemoryPoolNotThreadSafety>(deviation_pool)
             .SetAvgTracker(avg_tracker)
             .build();
     auto minimum_tracker =
-        aos::impl::MinTrackerBuilder<std::size_t, double>(min_pool).build();
+        aos::impl::MinTrackerBuilder<std::size_t, double, common::MemoryPoolNotThreadSafety>(min_pool).build();
     auto maximum_tracker =
-        aos::impl::MaxTrackerBuilder<std::size_t, double>(max_pool).build();
+        aos::impl::MaxTrackerBuilder<std::size_t, double, common::MemoryPoolNotThreadSafety>(max_pool).build();
 
     auto sliding_window_storage =
-        aos::impl::SlidingWindowStorageBuilder<size_t, double>(sw_pool)
+        aos::impl::SlidingWindowStorageBuilder<size_t, double, common::MemoryPoolNotThreadSafety>(sw_pool)
             .SetWindowSize(5)
             .SetAvgTracker(avg_tracker)
             .SetDeviationTracker(deviation_tracker)
@@ -64,12 +65,12 @@ int main() {
             .SetMaxTracker(maximum_tracker)
             .build();
     auto market_triplet_manager =
-        aos::impl::MarketTripletManager<size_t>::Create(mt_pool);
+        aos::impl::MarketTripletManager<size_t, common::MemoryPoolNotThreadSafety>::Create(mt_pool);
 
     market_triplet_manager->Connect(1, 2);
 
     boost::asio::thread_pool pool;
-    aos::impl::RealTimeMutualInformation<double, size_t> rtmi(
+    aos::impl::RealTimeMutualInformation<double, size_t, common::MemoryPoolNotThreadSafety> rtmi(
         pool, 5, mi_calculator, market_triplet_manager, sliding_window_storage);
 
     // int num_points = 100;  // Генерируем 100 точек данных

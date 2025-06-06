@@ -3,8 +3,7 @@
 #include <unordered_map>
 
 #include "aos/deviation_tracker/i_deviation_tracker.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -76,14 +75,14 @@ class DeviationTrackerDefault : public DeviationTrackerInterface<HashT, T> {
     };
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class DeviationTracker
     : public aos::IDeviationTracker<HashT, T,
-                                    common::MemoryPoolNotThreadSafety> {
+                                    MemoryPoolNotThreadSafety> {
   public:
     explicit DeviationTracker(
         boost::intrusive_ptr<
-            aos::IAvgTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
+            aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
             avg_tracker)
         : avg_tracker_(avg_tracker) {}
     std::pair<bool, T> GetDeviation(const HashT& hash_asset,
@@ -145,36 +144,36 @@ class DeviationTracker
 
   private:
     boost::intrusive_ptr<
-        aos::IAvgTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
+        aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
         avg_tracker_;
 };
 
-template <typename HashT, typename T>
+template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
 class DeviationTrackerBuilder {
   public:
     explicit DeviationTrackerBuilder(
-        common::MemoryPoolNotThreadSafety<DeviationTracker<HashT, T>>& pool)
+        MemoryPoolNotThreadSafety<DeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>& pool)
         : pool_(pool) {}
 
     // Строим объект AvgTracker с заданным пулом памяти
-    boost::intrusive_ptr<DeviationTracker<HashT, T>> build() {
+    boost::intrusive_ptr<DeviationTracker<HashT, T, MemoryPoolNotThreadSafety>> build() {
         auto* obj = pool_.Allocate(avg_tracker_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<DeviationTracker<HashT, T>>(obj);
+        return boost::intrusive_ptr<DeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
     DeviationTrackerBuilder& SetAvgTracker(
         boost::intrusive_ptr<
-            aos::IAvgTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
+            aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
             avg_tracker) {
         avg_tracker_ = avg_tracker;
         return *this;
     }
 
   private:
-    common::MemoryPoolNotThreadSafety<DeviationTracker<HashT, T>>&
+    MemoryPoolNotThreadSafety<DeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>&
         pool_;  // Пул памяти
     boost::intrusive_ptr<
-        aos::IAvgTracker<HashT, T, common::MemoryPoolNotThreadSafety>>
+        aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
         avg_tracker_;
 };
 };  // namespace impl

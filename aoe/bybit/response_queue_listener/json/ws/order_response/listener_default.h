@@ -3,7 +3,7 @@
 #include "aoe/bybit/parser/json/ws/order_response/order_event_parser.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
 #include "simdjson.h"

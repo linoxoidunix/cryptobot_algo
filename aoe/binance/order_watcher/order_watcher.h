@@ -2,7 +2,7 @@
 
 #include "aoe/binance/order_manager/i_order_manager.h"
 #include "aoe/binance/order_watcher/i_order_watcher.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 
 namespace aoe {
 namespace binance {

@@ -20,9 +20,9 @@ class AvgTrackerInterface : public IAvgAble<HashT, T> {
     virtual ~AvgTrackerInterface()                                = default;
 };
 
-template <typename HashT, typename T, template <typename> class MemoryPool>
+template <typename HashT, typename T, template <typename> class MemoryPoolNotThreadSafety>
 class IAvgTracker
-    : public common::RefCounted<MemoryPool, IAvgTracker<HashT, T, MemoryPool>>,
+    : public common::RefCounted<MemoryPoolNotThreadSafety, IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>,
       public IAvgAble<HashT, T> {
   public:
     virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;

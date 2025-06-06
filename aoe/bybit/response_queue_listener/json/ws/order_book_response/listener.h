@@ -2,7 +2,7 @@
 #include "aoe/bybit/order_book_sync/i_order_book_sync.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/i_parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
 #include "simdjson.h"

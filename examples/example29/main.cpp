@@ -10,7 +10,9 @@
 #include "aoe/aoe.h"
 #include "aos/aos.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
+#include "aos/logger/logger.h"
+
 
 using BybitSpotBuyLimit =
     aoe::bybit::place_order::impl::SpotBuyLimit<common::MemoryPoolThreadSafety>;

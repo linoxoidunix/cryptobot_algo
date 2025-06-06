@@ -6,8 +6,7 @@
 #include "aos/histogram/i_histogram_calculator.h"
 #include "aos/joint_histogram/i_joint_histogram_calculator.h"
 #include "aos/mutual_information/i_mutual_information_calculator.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -111,18 +110,18 @@ class MutualInformationCalculatorDefault
 };
 
 // Стратегия для вычисления взаимной информации
-template <class HashT, class T>
+template <class HashT, class T, template <typename> typename MemoryPoolNotThreadSafety>
 class MutualInformationCalculator
     : public aos::IMutualInformationCalculator<
-          T, common::MemoryPoolNotThreadSafety, HashT,
-          common::MemoryPoolNotThreadSafety> {
+          T, MemoryPoolNotThreadSafety, HashT,
+          MemoryPoolNotThreadSafety> {
   public:
     MutualInformationCalculator(
         boost::intrusive_ptr<
-            aos::IHistogramCalculator<T, common::MemoryPoolNotThreadSafety>>
+            aos::IHistogramCalculator<T, MemoryPoolNotThreadSafety>>
             hist_calculator,
         boost::intrusive_ptr<aos::IJointHistogramCalculator<
-            T, common::MemoryPoolNotThreadSafety>>
+            T, MemoryPoolNotThreadSafety>>
             joint_hist_calculator)
         : hist_calculator_(hist_calculator),
           joint_hist_calculator_(joint_hist_calculator) {}
@@ -179,7 +178,7 @@ class MutualInformationCalculator
 
     std::pair<bool, T> ComputeMutualInformation(
         boost::intrusive_ptr<
-            ISlidingWindowStorage<HashT, T, common::MemoryPoolNotThreadSafety>>
+            ISlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>
             window_storage,
         size_t hash_asset, size_t paired_asset, int bins) const override {
         // Проверяем, есть ли достаточно данных для обоих активов
@@ -210,18 +209,18 @@ class MutualInformationCalculator
         return {true, mi};
     }
 
-    static boost::intrusive_ptr<MutualInformationCalculator<HashT, T>> Create(
-        common::MemoryPoolNotThreadSafety<
-            MutualInformationCalculator<HashT, T>>& pool,
+    static boost::intrusive_ptr<MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>> Create(
+        MemoryPoolNotThreadSafety<
+            MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>>& pool,
         boost::intrusive_ptr<
-            IHistogramCalculator<T, common::MemoryPoolNotThreadSafety>>
+            IHistogramCalculator<T, MemoryPoolNotThreadSafety>>
             hist_calculator,
         boost::intrusive_ptr<
-            IJointHistogramCalculator<T, common::MemoryPoolNotThreadSafety>>
+            IJointHistogramCalculator<T, MemoryPoolNotThreadSafety>>
             joint_hist_calculator) {
         auto* obj = pool.Allocate(hist_calculator, joint_hist_calculator);
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<MutualInformationCalculator<HashT, T>>(obj);
+        return boost::intrusive_ptr<MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
     ~MutualInformationCalculator() override {
         logi("MutualInformationCalculator dtor");
@@ -229,10 +228,10 @@ class MutualInformationCalculator
 
   private:
     boost::intrusive_ptr<
-        aos::IHistogramCalculator<T, common::MemoryPoolNotThreadSafety>>
+        aos::IHistogramCalculator<T, MemoryPoolNotThreadSafety>>
         hist_calculator_;
     boost::intrusive_ptr<
-        aos::IJointHistogramCalculator<T, common::MemoryPoolNotThreadSafety>>
+        aos::IJointHistogramCalculator<T, MemoryPoolNotThreadSafety>>
         joint_hist_calculator_;
 };
 };  // namespace impl

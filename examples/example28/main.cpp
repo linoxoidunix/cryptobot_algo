@@ -10,7 +10,9 @@
 #include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aoe/signer/hmac_sha256/signer.h"
 #include "aos/aos.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
+#include "aos/logger/logger.h"
+
 
 int main(int argc, char** argv) {
     {

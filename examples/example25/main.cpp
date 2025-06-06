@@ -3,7 +3,9 @@
 #include "aoe/aoe.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aos/aos.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
+#include "aos/logger/logger.h"
+
 void SendSubscribePeriodically(boost::asio::steady_timer& timer,
                                aoe::impl::WebSocketSessionRW& ws) {
     nlohmann::json j;

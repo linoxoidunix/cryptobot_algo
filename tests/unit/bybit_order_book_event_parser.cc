@@ -4,7 +4,7 @@
 
 #include "aoe/aoe.h"
 #include "aos/aos.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 
 TEST(OrderBookEventParserTest, ParsesBybitSnapshotCorrectly) {
     using Price = double;

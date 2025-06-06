@@ -13,7 +13,9 @@
 #include "aos/mutual_information/mutual_information_calculator.h"
 #include "aos/mutual_information_real_time/mutual_information_real_time.h"
 #include "aos/sliding_window_storage/sliding_window_storage.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
+#include "fmt/core.h"
+#include "fmt/ranges.h"
 
 std::atomic<size_t> current_index{0};
 
@@ -21,7 +23,7 @@ std::atomic<size_t> current_index{0};
 void ProcessData(size_t index, size_t hash_first_asset, double first_value,
                  size_t hash_second_asset, double second_value,
                  boost::intrusive_ptr<
-                     aos::impl::SlidingWindowStorageObservable<size_t, double>>
+                     aos::impl::SlidingWindowStorageObservable<size_t, double, common::MemoryPoolNotThreadSafety>>
                      value) {
     // Ждем своей очереди
     while (current_index.load(std::memory_order_acquire) != index) {
@@ -40,7 +42,7 @@ void ProcessData(size_t index, size_t hash_first_asset, double first_value,
 
 int main() {
     boost::asio::thread_pool thread_pool;
-    aos::impl::SlidingWindowStorageFactory factory(thread_pool);
+    aos::impl::SlidingWindowStorageFactory<common::MemoryPoolNotThreadSafety> factory(thread_pool);
     auto [sliding_window_storage, mi_calculator, deviation_tracker,
           market_triplet_manager] = factory.Create();
 
@@ -60,7 +62,7 @@ int main() {
                                   const double& value) {
             auto [status_deviation_ratio, deviation_ratio] =
                 sliding_window_storage->GetDeviationRatio(hash, value);
-            auto deviation = sliding_window_storage->GetDeviation(hash, value);
+            auto [status_deviation, deviation] = sliding_window_storage->GetDeviation(hash, value);
             logi(
                 "Before adding hash:{} value:{} deviation_ratio:{} "
                 "deviation:{}",
@@ -108,7 +110,7 @@ int main() {
                                   const double& value) {
             auto [status_deviation_ratio, deviation_ratio] =
                 sliding_window_storage->GetDeviationRatio(hash, value);
-            auto deviation = sliding_window_storage->GetDeviation(hash, value);
+            auto [status_deviation, deviation] = sliding_window_storage->GetDeviation(hash, value);
             logi(
                 "Before adding hash:{} value:{} deviation_ratio:{} "
                 "deviation:{}",

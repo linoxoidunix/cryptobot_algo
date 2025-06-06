@@ -64,11 +64,11 @@ class JointHistogramCalculatorInterface {
  *
  * @tparam T The type of the data (e.g., `double`, `int`).
  */
-template <typename T, template <typename> class MemoryPool>
+template <typename T, template <typename> class MemoryPoolNotThreadSafety>
 class IJointHistogramCalculator
-    : public common::RefCounted<MemoryPool,
+    : public common::RefCounted<MemoryPoolNotThreadSafety,
                                 aos::IJointHistogramCalculator<
-                                    T, common::MemoryPoolNotThreadSafety>> {
+                                    T, MemoryPoolNotThreadSafety>> {
   public:
     /**
      * @brief Virtual destructor to ensure proper cleanup in derived classes.

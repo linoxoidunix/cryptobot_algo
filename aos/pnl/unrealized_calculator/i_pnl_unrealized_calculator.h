@@ -1,6 +1,6 @@
 #pragma once
 #include "aos/common/ref_counted.h"
-#include "aot/common/types.h"
+#include "aos/common/exchange_id.h"
 
 namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>

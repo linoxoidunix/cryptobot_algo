@@ -1,5 +1,5 @@
 #pragma once
-#include "aot/Logger.h"
+#include "fmtlog.h"
 
 namespace aos {
 enum class TradingPair {

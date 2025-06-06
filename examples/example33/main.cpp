@@ -7,8 +7,8 @@
 #include "aoe/binance/session/rest/session.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aos/aos.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+#include "aos/common/mem_pool.h"
 
 int main(int argc, char** argv) {
     {

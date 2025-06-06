@@ -1,8 +1,10 @@
 #include <boost/asio.hpp>
 
 #include "aos/aos.h"
+#include "fmtlog.h"
 
 int main() {
+    {
     using HashT = std::size_t;
     using Price = double;
     using Qty   = double;
@@ -28,5 +30,7 @@ int main() {
     JointHistogramCalculatorDefault<Price> joint_histogram_calculator_default;
     MutualInformationCalculatorDefault<HashT, Price> mi_calculator_default(
         histogram_calculator_default, joint_histogram_calculator_default);
+    }
+    fmtlog::poll();
     return 0;
 }

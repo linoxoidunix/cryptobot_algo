@@ -6,6 +6,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include(FetchContent)
 
+find_package(OpenSSL)
 find_package(Boost 1.87.0 REQUIRED)
 
 if (Boost_FOUND)
@@ -21,12 +22,15 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/Neargye/magic_enum.git
     GIT_TAG        master
 )
+FetchContent_MakeAvailable(magic_enum)
+
 
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
     GIT_TAG        v3.4.0
 )
+FetchContent_MakeAvailable(tomlplusplus)
 
 include(${CMAKE_SOURCE_DIR}/cmake/BuildLibsodium.cmake)
 FetchContent_Declare(
@@ -39,17 +43,6 @@ FetchContent_MakeAvailable(libsodium)
 build_libsodium(${libsodium_SOURCE_DIR})
 include_directories(${libsodium_SOURCE_DIR}/src/libsodium/include)
 link_directories(${LIBSODIUM_LIBRARY_DIR})
-
-
-set(BUILD_TESTS OFF CACHE BOOL "Disable building tests in cryptobot" FORCE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "Disable building examples in cryptobot" FORCE)
-FetchContent_Declare(
-    cryptobot
-    GIT_REPOSITORY https://github.com/linoxoidunix/cryptobot.git
-    GIT_TAG        main
-)
-
-FetchContent_MakeAvailable(magic_enum tomlplusplus cryptobot)
 
 FetchContent_Declare(gtest_main
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -87,6 +80,37 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/nlohmann/json.git
 )
 FetchContent_MakeAvailable(nlohmann_json)
+
+# # Fetch fmt
+# FetchContent_Declare(
+#   fmt
+#   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#   GIT_TAG        master  # or a specific commit/tag
+# )
+# FetchContent_MakeAvailable(fmt)
+
+# Fetch fmtlog
+FetchContent_Declare(
+  fmtlog
+  GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
+  GIT_TAG        main  # or use a stable tag/commit
+)
+FetchContent_MakeAvailable(fmtlog)
+include_directories(${fmtlog_SOURCE_DIR})
+
+
+message(STATUS "Starting FetchContent for simdjson...")
+include(FetchContent)
+
+FetchContent_Declare(
+    simdjson
+    GIT_REPOSITORY https://github.com/simdjson/simdjson.git
+    GIT_TAG        master
+)
+message(STATUS "Declared simdjson FetchContent.")
+FetchContent_MakeAvailable(simdjson)
+message(STATUS "simdjson FetchContent is available.")
+
 
 # # Загружаем Dlib
 # FetchContent_Declare(
@@ -152,16 +176,16 @@ target_include_directories(
 
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
+    OpenSSL::SSL OpenSSL::Crypto
     magic_enum
     concurrentqueue
     ${Boost_LIBRARIES}
     tomlplusplus::tomlplusplus
     nlohmann_json::nlohmann_json
     sodium
-    aot
+    fmt
+    fmtlog-static
 )
-
-message(STATUS "Cryptobot Source Directory: ${_deps_cryptobot_SOURCE_DIR}/aot")
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)

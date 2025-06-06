@@ -18,13 +18,14 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
 aos
-aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium
 concurrentqueue
 nlohmann_json::nlohmann_json
 simdjson::simdjson
+fmt
+fmtlog-static
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

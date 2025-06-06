@@ -3,8 +3,8 @@
 #include <unordered_map>
 
 #include "aos/market_triplet_manager/i_market_triplet_manager.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+
 namespace aos {
 namespace impl {
 // 📌 Реализация подписок (Single Responsibility - S)
@@ -34,9 +34,9 @@ class MarketTripletManagerDefault
     std::unordered_map<HashT, std::unordered_set<HashT>> pairs_;
 };
 
-template <class T>
+template <class T, template <typename> typename MemoryPoolNotThreadSafety>
 class MarketTripletManager
-    : public aos::IMarketTripletManager<T, common::MemoryPoolNotThreadSafety> {
+    : public aos::IMarketTripletManager<T, MemoryPoolNotThreadSafety> {
   public:
     void Connect(const T& asset_x, const T& asset_y) override {
         pairs_[asset_x].insert(asset_y);
@@ -52,11 +52,11 @@ class MarketTripletManager
     ~MarketTripletManager() override {
         logi("{}", "MarketTripletManager dtor");
     }
-    static boost::intrusive_ptr<MarketTripletManager<T>> Create(
-        common::MemoryPoolNotThreadSafety<MarketTripletManager<T>>& pool) {
+    static boost::intrusive_ptr<MarketTripletManager<T, MemoryPoolNotThreadSafety>> Create(
+        MemoryPoolNotThreadSafety<MarketTripletManager<T, MemoryPoolNotThreadSafety>>& pool) {
         auto* obj = pool.Allocate();
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<MarketTripletManager<T>>(obj);
+        return boost::intrusive_ptr<MarketTripletManager<T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:

@@ -8,12 +8,12 @@
 #include "aos/market_triplet_manager/i_market_triplet_manager.h"
 #include "aos/mutual_information/i_mutual_information_calculator.h"
 #include "aos/sliding_window_storage/i_sliding_window_storage.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
 
-template <class T, class HashT>
+template <class T, class HashT, template <typename> typename MemoryPoolNotThreadSafety>
 class RealTimeMutualInformation {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     boost::asio::thread_pool& thread_pool_;
@@ -22,14 +22,14 @@ class RealTimeMutualInformation {
     RealTimeMutualInformation(
         boost::asio::thread_pool& thread_pool, int bins,
         boost::intrusive_ptr<aos::IMutualInformationCalculator<
-            T, common::MemoryPoolNotThreadSafety, HashT,
-            common::MemoryPoolNotThreadSafety>>
+            T, MemoryPoolNotThreadSafety, HashT,
+            MemoryPoolNotThreadSafety>>
             mi_calculator,
         boost::intrusive_ptr<aos::IMarketTripletManager<
-            HashT, common::MemoryPoolNotThreadSafety>>
+            HashT, MemoryPoolNotThreadSafety>>
             market_triplet_manager,
         boost::intrusive_ptr<aos::ISlidingWindowStorage<
-            HashT, T, common::MemoryPoolNotThreadSafety>>
+            HashT, T, MemoryPoolNotThreadSafety>>
             sliding_window_storage)
         : thread_pool_(thread_pool),
           strand_(boost::asio::make_strand(thread_pool)),
@@ -77,14 +77,14 @@ class RealTimeMutualInformation {
     }
     int bins_;
     boost::intrusive_ptr<aos::IMutualInformationCalculator<
-        T, common::MemoryPoolNotThreadSafety, HashT,
-        common::MemoryPoolNotThreadSafety>>
+        T, MemoryPoolNotThreadSafety, HashT,
+        MemoryPoolNotThreadSafety>>
         mi_calculator_;
     boost::intrusive_ptr<
-        aos::IMarketTripletManager<HashT, common::MemoryPoolNotThreadSafety>>
+        aos::IMarketTripletManager<HashT, MemoryPoolNotThreadSafety>>
         market_triplet_manager_;
     boost::intrusive_ptr<
-        aos::ISlidingWindowStorage<HashT, T, common::MemoryPoolNotThreadSafety>>
+        aos::ISlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>
         sliding_window_storage_;
 };
 };  // namespace impl

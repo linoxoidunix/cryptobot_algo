@@ -6,8 +6,7 @@
 
 #include "aos/common/ref_counted.h"
 #include "aos/histogram/i_histogram_calculator.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -56,9 +55,9 @@ class HistogramCalculatorDefault : public HistogramCalculatorInterface<T> {
         logi("{}", "HistogramCalculatorDefault dtor");
     }
 };
-template <class T>
+template <class T, template <typename> typename MemoryPoolNotThreadSafety>
 class HistogramCalculator
-    : public aos::IHistogramCalculator<T, common::MemoryPoolNotThreadSafety> {
+    : public aos::IHistogramCalculator<T, MemoryPoolNotThreadSafety> {
   public:
     std::unordered_map<int, T> ComputeHistogram(const std::deque<T>& data,
                                                 int bins) const override {
@@ -97,11 +96,11 @@ class HistogramCalculator
 
         return histogram;
     };
-    static boost::intrusive_ptr<HistogramCalculator<T>> Create(
-        common::MemoryPoolNotThreadSafety<HistogramCalculator<T>>& pool) {
+    static boost::intrusive_ptr<HistogramCalculator<T, MemoryPoolNotThreadSafety>> Create(
+        MemoryPoolNotThreadSafety<HistogramCalculator<T, MemoryPoolNotThreadSafety>>& pool) {
         auto* obj = pool.Allocate();
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<HistogramCalculator<T>>(obj);
+        return boost::intrusive_ptr<HistogramCalculator<T, MemoryPoolNotThreadSafety>>(obj);
     }
     ~HistogramCalculator() override { logi("{}", "HistogramCalculator dtor"); }
 };

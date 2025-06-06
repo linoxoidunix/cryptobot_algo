@@ -2,7 +2,7 @@
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/signer/ed25519/i_signer.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 namespace aoe {
 namespace binance {
 namespace impl {

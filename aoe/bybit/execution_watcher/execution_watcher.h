@@ -3,7 +3,7 @@
 #include "aoe/bybit/execution_watcher/i_execution_watcher.h"
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
-#include "aot/Logger.h"
+#include "fmtlog.h"
 
 namespace aoe {
 namespace bybit {

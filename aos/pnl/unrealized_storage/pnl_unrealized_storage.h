@@ -1,13 +1,13 @@
 #pragma once
-#include <boost/intrusive_ptr.hpp>
+#include "boost/intrusive_ptr.hpp"
 #include <cassert>
 #include <unordered_map>
-
+#include "boost/functional/hash.hpp" // <- ОБЯЗАТЕЛЬНО
 #include "aos/common/types.h"
 #include "aos/common/types/position_info.h"
 #include "aos/pnl/unrealized_calculator/i_pnl_unrealized_calculator.h"
 #include "aos/pnl/unrealized_storage/i_pnl_unrealized_storage.h"
-#include "aot/common/types.h"
+#include "aos/common/exchange_id.h"
 
 namespace aos {
 namespace impl {

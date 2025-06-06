@@ -3,7 +3,7 @@
 #include "aos/common/ref_counted.h"
 // #include
 // "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
-#include "aot/common/types.h"
+#include "aos/common/exchange_id.h"
 namespace aos {
 template <template <typename> typename MemoryPool>
 class OrderEventInterface

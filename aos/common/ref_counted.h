@@ -4,7 +4,7 @@
 #include <boost/intrusive_ptr.hpp>
 #include <iostream>
 
-#include "aot/Logger.h"
+#include "fmtlog.h"
 
 namespace common {
 template <template <typename> class MemoryPool, typename T>

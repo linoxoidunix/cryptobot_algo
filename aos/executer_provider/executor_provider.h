@@ -2,15 +2,14 @@
 #include <atomic>
 
 #include "aos/executer_provider/i_executor_provider.h"
-#include "aot/common/mem_pool.h"
 #include "unordered_map"
 
 namespace aos {
 namespace impl {
 
-template <class HashT>
+template <class HashT, template <typename> typename MemoryPoolNotThreadSafety>
 class ExecutorProvider
-    : public IExecutorProvider<HashT, common::MemoryPoolNotThreadSafety> {
+    : public IExecutorProvider<HashT, MemoryPoolNotThreadSafety> {
   public:
     explicit ExecutorProvider(boost::asio::thread_pool& thread_pool)
         : thread_pool_(thread_pool) {}
@@ -50,22 +49,22 @@ class ExecutorProvider
     std::unordered_map<std::size_t, std::atomic<bool>> flags_;
 };
 
-template <typename HashT>
+template <typename HashT, template <typename> typename MemoryPoolNotThreadSafety>
 class ExecutorProviderBuilder {
   public:
     explicit ExecutorProviderBuilder(
-        common::MemoryPoolNotThreadSafety<ExecutorProvider<HashT>>& pool,
+        MemoryPoolNotThreadSafety<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool,
         boost::asio::thread_pool& thread_pool)
         : pool_(pool), thread_pool_(thread_pool) {}
 
-    boost::intrusive_ptr<ExecutorProvider<HashT>> build() {
+    boost::intrusive_ptr<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>> build() {
         auto* obj = pool_.Allocate(thread_pool_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<ExecutorProvider<HashT>>(obj);
+        return boost::intrusive_ptr<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    common::MemoryPoolNotThreadSafety<ExecutorProvider<HashT>>& pool_;
+    MemoryPoolNotThreadSafety<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool_;
     boost::asio::thread_pool& thread_pool_;
 };
 }  // namespace impl

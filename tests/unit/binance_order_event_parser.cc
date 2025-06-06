@@ -5,7 +5,7 @@
 #include "aoe/aoe.h"
 #include "aoe/binance/parser/json/ws/order_response/order_event_parser.h"
 #include "aos/aos.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 
 TEST(OrderEventParserTest, ParsesBinanceExecutionReportNewEvent) {
     using Price = double;

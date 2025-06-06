@@ -18,10 +18,10 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
 aos
-aot
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium
+fmt
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

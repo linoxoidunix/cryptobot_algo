@@ -1,8 +1,8 @@
 #include <unordered_map>
 
 #include "aos/sum_tracker/i_sum_tracker.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+#include "aos/common/mem_pool.h"
 namespace aos {
 namespace impl {
 template <typename HashT, typename T>

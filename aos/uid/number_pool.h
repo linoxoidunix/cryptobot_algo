@@ -3,7 +3,7 @@
 #include <queue>
 
 #include "aos/uid/i_number_pool.h"
-#include "aot/common/mem_pool.h"
+#include "aos/common/mem_pool.h"
 
 namespace aos {
 namespace impl {
