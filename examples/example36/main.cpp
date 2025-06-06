@@ -7,8 +7,9 @@
 #include "aos/aos.h"
 #include "aos/common/exchange_id.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aot/Logger.h"
-#include "aot/common/mem_pool.h"
+#include "fmtlog.h"
+#include "aos/logger/logger.h"
+#include "aos/common/mem_pool.h"
 
 namespace str {
 struct Config {
