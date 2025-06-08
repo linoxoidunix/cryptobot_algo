@@ -19,12 +19,6 @@ int main() {
 
         boost::asio::thread_pool thread_pool;
         
-        //Strategy<HashT, Price> strategy;
-        //aos::impl::SlidingWindowStorageAvgDevMinMax<HashT, Price> sliding_window(5);
-        
-        //aos::impl::MutualInformationCalculator<HashT, Price> mi_calculator_default; 
-        // mi_calculator stop init
-        
         aos::strategies::deviation_and_mutual_information::Strategy<HashT, Price> strategy(5, market_triplet_manager);
         
         StrategyEngineDefault<HashT, Price> strategy_engine(
