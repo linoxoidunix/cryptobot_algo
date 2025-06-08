@@ -10,7 +10,7 @@ template <typename HashT, typename T, template <typename> class MemoryPool>
 class ISlidingWindowStorage;
 
 template <typename HashT, typename T>
-class SlidingWindowStorageInterface;
+class SlidingWindowStorageAvgDevMinMaxInterface;
 }  // namespace aos
 
 namespace aos {
@@ -27,7 +27,7 @@ class MutualInformationCalculatorInterface {
                                        T y_min_value, T y_max_value,
                                        int bins) const = 0;
     virtual std::pair<bool, T> ComputeMutualInformation(
-        SlidingWindowStorageInterface<HashT, T>& sliding_window_storage,
+        SlidingWindowStorageAvgDevMinMaxInterface<HashT, T>& sliding_window_storage,
         HashT hash_asset, HashT paired_asset, int bins) const = 0;
 };
 

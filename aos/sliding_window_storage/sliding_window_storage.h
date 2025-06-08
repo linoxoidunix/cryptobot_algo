@@ -1,6 +1,7 @@
+#pragma once
 #include <list>
 #include <unordered_map>
-
+#include "boost/hana.hpp"
 #include "aos/executer_provider/executor_provider.h"
 #include "aos/executer_provider/i_executor_provider.h"
 #include "aos/sliding_window_storage/i_sliding_window_storage.h"
@@ -9,7 +10,7 @@ namespace aos {
 namespace impl {
 template <typename HashT, typename T>
 class SlidingWindowStorageDefault
-    : public aos::SlidingWindowStorageInterface<HashT, T> {
+    : public aos::SlidingWindowStorageAvgDevMinMaxInterface<HashT, T> {
     int window_size_;
     std::unordered_map<HashT, std::deque<T>> data_;
     AvgTrackerInterface<HashT, T>& avg_tracker_;
@@ -612,79 +613,79 @@ class SlidingWindowStorageObservableBuilder {
     boost::asio::thread_pool& thread_pool_;
 };
 
-template <template <typename> typename MemoryPoolNotThreadSafety>
-struct SlidingWindowStorageFactory {
-    SlidingWindowStorageFactory(boost::asio::thread_pool& _thread_pool)
-        : thread_pool(_thread_pool) {}
-    boost::asio::thread_pool& thread_pool;
-    MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>>
-        hc_pool{2};
-    MemoryPoolNotThreadSafety<
-        aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>>
-        jhc_pool{2};
-    MemoryPoolNotThreadSafety<
-        aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>>
-        mi_pool{2};
-    MemoryPoolNotThreadSafety<
-        aos::impl::SlidingWindowStorageObservable<std::size_t, double, MemoryPoolNotThreadSafety>>
-        sw_pool{2};
-    MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>>
-        mt_pool{2};
-    MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double, MemoryPoolNotThreadSafety>>
-        avg_pool{2};
-    MemoryPoolNotThreadSafety<
-        aos::impl::DeviationTracker<size_t, double, MemoryPoolNotThreadSafety>>
-        deviation_pool{2};
-    MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double, MemoryPoolNotThreadSafety>>
-        min_pool{2};
-    MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double, MemoryPoolNotThreadSafety>>
-        max_pool{2};
-    MemoryPoolNotThreadSafety<aos::impl::ExecutorProvider<size_t, MemoryPoolNotThreadSafety>>
-        exec_prov_pool{2};
-    auto Create() {
-        auto hist_calculator =
-            aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(hc_pool);
-        auto joint_hist_calculator =
-            aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(jhc_pool);
-        auto mi_calculator =
-            aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>::Create(
-                mi_pool, hist_calculator, joint_hist_calculator);
+// template <template <typename> typename MemoryPoolNotThreadSafety>
+// struct SlidingWindowStorageFactory {
+//     SlidingWindowStorageFactory(boost::asio::thread_pool& _thread_pool)
+//         : thread_pool(_thread_pool) {}
+//     boost::asio::thread_pool& thread_pool;
+//     MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>>
+//         hc_pool{2};
+//     MemoryPoolNotThreadSafety<
+//         aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>>
+//         jhc_pool{2};
+//     MemoryPoolNotThreadSafety<
+//         aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>>
+//         mi_pool{2};
+//     MemoryPoolNotThreadSafety<
+//         aos::impl::SlidingWindowStorageObservable<std::size_t, double, MemoryPoolNotThreadSafety>>
+//         sw_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>>
+//         mt_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//         avg_pool{2};
+//     MemoryPoolNotThreadSafety<
+//         aos::impl::DeviationTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//         deviation_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//         min_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//         max_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::ExecutorProvider<size_t, MemoryPoolNotThreadSafety>>
+//         exec_prov_pool{2};
+//     auto Create() {
+//         auto hist_calculator =
+//             aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(hc_pool);
+//         auto joint_hist_calculator =
+//             aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(jhc_pool);
+//         auto mi_calculator =
+//             aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>::Create(
+//                 mi_pool, hist_calculator, joint_hist_calculator);
 
-        auto avg_tracker =
-            aos::impl::AvgTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(avg_pool).build();
-        auto deviation_tracker =
-            aos::impl::DeviationTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(
-                deviation_pool)
-                .SetAvgTracker(avg_tracker)
-                .build();
-        auto minimum_tracker =
-            aos::impl::MinTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(min_pool).build();
-        auto maximum_tracker =
-            aos::impl::MaxTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(max_pool).build();
+//         auto avg_tracker =
+//             aos::impl::AvgTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(avg_pool).build();
+//         auto deviation_tracker =
+//             aos::impl::DeviationTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(
+//                 deviation_pool)
+//                 .SetAvgTracker(avg_tracker)
+//                 .build();
+//         auto minimum_tracker =
+//             aos::impl::MinTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(min_pool).build();
+//         auto maximum_tracker =
+//             aos::impl::MaxTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(max_pool).build();
 
-        auto market_triplet_manager =
-            aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>::Create(mt_pool);
+//         auto market_triplet_manager =
+//             aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>::Create(mt_pool);
 
-        auto executor_provider =
-            aos::impl::ExecutorProviderBuilder<std::size_t, MemoryPoolNotThreadSafety>(exec_prov_pool,
-                                                            thread_pool)
-                .build();
+//         auto executor_provider =
+//             aos::impl::ExecutorProviderBuilder<std::size_t, MemoryPoolNotThreadSafety>(exec_prov_pool,
+//                                                             thread_pool)
+//                 .build();
 
-        auto sliding_window_storage =
-            aos::impl::SlidingWindowStorageObservableBuilder<std::size_t,
-                                                             double, MemoryPoolNotThreadSafety>(
-                sw_pool, thread_pool)
-                .SetWindowSize(5)
-                .SetDeviationTracker(deviation_tracker)
-                .SetMinTracker(minimum_tracker)
-                .SetMaxTracker(maximum_tracker)
-                .SetAvgTracker(avg_tracker)
-                .SetExecutorProvider(executor_provider)
-                .Build();
-        return std::make_tuple(
-            std::move(sliding_window_storage), std::move(mi_calculator),
-            std::move(deviation_tracker), std::move(market_triplet_manager));
-    }
-};
+//         auto sliding_window_storage =
+//             aos::impl::SlidingWindowStorageObservableBuilder<std::size_t,
+//                                                              double, MemoryPoolNotThreadSafety>(
+//                 sw_pool, thread_pool)
+//                 .SetWindowSize(5)
+//                 .SetDeviationTracker(deviation_tracker)
+//                 .SetMinTracker(minimum_tracker)
+//                 .SetMaxTracker(maximum_tracker)
+//                 .SetAvgTracker(avg_tracker)
+//                 .SetExecutorProvider(executor_provider)
+//                 .Build();
+//         return std::make_tuple(
+//             std::move(sliding_window_storage), std::move(mi_calculator),
+//             std::move(deviation_tracker), std::move(market_triplet_manager));
+//     }
+// };
 };  // namespace impl
 };  // namespace aos

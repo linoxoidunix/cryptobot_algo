@@ -7,7 +7,7 @@
 namespace aos {
 namespace impl {
 template <typename HashT, typename T>
-class Strategy : public StrategyInterface<HashT, T> {
+class Strategy : public CoreStrategyInterface<HashT, T> {
     std::list<std::function<void(std::queue<HashT>& queue_to_buy,
                                  const HashT hasht, const T& value)>>
         actions_to_buy_;
@@ -27,7 +27,7 @@ class Strategy : public StrategyInterface<HashT, T> {
                               observer) override {
         actions_to_sell_.push_back(observer);
     }
-    void AnalyzeToBuy(const HashT asset, const T& value) {
+    void AnalyzeToBuy(const HashT asset, const T& value) override{
         std::queue<HashT> assets_to_buy;
         assets_to_buy.push(asset);
         auto begin = actions_to_buy_.begin();
@@ -46,7 +46,7 @@ class Strategy : public StrategyInterface<HashT, T> {
         }
     }
 
-    void AnalyzeToSell(const HashT asset, const T& value) {
+    void AnalyzeToSell(const HashT asset, const T& value) override{
         std::queue<HashT> assets_to_sell;
         assets_to_sell.push(asset);
         auto begin = actions_to_sell_.begin();

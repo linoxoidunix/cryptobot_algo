@@ -11,22 +11,18 @@ class StrategyEngineDefault : public StrategyEngineInterface<HashT, T> {
     boost::asio::strand<boost::asio::thread_pool::executor_type>
         strand_;  // Strand для последовательного выполнения
     StrategyInterface<HashT, T>& strategy_;
-    SlidingWindowStorageInterface<HashT, T>& sliding_window_storage_;
-
   public:
     StrategyEngineDefault(
         boost::asio::thread_pool& thread_pool,
-        StrategyInterface<HashT, T>& strategy,
-        SlidingWindowStorageInterface<HashT, T>& sliding_window_storage)
+        StrategyInterface<HashT, T>& strategy)
         : strand_(boost::asio::make_strand(thread_pool.get_executor())),
-          strategy_(strategy),
-          sliding_window_storage_(sliding_window_storage) {}
+          strategy_(strategy) {}
     void AddData(const HashT asset, const T& value) override {
         logi("Add hash:{} value:{} to strand", asset, value);
         boost::asio::post(strand_, [this, asset, value]() {
             strategy_.AnalyzeToBuy(asset, value);
             strategy_.AnalyzeToSell(asset, value);
-            sliding_window_storage_.AddData(asset, value);
+            strategy_.AddData(asset, value);
         });
     }
     void Wait() {

@@ -1,18 +1,13 @@
-#include <thread>
-
-#include "fmtlog.h"
-// #include "fmt/core.h"
-// #include "fmt/ranges.h"
 #include <iostream>
+#include <string>
 
-int main(int argc, char** argv) {
-    fmtlog::setLogLevel(fmtlog::LogLevel::DBG);
-    {
-       auto srrr = fmt::format("hello {}", "world");
-       logd("bhjbhjbhjbh");
-        //logd("asdasd");
-        std::cout << srrr << "\n";
+int main() {
+    while(true){
+    std::string name;
+    std::cout << "Введите ваше имя: ";
+    std::getline(std::cin, name); // считывает строку с пробелами
+
+    std::cout << "Доброе утро, " << name << "!" << std::endl;
     }
-    fmtlog::poll();
     return 0;
 }

@@ -46,7 +46,7 @@ class Strategy {
                         "on best bid "
                         "change");
                 });
-        bool status_set_cb_on_best_change = infra_.SetCallbackOnBestAskChange(
+        bool status_set_cb_on_best_ask_change = infra_.SetCallbackOnBestAskChange(
             config_.trading_pair, [](const aos::BestAsk<Price, Qty>& new_bid) {
                 logi(
                     "[MY_ULTIMATE_FUTURES_STRATEGY] invoke callback on "
@@ -54,7 +54,7 @@ class Strategy {
                     "change");
             });
         strategy_init_success_ =
-            status_set_cb_on_best_bid_change & status_set_cb_on_best_change;
+            status_set_cb_on_best_bid_change & status_set_cb_on_best_ask_change;
     }
 };
 };  // namespace str
