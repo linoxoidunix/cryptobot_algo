@@ -1,5 +1,7 @@
 #pragma once
 #include <string_view>
+#include <cstdint>
+
 namespace aoe {
 namespace binance {
 constexpr std::string_view kContentType = "application/x-www-form-urlencoded";
@@ -42,12 +44,14 @@ constexpr std::string_view kWSHost1 = "fstream.binance.com";
 };  // namespace main_net
 
 enum class ExecType { kTrade, kUnknown };
-enum class Category {
+enum class Category : uint8_t {
     kInvalid,
     kSpot,
     kFutures,  //?
     // kOption
 };
+
+using CategoryRaw = std::underlying_type_t<Category>;
 
 // enum class OrderType {
 //     kUnknown,
@@ -199,3 +203,12 @@ enum class DiffUpdateSpeed_ms { k100, k250, k500 };
 // };
 };  // namespace binance
 };  // namespace aoe
+
+namespace std {
+template <>
+struct hash<aoe::binance::Category> {
+    std::underlying_type_t<aoe::binance::Category> operator()(aoe::binance::Category pair) const {
+        return static_cast<std::underlying_type_t<aoe::binance::Category>>(pair);
+    }
+};
+};  // namespace std

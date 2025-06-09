@@ -10,6 +10,9 @@ enum class Category {
     // kOption
 };
 
+using CategoryRaw = std::underlying_type_t<Category>;
+
+
 // enum class OrderType {
 //     kUnknown,
 //     kMarket,
@@ -156,3 +159,12 @@ enum class Depth { k25, k100 };
 };
 };  // namespace bybit
 };  // namespace aoe
+
+namespace std {
+template <>
+struct hash<aoe::bybit::Category> {
+    std::underlying_type_t<aoe::bybit::Category> operator()(aoe::bybit::Category pair) const {
+        return static_cast<std::underlying_type_t<aoe::bybit::Category>>(pair);
+    }
+};
+};  // namespace std
