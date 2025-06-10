@@ -31,7 +31,8 @@ namespace aoe {
 namespace impl {
 class RestSessionRW : public RestSessionWritableInterface,
                       public RestSessionReadableInterface {
-    /**
+    bool session_ready_ = false;
+                        /**
      * @brief req variable must manage only via SetRequest() method
      *
      */
@@ -83,7 +84,7 @@ class RestSessionRW : public RestSessionWritableInterface,
         net::dispatch(ioc_, [this, req = std::move(message)]() mutable {
             message_queue_.try_enqueue(std::move(req));
             logd("https3 enquee message");
-            // StartProcessing();
+            StartProcessing();
         });
     };
     ~RestSessionRW() override = default;
@@ -130,7 +131,10 @@ class RestSessionRW : public RestSessionWritableInterface,
     void StartProcessing() {
         boost::asio::co_spawn(
             strand_,
-            [this]() -> net::awaitable<void> { co_await RequestLoop(); },
+            [this]() -> net::awaitable<void> { 
+                if(!session_ready_)
+                    co_return;
+                co_await RequestLoop(); },
             net::detached);
     }
     net::awaitable<void> Run(const char* host, const char* port) {
@@ -161,6 +165,7 @@ class RestSessionRW : public RestSessionWritableInterface,
         }
 
         timer_.cancel();
+        session_ready_ = true;
         co_spawn(strand_, RequestLoop(), net::detached);
         co_return;
     }

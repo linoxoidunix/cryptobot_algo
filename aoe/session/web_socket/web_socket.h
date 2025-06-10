@@ -17,10 +17,10 @@
 
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aoe/session/web_socket/i_web_socket.h"
-#include "fmtlog.h"
 #include "boost/asio.hpp"
 #include "boost/asio/awaitable.hpp"
 #include "boost/asio/this_coro.hpp"
+#include "fmtlog.h"
 
 namespace beast     = boost::beast;          // from <boost/beast.hpp>
 namespace http      = beast::http;           // from <boost/beast/http.hpp>
@@ -33,7 +33,8 @@ namespace aoe {
 namespace impl {
 class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                            public WebSocketSessionReadableInterface {
-    /**
+    bool session_ready_ = false;
+                            /**
      * @brief req variable must manage only via SetRequest() method
      *
      */
@@ -73,11 +74,16 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
           timer_(ioc),  // Initialize the timer
           response_queue_(response_queue),
           listener_(listener) {
+        // net::co_spawn(ioc_,
+        //               Run(host.data(), port.data(), default_endpoint.data()),
+        //               [](std::exception_ptr e) {
+        //                   if (e) std::rethrow_exception(e);
+        //               });
         net::co_spawn(ioc_,
                       Run(host.data(), port.data(), default_endpoint.data()),
-                      [](std::exception_ptr e) {
-                          if (e) std::rethrow_exception(e);
-                      });
+                      net::detached  // <-- Игнорируем исключения, корутина
+                                     // выполняется "в фоне"
+        );
     }
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {
@@ -146,6 +152,7 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
             co_return;
         }
         timer_.cancel();
+        session_ready_ = true;
         co_spawn(ioc_, WriteLoop(), net::detached);
         co_spawn(ioc_, ReadLoop(), net::detached);
         co_return;
@@ -241,7 +248,10 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
     }
     void StartWrite() {
         boost::asio::co_spawn(
-            strand_, [this]() -> net::awaitable<void> { co_await WriteLoop(); },
+            ioc_, [this]() -> net::awaitable<void> { 
+                if(!session_ready_)
+                    co_return;
+                co_await WriteLoop(); },
             net::detached);
     }
     // Close the session gracefully
@@ -249,6 +259,7 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
 };
 
 class WebSocketSessionW : public WebSocketSessionWritableInterface {
+    bool session_ready_ = false;
     /**
      * @brief req variable must manage only via SetRequest() method
      *
@@ -353,6 +364,7 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
             co_return;
         }
         timer_.cancel();
+        session_ready_ = false;
         co_spawn(ioc_, WriteLoop(), net::detached);
         co_spawn(ioc_, ReadLoop(), net::detached);
         co_return;
@@ -440,7 +452,10 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
     }
     void StartWrite() {
         boost::asio::co_spawn(
-            strand_, [this]() -> net::awaitable<void> { co_await WriteLoop(); },
+            strand_, [this]() -> net::awaitable<void> { 
+                if(!session_ready_)
+                    co_return;
+                co_await WriteLoop(); },
             net::detached);
     }
     // Close the session gracefully
