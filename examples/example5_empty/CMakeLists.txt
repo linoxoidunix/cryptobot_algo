@@ -1,5 +1,5 @@
 
-set (PROJECT_NAME example5)
+set (PROJECT_NAME example5_empty)
 project(${PROJECT_NAME})
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
@@ -22,6 +22,7 @@ magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium
 fmt
+fmtlog-static
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

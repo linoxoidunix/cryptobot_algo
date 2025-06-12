@@ -1,0 +1,108 @@
+name: CMake on a single platform with latest Boost
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        submodules: 'recursive'
+
+    - name: Install GCC 14
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update
+        apt-get install -y tzdata software-properties-common wget gnupg2 lsb-release build-essential
+        ln -fs /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+        dpkg-reconfigure --frontend noninteractive tzdata
+
+        add-apt-repository ppa:ubuntu-toolchain-r/test -y
+        apt-get update
+        apt-get install -y gcc-14 g++-14
+
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 14
+
+        gcc --version
+        g++ --version
+
+    - name: Install system dependencies
+      run: |
+        apt-get update
+        apt-get install -y \
+          build-essential \
+          cmake \
+          git \
+          curl \
+          libssl-dev \
+          python3-dev \
+          libcurl4-openssl-dev \
+          libuv1-dev \
+          librdkafka-dev \
+          protobuf-compiler \
+          libprotobuf-dev \
+          ninja-build
+
+    - name: Download and install latest Boost
+      run: |
+        echo "⏳ Fetching latest Boost release info..."
+        HTML=$(curl -s https://www.boost.org/releases/latest/)
+        BOOST_URL=$(echo "$HTML" | grep -oP 'https://[^"]+boost_1_[0-9_]+\.tar\.gz' | head -n 1)
+        BOOST_FILE=$(basename "$BOOST_URL")
+        BOOST_DIR="${BOOST_FILE%.tar.gz}"
+        HASH=$(echo "$HTML" | tr '\n' ' ' | grep -oP "${BOOST_FILE}.*?title=\"\K[a-f0-9]{64}")
+
+        if [[ -z "$BOOST_URL" || -z "$HASH" ]]; then
+          echo "❌ Failed to find Boost archive or SHA256 hash"
+          exit 1
+        fi
+
+        echo "📥 Downloading Boost: $BOOST_FILE"
+        curl -LO "$BOOST_URL"
+
+        echo "🔍 Verifying SHA256..."
+        LOCAL_HASH=$(sha256sum "$BOOST_FILE" | awk '{print $1}')
+        if [[ "$HASH" != "$LOCAL_HASH" ]]; then
+          echo "❌ SHA256 mismatch: $LOCAL_HASH != $HASH"
+          exit 1
+        fi
+
+        echo "✅ SHA256 verified. Extracting..."
+        tar -xzf "$BOOST_FILE"
+
+        echo "🔧 Installing Boost..."
+        cd "$BOOST_DIR"
+        ./bootstrap.sh
+        ./b2 install --prefix=$GITHUB_WORKSPACE/boost_libs
+        echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost_libs" >> $GITHUB_ENV
+
+    - name: Git Submodule Update
+      run: git submodule update --force --recursive --init --remote
+
+    - name: Configure CMake DBG
+      run: cmake --preset configure_dbg
+
+    - name: Configure CMake RELEASE
+      run: cmake --preset configure_release
+
+    - name: Build DBG
+      run: cmake --build --preset build_dbg -- -j$(nproc)
+
+    - name: Build RELEASE
+      run: cmake --build --preset build_release -- -j$(nproc)
+
+    - name: Run Tests
+      run: ctest --preset tests

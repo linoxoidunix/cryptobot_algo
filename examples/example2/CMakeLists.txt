@@ -21,6 +21,8 @@ aos
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium
+fmt
+fmtlog-static
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
