@@ -15,6 +15,10 @@ jobs:
     container:
       image: ubuntu:24.04
     steps:
+    - name: Install Git
+      run: |
+        apt update
+        apt install -y git
     - name: Checkout
       uses: actions/checkout@v4
       with:
@@ -45,7 +49,6 @@ jobs:
         apt-get install -y \
           build-essential \
           cmake \
-          git \
           curl \
           libssl-dev \
           python3-dev \
@@ -89,8 +92,8 @@ jobs:
         ./b2 install --prefix=$GITHUB_WORKSPACE/boost_libs
         echo "BOOST_ROOT=$GITHUB_WORKSPACE/boost_libs" >> $GITHUB_ENV
 
-    - name: Git Submodule Update
-      run: git submodule update --force --recursive --init --remote
+    # - name: Git Submodule Update
+    #   run: git submodule update --force --recursive --init --remote
 
     - name: Configure CMake DBG
       run: cmake --preset configure_dbg
