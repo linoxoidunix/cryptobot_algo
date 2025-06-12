@@ -7,6 +7,7 @@
 #include <new>  // For placement new
 #include <string>
 #include <vector>
+#include "fmtlog.h"
 
 namespace common {
 template <typename T>

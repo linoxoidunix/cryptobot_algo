@@ -5,6 +5,7 @@
 #include "aos/uid/unique_id_generator.h"
 #include "aos/common/mem_pool.h"
 #include "boost/intrusive_ptr.hpp"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {

@@ -4,6 +4,7 @@
 
 #include "aos/uid/i_number_pool.h"
 #include "aos/common/mem_pool.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace impl {

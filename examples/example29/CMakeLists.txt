@@ -18,8 +18,8 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
 aos
-fmt
 fmtlog-static
+fmt
 magic_enum::magic_enum
 tomlplusplus::tomlplusplus
 sodium
