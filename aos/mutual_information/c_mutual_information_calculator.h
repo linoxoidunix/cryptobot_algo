@@ -75,7 +75,7 @@ class MutualInformationCalculator
 
     std::pair<bool, T> ComputeMutualInformation(
         SlidingWindowStorageAvgDevMinMaxInterface<HashT, T>& window_storage,
-        size_t hash_asset, size_t paired_asset, int bins) const override {
+        HashT hash_asset, HashT paired_asset, int bins) const override {
         // Проверяем, есть ли достаточно данных для обоих активов
         if (!window_storage.HasEnoughData(hash_asset) ||
             !window_storage.HasEnoughData(paired_asset)) {

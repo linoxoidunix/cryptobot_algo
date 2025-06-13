@@ -8,6 +8,9 @@
 #include "aos/sliding_window_storage/c_sliding_window_storage.h"
 #include "aos/strategy/i_strategy.h"
 #include "aos/strategy/strategy.h"
+#include "aos/strategies/deviation_and_mutual_info/config.h"
+#include "aos/hash_utils/decompose_hash.h"
+#include "fmtlog.h"
 
 namespace aos {
 namespace strategies {
@@ -18,34 +21,33 @@ class Strategy : public StrategyInterface<HashT, T>{
     impl::SlidingWindowStorageAvgDevMinMax<HashT, T> sliding_window_;
     impl::MutualInformationCalculator<HashT, T> mi_calculator_;
     MarketTripletManagerInterface<HashT>& market_triplet_manager_;
-
+    const Config<HashT>& config_;
   private:
     void InitBuyActions() {
         core_strategy_.AddActionsToBuy(
-            [](std::queue<size_t>& queue, size_t hash, const double& value) {
-                if (hash == 1) {
+            [this](std::queue<HashT>& queue, HashT hash, const T& value) {
+                if (hash == config_.allowed_asset_hash) {
                     logi("start analise hash:{} value:{}", hash, value);
                     queue.push(hash);
                 }
             });
 
-        core_strategy_.AddActionsToBuy([this](std::queue<size_t>& queue, size_t hash,
-                                        const double& value) {
+        core_strategy_.AddActionsToBuy([this](std::queue<HashT>& queue, HashT hash,
+                                        const T& value) {
             auto [_, ratio] = sliding_window_.GetDeviationRatio(hash, value);
-            auto dev        = sliding_window_.GetDeviation(hash, value);
-            logi("Buy: hash:{} value:{} dev:{} ratio:{}", hash, value, dev,
-                 ratio);
+            auto [status_deviation, dev]        = sliding_window_.GetDeviation(hash, value);
+            logi("Buy: hash:{} value:{} dev:{} ratio:{}", hash, value, dev, ratio);
             if (ratio > 0.001) {
                 queue.push(hash);
             }
         });
 
-        core_strategy_.AddActionsToBuy([this](std::queue<size_t>& queue, size_t hash,
-                                        const double& value) {
+        core_strategy_.AddActionsToBuy([this](std::queue<HashT>& queue, HashT hash,
+                                        const T& value) {
             if (!market_triplet_manager_.HasPair(hash)) return;
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
-                    sliding_window_, hash, pair, 10);
+                    sliding_window_, hash, pair, config_.number_bins);
                 if (status && mi > 2) {
                     logi("Buy MI ({} <-> {}): {}", hash, pair, mi);
                     queue.push(pair);
@@ -54,23 +56,31 @@ class Strategy : public StrategyInterface<HashT, T>{
         });
 
         core_strategy_.AddActionsToBuy(
-            [](std::queue<size_t>& queue, size_t hash, const double& value) {
-                logi("Need buy hash:{} value:{}", hash, value);
+            [](std::queue<HashT>& queue, HashT hash, const T& value) {
+                common::ExchangeId exchange_id_1 = common::ExchangeId::kInvalid;
+                aos::NetworkEnvironment network_environment_1;
+                aos::CategoryRaw category_market_1;
+                aos::TradingPair trading_pair_1;
+                aos::DecomposeHash(hash, exchange_id_1, category_market_1,
+                                network_environment_1, trading_pair_1);
+                logi("need buy with hash={} with value={} on {} category={} {} {}",
+                    hash, value, exchange_id_1, category_market_1, network_environment_1,
+                    trading_pair_1);
             });
     };
     void InitSellActions() {
         core_strategy_.AddActionsToSell(
-            [](std::queue<size_t>& queue, size_t hash, const double& value) {
-                if (hash == 1) {
+            [this](std::queue<HashT>& queue, HashT hash, const T& value) {
+                if (hash == config_.allowed_asset_hash) {
                     logi("start analise hash:{} value:{}", hash, value);
                     queue.push(hash);
                 }
             });
 
-        core_strategy_.AddActionsToSell([this](std::queue<size_t>& queue, size_t hash,
-                                         const double& value) {
+        core_strategy_.AddActionsToSell([this](std::queue<HashT>& queue, HashT hash,
+                                         const T& value) {
             auto [_, ratio] = sliding_window_.GetDeviationRatio(hash, value);
-            auto dev        = sliding_window_.GetDeviation(hash, value);
+            auto [status_deviation, dev]        = sliding_window_.GetDeviation(hash, value);
             logi("Sell: hash:{} value:{} dev:{} ratio:{}", hash, value, dev,
                  ratio);
             if (ratio < 0.001) {
@@ -78,12 +88,12 @@ class Strategy : public StrategyInterface<HashT, T>{
             }
         });
 
-        core_strategy_.AddActionsToSell([this](std::queue<size_t>& queue, size_t hash,
-                                         const double& value) {
+        core_strategy_.AddActionsToSell([this](std::queue<HashT>& queue, HashT hash,
+                                         const T& value) {
             if (!market_triplet_manager_.HasPair(hash)) return;
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
-                    sliding_window_, hash, pair, 10);
+                    sliding_window_, hash, pair, config_.number_bins);
                 if (status && mi > 2) {
                     logi("Sell MI ({} <-> {}): {}", hash, pair, mi);
                     queue.push(pair);
@@ -92,15 +102,24 @@ class Strategy : public StrategyInterface<HashT, T>{
         });
 
         core_strategy_.AddActionsToSell(
-            [](std::queue<size_t>& queue, size_t hash, const double& value) {
-                logi("Need sell hash:{} value:{}", hash, value);
+            [](std::queue<HashT>& queue, HashT hash, const T& value) {
+                common::ExchangeId exchange_id_1 = common::ExchangeId::kInvalid;
+                aos::NetworkEnvironment network_environment_1;
+                aos::CategoryRaw category_market_1;
+                aos::TradingPair trading_pair_1;
+                aos::DecomposeHash(hash, exchange_id_1, category_market_1,
+                                network_environment_1, trading_pair_1);
+                logi("need sell with hash={} with value={} on {} category={} {} {}",
+                    hash, value, exchange_id_1, category_market_1, network_environment_1,
+                    trading_pair_1);
             });
     }
 
   public:
-    Strategy(int window_size, MarketTripletManagerInterface<HashT>& market_triplet_manager) :
-     sliding_window_(window_size),
-     market_triplet_manager_(market_triplet_manager) {
+    Strategy(MarketTripletManagerInterface<HashT>& market_triplet_manager, const Config<HashT>& config) :
+     sliding_window_(config.window_size),
+     market_triplet_manager_(market_triplet_manager),
+     config_(config) {
         InitBuyActions();
         InitSellActions();
     }
