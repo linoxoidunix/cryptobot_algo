@@ -1,118 +1,328 @@
 #pragma once
-// #include <memory>
-// #include <thread>
-// #include <unordered_map>
+#include <memory>
+#include <thread>
+#include <unordered_map>
 
-// // #include "aoe/binance/enums/enums.h"
-// // #include "aoe/bybit/infrastructure/i_infrastructure.h"
-// // #include "aos/common/network_environment.h"
-// // #include "aos/trading_pair/trading_pair.h"
-// #include "aoe/aoe.h"
-// #include "aos/aos.h"
-// #include "concurrentqueue.h"
+#include "aoe/bybit/infrastructure/i_infrastructure.h"
+#include "aoe/bybit/order_book_sync/order_book_sync.h"
+#include "aoe/bybit/response_queue_listener/json/ws/order_book_response/listener.h"
+#include "aoe/bybit/session/web_socket/web_socket.h"
+#include "aoe/bybit/subscription_builder/subscription_builder.h"
+#include "aos/order_book/order_book.h"
+#include "aos/order_book_level/order_book_level.h"
+#include "aos/order_book_subscriber/order_book_subscribers.h"
+#include "aos/trading_pair/trading_pair.h"
 
-// namespace aoe {
-// namespace binance {
-// namespace impl {
-// namespace main_net {
-// namespace spot {
+#include "concurrentqueue.h"
 
-// template <typename Price, typename Qty,
-//           template <typename> typename MemoryPoolThreadSafety,
-//           template <typename> typename MemoryPool>
-// struct OrderBookInfraContextDefault {
-//     moodycamel::ConcurrentQueue<std::vector<char>> queue;
-//     boost::asio::io_context ioc;
-//     std::jthread thread;
+namespace aoe {
+namespace bybit {
+namespace impl {
+namespace main_net {
+namespace spot {
 
-//     // Указатели потому что некоторые классы не копируются/не перемещаются
-//     std::unique_ptr<aos::OrderBookEventListener<
-//         double, double, common::MemoryPoolThreadSafety,
-//         std::unordered_map<double, aos::OrderBookLevel<double, double>*>>>
-//         order_book;
+template <typename Price, typename Qty,
+          template <typename> typename MemoryPoolThreadSafety,
+          template <typename> typename MemoryPool>
+struct OrderBookInfraContextDefault {
+    moodycamel::ConcurrentQueue<std::vector<char>> queue;
+    boost::asio::io_context ioc;
 
-//     std::unique_ptr<
-//         aos::OrderBookNotifier<double, double,
-//         common::MemoryPoolThreadSafety>> notifier;
+    // Указатели потому что некоторые классы не копируются/не перемещаются
+    std::unique_ptr<aos::OrderBookEventListener<
+        Price, Qty, MemoryPoolThreadSafety,
+        std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>
+        order_book;
 
-//     std::unique_ptr<aoe::binance::impl::main_net::spot::OrderBookSync<
-//         double, double, common::MemoryPoolThreadSafety,
-//         std::unordered_map<double, aos::OrderBookLevel<double, double>*>>>
-//         sync;
+    std::unique_ptr<aos::OrderBookNotifier<Price, Qty, MemoryPoolThreadSafety>>
+        notifier;
 
-//     std::unique_ptr<aoe::binance::impl::diff_response::spot::Listener<
-//         double, double, common::MemoryPoolThreadSafety>>
-//         listener;
+    std::unique_ptr<aoe::bybit::impl::OrderBookSync<
+        Price, Qty, MemoryPoolThreadSafety,
+        std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>
+        sync;
 
-//     std::unique_ptr<
-//         aoe::binance::impl::main_net::spot::order_book_channel::SessionRW>
-//         session;
-// };
+    std::unique_ptr<aos::BestBidNotifierInterface<Price, Qty>>
+        best_bid_notifier;
 
-// class Infrastructure : public InfrastructureInterface {
-//   public:
-//     explicit Infrastructure(boost::asio::thread_pool& pool) : pool_(pool) {}
+    std::unique_ptr<aos::BestAskNotifierInterface<Price, Qty>>
+        best_ask_notifier;
 
-//     void Register(aos::TradingPair trading_pair) override {
-//         if (contexts_.contains(trading_pair)) return;
+    std::unique_ptr<aoe::bybit::impl::order_book_response::Listener<
+        Price, Qty, MemoryPoolThreadSafety>>
+        listener;
+    std::unique_ptr<
+        aoe::bybit::impl::main_net::spot::order_book_channel::SessionRW>
+        session;
+    std::unique_ptr<aoe::SubscriptionBuilderInterface>
+        diff_subscription_builder;
+    std::jthread thread;
+};
 
-//         OrderBookInfraContext context;
-//         auto& queue        = context.queue;
+template <typename Price, typename Qty,
+          template <typename> typename MemoryPoolThreadSafety,
+          template <typename> typename MemoryPool>
+class Infrastructure
+    : public aoe::bybit::spot::main_net::InfrastructureInterface,
+      public aoe::bybit::spot::main_net::InfrastructureNotifierInterface<
+          Price, Qty> {
+  public:
+    explicit Infrastructure(boost::asio::thread_pool& pool) : pool_(pool) {}
+    ~Infrastructure() override = default;
+    void Register(aos::TradingPair trading_pair) override {
+        if (contexts_.contains(trading_pair)) return;
 
-//         context.order_book = std::make_unique<aos::OrderBookEventListener<
-//             double, double, common::MemoryPoolThreadSafety,
-//             std::unordered_map<double, aos::OrderBookLevel<double,
-//             double>*>>>( pool_, 1000);
+        auto context_ptr   = std::make_shared<OrderBookInfraContextDefault<
+              Price, Qty, MemoryPoolThreadSafety, MemoryPool>>();
+        auto& context      = *context_ptr;
+        auto& queue        = context.queue;
 
-//         context.notifier = std::make_unique<aos::OrderBookNotifier<
-//             double, double, common::MemoryPoolThreadSafety>>(
-//             *context.order_book);
+        context.order_book = std::make_unique<aos::OrderBookEventListener<
+            Price, Qty, MemoryPoolThreadSafety,
+            std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>(pool_,
+                                                                          1000);
 
-//         context.sync =
-//             std::make_unique<aoe::binance::impl::main_net::spot::OrderBookSync<
-//                 double, double, common::MemoryPoolThreadSafety,
-//                 std::unordered_map<double,
-//                                    aos::OrderBookLevel<double, double>*>>>(
-//                 pool_, *context.notifier);
+        context.notifier   = std::make_unique<
+              aos::OrderBookNotifier<Price, Qty, MemoryPoolThreadSafety>>(
+            *context.order_book);
 
-//         context.listener =
-//             std::make_unique<aoe::binance::impl::diff_response::spot::Listener<
-//                 double, double, common::MemoryPoolThreadSafety>>(pool_,
-//                 queue,
-//                                                                  *context.sync);
+        context.sync =
+            std::make_unique<aoe::bybit::impl::OrderBookSync<
+                Price, Qty, MemoryPoolThreadSafety,
+                std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>(
+                pool_, *context.notifier);
 
-//         context.session = std::make_unique<
-//             aoe::binance::impl::main_net::spot::order_book_channel::SessionRW>(
-//             context.ioc, queue, *context.listener);
+        context.best_bid_notifier =
+            std::make_unique<aos::impl::BestBidNotifier<Price, Qty>>(
+                pool_, *context.order_book);
 
-//         aoe::binance::impl::spot::DiffSubscriptionBuilder builder{
-//             *context.session, aoe::binance::spot::DiffUpdateSpeed_ms::k100,
-//             trading_pair};
-//         builder.Subscribe();
+        context.best_ask_notifier =
+            std::make_unique<aos::impl::BestAskNotifier<Price, Qty>>(
+                pool_, *context.order_book);
 
-//         // Add subscribers
-//         auto& notifier = *context.notifier;
-//         // notifier.AddSubscriber(
-//         //     aos::impl::BestBidOrBestAskNotifier<double, double>{
-//         //         pool_, *context.order_book});
-//         notifier.AddSubscriber(aos::impl::BestBidNotifier<double, double>{
-//             pool_, *context.order_book});
-//         notifier.AddSubscriber(aos::impl::BestAskNotifier<double, double>{
-//             pool_, *context.order_book});
+        context.listener =
+            std::make_unique<aoe::bybit::impl::order_book_response::Listener<
+                Price, Qty, MemoryPoolThreadSafety>>(pool_, queue,
+                                                     *context.sync);
 
-//         // run ioc
-//         context.thread =
-//             std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
+        context.session = std::make_unique<
+            aoe::bybit::impl::main_net::spot::order_book_channel::SessionRW>(
+            context.ioc, queue, *context.listener);
 
-//         contexts_.emplace(trading_pair, std::move(context));
-//     }
+        context.diff_subscription_builder =
+            std::make_unique<aoe::bybit::impl::spot::OrderBookSubscriptionBuilder>(
+                *context.session, aoe::bybit::spot::Depth::k200,
+                trading_pair);
+        context.diff_subscription_builder->Subscribe();
 
-//   private:
-//     boost::asio::thread_pool& pool_;
-//     std::unordered_map<aos::TradingPair, OrderBookInfraContext> contexts_;
-// };
-// };  // namespace spot
-// };  // namespace main_net
-// };  // namespace impl
-// };  // namespace binance
-// };  // namespace aoe
+        // Add subscribers
+        auto& notifier = *context.notifier;
+        // notifier.AddSubscriber(
+        //     aos::impl::BestBidOrBestAskNotifier<double, double>{
+        //         pool_, *context.order_book});
+        notifier.AddSubscriber(*context.best_bid_notifier);
+        notifier.AddSubscriber(*context.best_ask_notifier);
+
+        // run ioc
+        context.thread =
+            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
+        // std::this_thread::sleep_for(
+        //     std::chrono::seconds(100));  // спит 1 секунду
+        contexts_.emplace(trading_pair, context_ptr);
+    }
+    bool SetCallbackOnBestBidChange(
+        aos::TradingPair trading_pair,
+        std::function<void(aos::BestBid<Price, Qty>& new_bid)> cb) override {
+        auto it = contexts_.find(trading_pair);
+        if (it == contexts_.end() || !it->second ||
+            !it->second->best_bid_notifier) {
+            return false;
+        }
+        it->second->best_bid_notifier->SetCallback(std::move(cb));
+        return true;
+    }
+
+    bool SetCallbackOnBestAskChange(
+        aos::TradingPair trading_pair,
+        std::function<void(aos::BestAsk<Price, Qty>& new_ask)> cb) override {
+        auto it = contexts_.find(trading_pair);
+        if (it == contexts_.end() || !it->second ||
+            !it->second->best_ask_notifier) {
+            return false;
+        }
+        it->second->best_ask_notifier->SetCallback(std::move(cb));
+        return true;
+    }
+
+  private:
+    boost::asio::thread_pool& pool_;
+    std::unordered_map<aos::TradingPair,
+                       std::shared_ptr<OrderBookInfraContextDefault<
+                           Price, Qty, MemoryPoolThreadSafety, MemoryPool>>>
+        contexts_;
+};
+};  // namespace spot
+};  // namespace main_net
+
+namespace main_net {
+namespace linear {
+
+template <typename Price, typename Qty,
+          template <typename> typename MemoryPoolThreadSafety,
+          template <typename> typename MemoryPool>
+struct OrderBookInfraContextDefault {
+    moodycamel::ConcurrentQueue<std::vector<char>> queue;
+    boost::asio::io_context ioc;
+
+    // Указатели потому что некоторые классы не копируются/не перемещаются
+    std::unique_ptr<aos::OrderBookEventListener<
+        Price, Qty, MemoryPoolThreadSafety,
+        std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>
+        order_book;
+
+    std::unique_ptr<aos::OrderBookNotifier<Price, Qty, MemoryPoolThreadSafety>>
+        notifier;
+
+    std::unique_ptr<aoe::bybit::impl::OrderBookSync<
+        Price, Qty, MemoryPoolThreadSafety,
+        std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>
+        sync;
+
+    std::unique_ptr<aos::BestBidNotifierInterface<Price, Qty>>
+        best_bid_notifier;
+
+    std::unique_ptr<aos::BestAskNotifierInterface<Price, Qty>>
+        best_ask_notifier;
+
+    std::unique_ptr<aoe::bybit::impl::order_book_response::Listener<
+        Price, Qty, MemoryPoolThreadSafety>>
+        listener;
+    std::unique_ptr<
+        aoe::bybit::impl::main_net::linear::order_book_channel::SessionRW>
+        session;
+    std::unique_ptr<aoe::SubscriptionBuilderInterface>
+        diff_subscription_builder;
+    std::jthread thread;
+};
+
+template <typename Price, typename Qty,
+          template <typename> typename MemoryPoolThreadSafety,
+          template <typename> typename MemoryPool>
+class Infrastructure
+    : public aoe::bybit::linear::main_net::InfrastructureInterface,
+      public aoe::bybit::linear::main_net::InfrastructureNotifierInterface<
+          Price, Qty> {
+  public:
+    explicit Infrastructure(boost::asio::thread_pool& pool) : pool_(pool) {}
+    ~Infrastructure() override = default;
+    void Register(aos::TradingPair trading_pair) override {
+        if (contexts_.contains(trading_pair)) return;
+
+        auto context_ptr   = std::make_shared<OrderBookInfraContextDefault<
+              Price, Qty, MemoryPoolThreadSafety, MemoryPool>>();
+        auto& context      = *context_ptr;
+        auto& queue        = context.queue;
+
+        context.order_book = std::make_unique<aos::OrderBookEventListener<
+            Price, Qty, MemoryPoolThreadSafety,
+            std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>(pool_,
+                                                                          1000);
+
+        context.notifier   = std::make_unique<
+              aos::OrderBookNotifier<Price, Qty, MemoryPoolThreadSafety>>(
+            *context.order_book);
+
+        context.sync = std::make_unique<
+            aoe::bybit::impl::OrderBookSync<
+                Price, Qty, MemoryPoolThreadSafety,
+                std::unordered_map<Price, aos::OrderBookLevel<Price, Qty>*>>>(
+            pool_, *context.notifier);
+
+        context.best_bid_notifier =
+            std::make_unique<aos::impl::BestBidNotifier<Price, Qty>>(
+                pool_, *context.order_book);
+
+        context.best_ask_notifier =
+            std::make_unique<aos::impl::BestAskNotifier<Price, Qty>>(
+                pool_, *context.order_book);
+
+        context.listener =
+            std::make_unique<aoe::bybit::impl::order_book_response::Listener<Price, Qty, MemoryPoolThreadSafety>>(
+                pool_, queue, *context.sync);
+
+        context.session =
+            std::make_unique<aoe::bybit::impl::main_net::linear::
+                                 order_book_channel::SessionRW>(
+                context.ioc, queue, *context.listener);
+        /// @brief Creates a subscription builder for linear order book diff
+        /// updates.
+        ///
+        /// A fixed update speed of `k100` (100 ms) is used here, which
+        /// determines how frequently the exchange sends order book updates.
+        ///
+        /// @note The `k100` value may not be optimal for all trading pairs.
+        /// Some pairs may have lower liquidity or activity, and in such cases,
+        /// a slower update speed (e.g., `k250` or `k500`) might be more
+        /// appropriate. In the future, it may be worth implementing logic to
+        /// determine the optimal update speed based on trading pair
+        /// characteristics.
+        ///
+        /// @param session The WebSocket session used to send the subscription.
+        /// @param trading_pair The trading pair to subscribe to.
+        context.diff_subscription_builder = std::make_unique<
+            aoe::bybit::impl::linear::OrderBookSubscriptionBuilder>(
+            *context.session, aoe::bybit::linear::Depth::k500,
+            trading_pair);
+        context.diff_subscription_builder->Subscribe();
+
+        // Add subscribers
+        auto& notifier = *context.notifier;
+        // notifier.AddSubscriber(
+        //     aos::impl::BestBidOrBestAskNotifier<double, double>{
+        //         pool_, *context.order_book});
+        notifier.AddSubscriber(*context.best_bid_notifier);
+        notifier.AddSubscriber(*context.best_ask_notifier);
+
+        // run ioc
+        context.thread =
+            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
+        // std::this_thread::sleep_for(
+        //     std::chrono::seconds(100));  // спит 1 секунду
+        contexts_.emplace(trading_pair, context_ptr);
+    }
+    bool SetCallbackOnBestBidChange(
+        aos::TradingPair trading_pair,
+        std::function<void(aos::BestBid<Price, Qty>& new_bid)> cb) override {
+        auto it = contexts_.find(trading_pair);
+        if (it == contexts_.end() || !it->second ||
+            !it->second->best_bid_notifier) {
+            return false;
+        }
+        it->second->best_bid_notifier->SetCallback(std::move(cb));
+        return true;
+    }
+
+    bool SetCallbackOnBestAskChange(
+        aos::TradingPair trading_pair,
+        std::function<void(aos::BestAsk<Price, Qty>& new_ask)> cb) override {
+        auto it = contexts_.find(trading_pair);
+        if (it == contexts_.end() || !it->second ||
+            !it->second->best_ask_notifier) {
+            return false;
+        }
+        it->second->best_ask_notifier->SetCallback(std::move(cb));
+        return true;
+    }
+
+  private:
+    boost::asio::thread_pool& pool_;
+    std::unordered_map<aos::TradingPair,
+                       std::shared_ptr<OrderBookInfraContextDefault<
+                           Price, Qty, MemoryPoolThreadSafety, MemoryPool>>>
+        contexts_;
+};
+};  // namespace linear
+};  // namespace main_net
+};  // namespace impl
+};  // namespace bybit
+};  // namespace aoe

@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
             parser{1000};
         aoe::bybit::impl::order_book_response::Listener<
             double, double, common::MemoryPoolThreadSafety>
-            listener(thread_pool, queue, parser, order_book_sync);
+            listener(thread_pool, queue, order_book_sync);
 
         //-------------------------------------------------------------------------------
 

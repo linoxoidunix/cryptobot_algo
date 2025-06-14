@@ -1,7 +1,8 @@
 #pragma once
 #include "aoe/bybit/order_book_sync/i_order_book_sync.h"
-#include "aoe/bybit/parser/json/ws/order_book_response/i_parser.h"
+#include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
+#include "aoe/bybit/constants/constants.h"
 #include "fmtlog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
@@ -16,17 +17,15 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class Listener : public ResponseQueueListenerInterface {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     moodycamel::ConcurrentQueue<std::vector<char>>& queue_;
-    OrderBookEventParserInterface<Price, Qty, MemoryPool>& parser_;
+    OrderBookEventParser<Price, Qty, MemoryPool> parser_{kMaximumOrderBookEventsFromExchange};
     OrderBookSyncInterface<Price, Qty, MemoryPool>& sync_;
 
   public:
     Listener(boost::asio::thread_pool& thread_pool,
              moodycamel::ConcurrentQueue<std::vector<char>>& queue,
-             OrderBookEventParserInterface<Price, Qty, MemoryPool>& parser,
              OrderBookSyncInterface<Price, Qty, MemoryPool>& sync)
         : strand_(boost::asio::make_strand(thread_pool)),
           queue_(queue),
-          parser_(parser),
           sync_(sync) {}
     void OnDataEnqueued() override {
         boost::asio::co_spawn(strand_, ProcessQueue(), boost::asio::detached);

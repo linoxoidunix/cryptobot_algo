@@ -65,6 +65,33 @@ class OrderBookSubscriptionBuilder : public SubscriptionBuilderInterface {
     }
 };
 };  // namespace spot
+namespace linear {
+class OrderBookSubscriptionBuilder : public SubscriptionBuilderInterface {
+    WebSocketPublicSessionRWInterface& ws_;
+    aoe::bybit::linear::Depth depth_;
+    aos::TradingPair trading_pair_;
+    aos::impl::TradingPairToBigStringView printer_;
+
+  public:
+    OrderBookSubscriptionBuilder(WebSocketPublicSessionRWInterface& ws,
+                                 aoe::bybit::linear::Depth depth,
+                                 aos::TradingPair trading_pair)
+        : ws_(ws), depth_(depth), trading_pair_(trading_pair) {}
+    ~OrderBookSubscriptionBuilder() override = default;
+    void Subscribe() override {
+        nlohmann::json j_;
+        j_["op"] = "subscribe";
+        auto [status_trading_pair, result_trading_pair] =
+            printer_.Convert(trading_pair_);
+        if (!status_trading_pair) return;
+        auto [status_depth, result_depth] = DepthToString(depth_);
+        if (!status_depth) return;
+        j_["args"] = {
+            fmt::format("orderbook.{}.{}", result_depth, result_trading_pair)};
+        ws_.AsyncWrite(std::move(j_));
+    }
+};
+};  // namespace spot
 };  // namespace impl
 };  // namespace bybit
 };  // namespace aoe
