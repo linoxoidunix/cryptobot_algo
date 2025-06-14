@@ -4,6 +4,7 @@
 #include "aos/sliding_window_storage/c_sliding_window_storage.h"
 #include "aos/mutual_information/c_mutual_information_calculator.h"
 #include "aos/strategies/deviation_and_mutual_info/c_strategy.h"
+#include "aoe/binance/hash_utils/hash_utils.h"
 #include "fmt/format.h"
 #include "fmt/ranges.h"
 #include "fmtlog.h"
@@ -18,8 +19,15 @@ int main() {
         market_triplet_manager.Connect(1, 2);
 
         boost::asio::thread_pool thread_pool;
-        
-        aos::strategies::deviation_and_mutual_information::Strategy<HashT, Price> strategy(5, market_triplet_manager);
+        const auto binance_btc_usdt = aoe::binance::HashKey(
+            aoe::binance::Category::kFutures, aos::NetworkEnvironment::kMainNet,
+            aos::TradingPair::kBTCUSDT);
+        constexpr aos::strategies::deviation_and_mutual_information::Config<
+            HashT>
+            config_strategy{5, 10, binance_btc_usdt};
+
+
+        aos::strategies::deviation_and_mutual_information::Strategy<HashT, Price> strategy(market_triplet_manager, config_strategy);
         
         StrategyEngineDefault<HashT, Price> strategy_engine(
             thread_pool, strategy);

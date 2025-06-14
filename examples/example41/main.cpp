@@ -2,7 +2,7 @@
 
 #include "aoe/aoe.h"
 #include "aoe/binance/hash_utils/hash_utils.h"
-#include "aoe/binance/infrastructure/infrastructure.h"
+#include "aoe/binance/binance_futures_main_net_infrastructure/binance_futures_main_net_infrastructure.h"
 #include "aoe/binance/order_book_sync/order_book_sync.h"
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
 #include "aoe/bybit/hash_utils/hash_utils.h"
@@ -84,14 +84,14 @@ int main(int argc, char** argv) {
         aoe::binance::impl::main_net::futures::Infrastructure<
             Price, Qty, common::MemoryPoolThreadSafety,
             common::MemoryPoolNotThreadSafety>
-            infrastructure(thread_pool);
-        infrastructure.Register(aos::TradingPair::kBTCUSDT);
+            binance_futures_main_net_infrastructure(thread_pool);
+        binance_futures_main_net_infrastructure.Register(aos::TradingPair::kBTCUSDT);
         
         aoe::bybit::impl::main_net::linear::Infrastructure<
             Price, Qty, common::MemoryPoolThreadSafety,
             common::MemoryPoolNotThreadSafety>
-            infrastructure(thread_pool);
-        infrastructure.Register(aos::TradingPair::kBTCUSDT);
+            bybit_linear_mainnet_infrastructure(thread_pool);
+        binance_futures_main_net_infrastructure.Register(aos::TradingPair::kBTCUSDT);
         //init strategy
         
         aos::impl::MarketTripletManagerDefault<HashT> market_triplet_manager;
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
                                                             strategy);
         
         str::Config config;
-        str::StrategyWrapper<Price, Qty, HashT> strategy_wrapper(config, infrastructure, strategy_engine);
+        str::StrategyWrapper<Price, Qty, HashT> strategy_wrapper(config, binance_futures_main_net_infrastructure, strategy_engine);
         auto status = strategy_wrapper.Run();
         if (!status) {
             logi("Strategy not init successful");

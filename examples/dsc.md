@@ -1,6 +1,7 @@
 | examples | Description |
 |:-----------|:------------:|
-| example42     |   infra bybit mainnet linear     |
+| example43     |   bybit mainnet spot infrastructure     |
+| example42     |   bybit mainnet linear infrastructure     |
 | example40     |   run deviation and mutual information strategy on random data     |
 | example39     |   generate and decompose crypto hash keys  |
 | example38     |   run a strategy on random data |
