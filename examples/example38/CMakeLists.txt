@@ -23,8 +23,8 @@ tomlplusplus::tomlplusplus
 sodium
 concurrentqueue
 nlohmann_json::nlohmann_json
-fmt
 fmtlog-static
+fmt
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)

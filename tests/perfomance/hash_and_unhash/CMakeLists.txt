@@ -14,8 +14,8 @@ add_executable (${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
 aos
-fmt
 fmtlog-static
+fmt
 benchmark::benchmark
 magic_enum::magic_enum
 )
