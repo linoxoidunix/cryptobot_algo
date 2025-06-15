@@ -138,7 +138,7 @@ class Infrastructure
             !it->second->best_bid_notifier) {
             return false;
         }
-        it->second->best_bid_notifier->SetCallback(std::move(cb));
+        it->second->best_bid_notifier->SetCallback(cb);
         return true;
     }
 
@@ -150,7 +150,7 @@ class Infrastructure
             !it->second->best_ask_notifier) {
             return false;
         }
-        it->second->best_ask_notifier->SetCallback(std::move(cb));
+        it->second->best_ask_notifier->SetCallback(cb);
         return true;
     }
 
@@ -298,7 +298,7 @@ class Infrastructure
             !it->second->best_bid_notifier) {
             return false;
         }
-        it->second->best_bid_notifier->SetCallback(std::move(cb));
+        it->second->best_bid_notifier->SetCallback(cb);
         return true;
     }
 
@@ -310,7 +310,7 @@ class Infrastructure
             !it->second->best_ask_notifier) {
             return false;
         }
-        it->second->best_ask_notifier->SetCallback(std::move(cb));
+        it->second->best_ask_notifier->SetCallback(cb);
         return true;
     }
 

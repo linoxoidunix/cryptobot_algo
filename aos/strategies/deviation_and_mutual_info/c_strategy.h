@@ -6,6 +6,7 @@
 
 #include "aos/market_triplet_manager/i_market_triplet_manager.h"
 #include "aos/sliding_window_storage/c_sliding_window_storage.h"
+#include "aos/mutual_information/c_mutual_information_calculator.h"
 #include "aos/strategy/i_strategy.h"
 #include "aos/strategy/strategy.h"
 #include "aos/strategies/deviation_and_mutual_info/config.h"
@@ -37,7 +38,7 @@ class Strategy : public StrategyInterface<HashT, T>{
             auto [_, ratio] = sliding_window_.GetDeviationRatio(hash, value);
             auto [status_deviation, dev]        = sliding_window_.GetDeviation(hash, value);
             logi("Buy: hash:{} value:{} dev:{} ratio:{}", hash, value, dev, ratio);
-            if (ratio > 0.001) {
+            if (ratio > config_.deviation_ratio_threshold) {
                 queue.push(hash);
             }
         });
@@ -48,7 +49,8 @@ class Strategy : public StrategyInterface<HashT, T>{
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
                     sliding_window_, hash, pair, config_.number_bins);
-                if (status && mi > 2) {
+                logi("Buy status:{} mi:{}", status, mi);
+                if (status && mi > config_.mi_threshold) {
                     logi("Buy MI ({} <-> {}): {}", hash, pair, mi);
                     queue.push(pair);
                 }
@@ -83,7 +85,7 @@ class Strategy : public StrategyInterface<HashT, T>{
             auto [status_deviation, dev]        = sliding_window_.GetDeviation(hash, value);
             logi("Sell: hash:{} value:{} dev:{} ratio:{}", hash, value, dev,
                  ratio);
-            if (ratio < 0.001) {
+            if (ratio > config_.deviation_ratio_threshold) {
                 queue.push(hash);
             }
         });
@@ -94,7 +96,8 @@ class Strategy : public StrategyInterface<HashT, T>{
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
                     sliding_window_, hash, pair, config_.number_bins);
-                if (status && mi > 2) {
+                logi("Sell status:{} mi:{}", status, mi);
+                if (status && mi > config_.mi_threshold) {
                     logi("Sell MI ({} <-> {}): {}", hash, pair, mi);
                     queue.push(pair);
                 }
@@ -120,9 +123,13 @@ class Strategy : public StrategyInterface<HashT, T>{
      sliding_window_(config.window_size),
      market_triplet_manager_(market_triplet_manager),
      config_(config) {
+
+    }
+    void Init(){
         InitBuyActions();
         InitSellActions();
-    }
+    } 
+
     void AnalyzeToBuy(const HashT asset, const T& value) override {
         core_strategy_.AnalyzeToBuy(asset, value);
     }

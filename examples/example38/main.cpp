@@ -24,7 +24,7 @@ int main() {
             aos::TradingPair::kBTCUSDT);
         constexpr aos::strategies::deviation_and_mutual_information::Config<
             HashT>
-            config_strategy{5, 10, binance_btc_usdt};
+            config_strategy{5, 10, binance_btc_usdt, 0.001, 2};
 
 
         aos::strategies::deviation_and_mutual_information::Strategy<HashT, Price> strategy(market_triplet_manager, config_strategy);

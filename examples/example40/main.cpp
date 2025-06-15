@@ -24,9 +24,12 @@ int main() {
         constexpr aos::strategies::deviation_and_mutual_information::Config<HashT> config{
             5,
             10,
-            binance_btc_usdt 
+            binance_btc_usdt,
+            0.001,
+            1 
         };
         aos::strategies::deviation_and_mutual_information::Strategy<HashT, Price> strategy(market_triplet_manager, config);
+        strategy.Init();
         
         StrategyEngineDefault<HashT, Price> strategy_engine(
             thread_pool, strategy);

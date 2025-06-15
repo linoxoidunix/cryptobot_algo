@@ -76,7 +76,7 @@ class BestBidNotifier : public BestBidNotifierInterface<Price, Qty> {
     }
     void SetCallback(
         std::function<void(BestBid<Price, Qty>& new_bid)> cb) override {
-        on_best_bid_update_callback_ = std::move(cb);
+        on_best_bid_update_callback_ = cb;
     }
     ~BestBidNotifier() override = default;
 
@@ -119,7 +119,7 @@ class BestAskNotifier : public BestAskNotifierInterface<Price, Qty> {
     }
     void SetCallback(
         std::function<void(BestAsk<Price, Qty>& new_ask)> cb) override {
-        on_best_ask_update_callback_ = std::move(cb);
+        on_best_ask_update_callback_ = cb;
     };
     ~BestAskNotifier() override = default;
 
