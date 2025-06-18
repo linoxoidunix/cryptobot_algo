@@ -2,9 +2,9 @@
 #include <boost/intrusive_ptr.hpp>
 #include <queue>
 
-#include "aos/uid/i_number_pool.h"
 #include "aos/common/mem_pool.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
+#include "aos/uid/i_number_pool.h"
 
 namespace aos {
 namespace impl {

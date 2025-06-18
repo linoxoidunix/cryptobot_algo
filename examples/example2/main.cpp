@@ -61,11 +61,11 @@ class Logger {
         receiver.AddAfterObserver([this]() { LogAfterAdd(); });
     }
 
-    void LogBeforeAdd(int value) {
+    static void LogBeforeAdd(int value) {
         std::cout << "[Logger] Будет добавлено: " << value << std::endl;
     }
 
-    void LogAfterAdd() {
+    static void LogAfterAdd() {
         std::cout << "[Logger] Данные добавлены!" << std::endl;
     }
 };

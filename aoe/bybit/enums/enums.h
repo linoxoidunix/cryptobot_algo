@@ -1,4 +1,9 @@
+// Copyright 2025 Denis Evlanov
+
 #pragma once
+#include <functional>
+#include <type_traits>
+
 namespace aoe {
 namespace bybit {
 enum class ExecType { kTrade, kUnknown };
@@ -11,7 +16,6 @@ enum class Category {
 };
 
 using CategoryRaw = std::underlying_type_t<Category>;
-
 
 // enum class OrderType {
 //     kUnknown,
@@ -130,14 +134,14 @@ enum class TimeInForce {
 enum class OrderRouting {
     kInternal,  // Внутренний (например, обработка внутри системы)
     kExternal,  // Внешний (отправка на биржу)
-    kSmart,     // Умный маршрут (используется для лучшего исполнения)
-    kDarkPool   // Отправка в тёмный пул ликвидности
+    kSmart,  // Умный маршрут (используется для лучшего исполнения)
+    kDarkPool  // Отправка в тёмный пул ликвидности
 };
 
 enum class PendingAction {
-    kNone,    // нет активного действия
-    kPlace,   // ожидается подтверждение размещения
-    kAmend,   // ожидается подтверждение изменения
+    kNone,  // нет активного действия
+    kPlace,  // ожидается подтверждение размещения
+    kAmend,  // ожидается подтверждение изменения
     kCancel,  // ожидается подтверждение отмены
     kTrigger  // (опционально) ожидается срабатывание стопа
 };
@@ -163,7 +167,8 @@ enum class Depth { k25, k100 };
 namespace std {
 template <>
 struct hash<aoe::bybit::Category> {
-    std::underlying_type_t<aoe::bybit::Category> operator()(aoe::bybit::Category pair) const {
+    std::underlying_type_t<aoe::bybit::Category> operator()(
+        aoe::bybit::Category pair) const {
         return static_cast<std::underlying_type_t<aoe::bybit::Category>>(pair);
     }
 };

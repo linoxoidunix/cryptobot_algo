@@ -2,10 +2,10 @@
 #include "aoe/binance/order_book_sync/i_order_book_sync.h"
 #include "aoe/binance/parser/json/rest/snapshot_response/i_parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 
 namespace aoe {
 namespace binance {

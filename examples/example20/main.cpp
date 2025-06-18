@@ -10,37 +10,40 @@ struct DummyPosition {};
 using PositionT = aos::impl::NetPositionDefault<double, double>;
 
 int main() {
-    using Parser =
-        aoe::bybit::impl::ExecutionEventParser<common::MemoryPoolThreadSafety,
-                                               PositionT>;
+    try {
+        using Parser = aoe::bybit::impl::ExecutionEventParser<
+            common::MemoryPoolThreadSafety, PositionT>;
 
-    std::string json = R"({
+        std::string json = R"({
         "data": [
             { "category": "spot", "symbol": "BTCUSDT", "side": "Buy", "execFee": "0.005061", "execPrice": "0.3374", "execQty": "25", "execValue": "8.435", "orderId": "123123"}
         ]
     })";
-    // std::string json = R"({
-    //     "data": [
-    //         { "category": "spot", "side": "Buy" },
-    //         { "category": "linear", "side": "Sell" }
-    //     ]
-    // })";
-    simdjson::ondemand::parser parser;
-    simdjson::padded_string padded(json);
-    auto doc = parser.iterate(padded);
+        // std::string json = R"({
+        //     "data": [
+        //         { "category": "spot", "side": "Buy" },
+        //         { "category": "linear", "side": "Sell" }
+        //     ]
+        // })";
+        simdjson::ondemand::parser parser;
+        simdjson::padded_string padded(json);
+        auto doc = parser.iterate(padded);
 
-    Parser event_parser(/*pool_size=*/100);
-    // event_parser.RegisterFromConfig(
-    //     aoe::bybit::impl::GetDefaultEventConfig<common::MemoryPoolThreadSafety,
-    //                                             PositionT>());
+        Parser event_parser(/*pool_size=*/100);
+        // event_parser.RegisterFromConfig(
+        //     aoe::bybit::impl::GetDefaultEventConfig<common::MemoryPoolThreadSafety,
+        //                                             PositionT>());
 
-    auto [ok, event] = event_parser.ParseAndCreate(doc.value());
-    if (ok && event) {
-        // event->Print();
-    } else {
-        // std::cout << "No matching event found.\n";
+        auto [ok, event] = event_parser.ParseAndCreate(doc.value());
+        if (ok && event) {
+            std::cout << "found event.\n";
+        } else {
+            std::cout << "No matching event found.\n";
+        }
+    } catch (...) {
+        loge("found unexpected error");
     }
-
+    fmtlog::poll();
     return 0;
 }
 

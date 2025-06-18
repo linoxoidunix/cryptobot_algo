@@ -1,8 +1,8 @@
 #pragma once
 #include "aoe/bybit/order_book_sync/i_order_book_sync.h"
+#include "aos/logger/mylog.h"
 #include "aos/order_book/i_order_book.h"
 #include "boost/asio.hpp"
-#include "fmtlog.h"
 
 namespace aoe {
 namespace bybit {
@@ -11,15 +11,15 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool,
           typename HashMap>
 class OrderBookSync : public OrderBookSyncInterface<Price, Qty, MemoryPool> {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
-    aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>&
-        order_book_;
+    aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book_;
     uint64_t current_diff_update_id_;
     uint64_t current_snapshot_update_id_;
     bool received_snapshot_success_ = false;
 
   public:
     OrderBookSync(boost::asio::thread_pool& thread_pool,
-                  aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book)
+                  aos::OrderBookEventListenerInterface<Price, Qty, MemoryPool>&
+                      order_book)
         : strand_(boost::asio::make_strand(thread_pool)),
           order_book_(order_book) {}
     ~OrderBookSync() override = default;

@@ -15,7 +15,7 @@
 
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aoe/session/rest/i_session.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
 #include "boost/asio/awaitable.hpp"
 #include "boost/asio/this_coro.hpp"
@@ -32,7 +32,7 @@ namespace impl {
 class RestSessionRW : public RestSessionWritableInterface,
                       public RestSessionReadableInterface {
     bool session_ready_ = false;
-                        /**
+    /**
      * @brief req variable must manage only via SetRequest() method
      *
      */
@@ -131,10 +131,10 @@ class RestSessionRW : public RestSessionWritableInterface,
     void StartProcessing() {
         boost::asio::co_spawn(
             strand_,
-            [this]() -> net::awaitable<void> { 
-                if(!session_ready_)
-                    co_return;
-                co_await RequestLoop(); },
+            [this]() -> net::awaitable<void> {
+                if (!session_ready_) co_return;
+                co_await RequestLoop();
+            },
             net::detached);
     }
     net::awaitable<void> Run(const char* host, const char* port) {

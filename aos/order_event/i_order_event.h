@@ -1,3 +1,5 @@
+// Copyright 2025 Denis Evlanov
+
 #pragma once
 #include "aoe/bybit/enums/enums.h"
 #include "aos/common/ref_counted.h"

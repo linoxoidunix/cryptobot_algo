@@ -17,10 +17,10 @@
 
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
 #include "aoe/session/web_socket/i_web_socket.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
 #include "boost/asio/awaitable.hpp"
 #include "boost/asio/this_coro.hpp"
-#include "fmtlog.h"
 
 namespace beast     = boost::beast;          // from <boost/beast.hpp>
 namespace http      = beast::http;           // from <boost/beast/http.hpp>
@@ -34,7 +34,7 @@ namespace impl {
 class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                            public WebSocketSessionReadableInterface {
     bool session_ready_ = false;
-                            /**
+    /**
      * @brief req variable must manage only via SetRequest() method
      *
      */
@@ -248,10 +248,11 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
     }
     void StartWrite() {
         boost::asio::co_spawn(
-            ioc_, [this]() -> net::awaitable<void> { 
-                if(!session_ready_)
-                    co_return;
-                co_await WriteLoop(); },
+            ioc_,
+            [this]() -> net::awaitable<void> {
+                if (!session_ready_) co_return;
+                co_await WriteLoop();
+            },
             net::detached);
     }
     // Close the session gracefully
@@ -452,10 +453,11 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
     }
     void StartWrite() {
         boost::asio::co_spawn(
-            strand_, [this]() -> net::awaitable<void> { 
-                if(!session_ready_)
-                    co_return;
-                co_await WriteLoop(); },
+            strand_,
+            [this]() -> net::awaitable<void> {
+                if (!session_ready_) co_return;
+                co_await WriteLoop();
+            },
             net::detached);
     }
     // Close the session gracefully

@@ -3,7 +3,7 @@
 #include <unordered_map>
 
 #include "aos/joint_histogram/i_joint_histogram_calculator.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 
 // Custom hash function for std::pair<int, int>
 namespace aos {
@@ -102,8 +102,7 @@ class JointHistogramCalculatorDefault
  */
 template <class T, template <typename> typename MemoryPoolNotThreadSafety>
 class JointHistogramCalculator
-    : public aos::IJointHistogramCalculator<T,
-                                            MemoryPoolNotThreadSafety> {
+    : public aos::IJointHistogramCalculator<T, MemoryPoolNotThreadSafety> {
     // Custom hash function for std::pair<int, int>
 
   public:
@@ -175,11 +174,14 @@ class JointHistogramCalculator
 
         return joint_histogram;
     }
-    static boost::intrusive_ptr<JointHistogramCalculator<T, MemoryPoolNotThreadSafety>> Create(
-        MemoryPoolNotThreadSafety<JointHistogramCalculator<T, MemoryPoolNotThreadSafety>>& pool) {
+    static boost::intrusive_ptr<
+        JointHistogramCalculator<T, MemoryPoolNotThreadSafety>>
+    Create(MemoryPoolNotThreadSafety<
+           JointHistogramCalculator<T, MemoryPoolNotThreadSafety>>& pool) {
         auto* obj = pool.Allocate();
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<JointHistogramCalculator<T, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            JointHistogramCalculator<T, MemoryPoolNotThreadSafety>>(obj);
     }
     ~JointHistogramCalculator() override {
         logi("{}", "JointHistogramCalculator dtor");

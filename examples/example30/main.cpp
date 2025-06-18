@@ -14,11 +14,10 @@
 #include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener_default.h"
 #include "aos/aos.h"
-#include "aos/position/position.h"
-#include "aos/position_storage/position_storage_by_pair/position_storage_by_pair_default.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
-
+#include "aos/position/position.h"
+#include "aos/position_storage/position_storage_by_pair/position_storage_by_pair_default.h"
 
 class BybitOrderManagerListener {
   public:
@@ -83,7 +82,8 @@ class BybitNetPositionManagerListener {
         listener_;
 
   public:
-    BybitNetPositionManagerListener(boost::asio::thread_pool& thread_pool)
+    explicit BybitNetPositionManagerListener(
+        boost::asio::thread_pool& thread_pool)
         : thread_pool_(thread_pool),
           execution_watcher_(position_storage_),
           listener_(thread_pool_, response_queue_, execution_watcher_, 100) {}
@@ -154,8 +154,8 @@ class ExecutionChannelSessionStarter {
     }
 };
 
-int main(int argc, char** argv) {
-    {
+int main(int, char** argv) {
+    try {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
 
@@ -187,6 +187,8 @@ int main(int argc, char** argv) {
         ExecutionChannelSessionStarter execution_starter(
             ioc_private_channel2, session_private_channel2, config_path);
         execution_starter.Run();
+    } catch (...) {
+        loge("error occured");
     }
     fmtlog::poll();
     return 0;

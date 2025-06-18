@@ -6,10 +6,10 @@
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
 #include "aos/aos.h"
 #include "aos/common/exchange_id.h"
-#include "aos/trading_pair/trading_pair.h"
-#include "fmtlog.h"
-#include "aos/logger/logger.h"
 #include "aos/common/mem_pool.h"
+#include "aos/logger/logger.h"
+#include "aos/logger/mylog.h"
+#include "aos/trading_pair/trading_pair.h"
 
 namespace str {
 struct Config {

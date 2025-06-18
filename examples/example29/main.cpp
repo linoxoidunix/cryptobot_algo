@@ -9,16 +9,15 @@
 // #include "aos/multi_order_manager/multi_order_manager.h"
 #include "aoe/aoe.h"
 #include "aos/aos.h"
-#include "aos/trading_pair/trading_pair.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
-
+#include "aos/trading_pair/trading_pair.h"
 
 using BybitSpotBuyLimit =
     aoe::bybit::place_order::impl::SpotBuyLimit<common::MemoryPoolThreadSafety>;
 auto AllocatePlaceOrder(
     common::MemoryPoolThreadSafety<BybitSpotBuyLimit>& pool) {
-    auto ptr = pool.Allocate();
+    auto* ptr = pool.Allocate();
     ptr->SetMemoryPool(&pool);
     return ptr;
 }
@@ -28,13 +27,13 @@ using BybitSpotCancel =
 
 auto AllocateCancelOrder(
     common::MemoryPoolThreadSafety<BybitSpotCancel>& pool) {
-    auto ptr = pool.Allocate();
+    auto* ptr = pool.Allocate();
     ptr->SetMemoryPool(&pool);
     return ptr;
 }
 
-int main(int argc, char** argv) {
-    {
+int main(int, char** argv) {
+    try {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
         //-------------------------------------------------------------------------
@@ -59,7 +58,7 @@ int main(int argc, char** argv) {
         bool apikey_readed = private_session_setuper_order.Setup();
         if (!apikey_readed) return -1;
         //-------------------------------------------------------------------------
-        auto ptr_place_order =
+        auto* ptr_place_order =
             AllocatePlaceOrder(memory_pool_bybit_spot_buy_limit);
         ptr_place_order->SetTradingPair(aos::TradingPair::kBTCUSDT);
         ptr_place_order->SetOrderSide(aoe::bybit::Side::kBuy);
@@ -68,7 +67,7 @@ int main(int argc, char** argv) {
         ptr_place_order->SetQty(0.0001);
         ptr_place_order->SetTimeInForce(aoe::bybit::TimeInForce::kFOK);
         //-------------------------------------------------------------------------
-        auto ptr_cancel_order =
+        auto* ptr_cancel_order =
             AllocateCancelOrder(memory_pool_bybit_spot_cancel);
         ptr_cancel_order->SetTradingPair(aos::TradingPair::kBTCUSDT);
         ptr_cancel_order->SetOrderId(0);
@@ -102,6 +101,8 @@ int main(int argc, char** argv) {
         std::thread thread_ioc_trade([&ioc_trade]() { ioc_trade.run(); });
         //-------------------------------------------------------------------------
         thread_ioc_trade.join();
+    } catch (...) {
+        loge("error occured");
     }
     fmtlog::poll();
     return 0;

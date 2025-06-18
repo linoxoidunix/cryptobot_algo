@@ -1,7 +1,24 @@
 cmake_minimum_required(VERSION 3.28)
 set (PROJECT_NAME aos)
 project(${PROJECT_NAME} C CXX)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_CLANG_TIDY
+    clang-tidy
+    -format-style=file
+    --extra-arg=-Wno-unknown-warning-option
+    --extra-arg=-Wno-unused-command-line-argument
+)
+
+set(CLANG_TIDY_FOR_3RD_PARTY "" CACHE STRING "" FORCE)
+function(disable_clang_tidy_for_target target)
+    set_target_properties(${target} PROPERTIES CXX_CLANG_TIDY "")
+endfunction()
+
+# Запрещаем CMake добавлять флаги модулей
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
+set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP OFF)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include(FetchContent)
@@ -24,13 +41,13 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(magic_enum)
 
-
 FetchContent_Declare(
     tomlplusplus
     GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
     GIT_TAG        v3.4.0
 )
 FetchContent_MakeAvailable(tomlplusplus)
+
 
 include(${CMAKE_SOURCE_DIR}/cmake/BuildLibsodium.cmake)
 FetchContent_Declare(
@@ -111,6 +128,13 @@ message(STATUS "Declared simdjson FetchContent.")
 FetchContent_MakeAvailable(simdjson)
 message(STATUS "simdjson FetchContent is available.")
 
+set_target_properties(fmt PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+set_target_properties(fmtlog-static PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+set_target_properties(benchmark PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+set_target_properties(gtest_main PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+set_target_properties(simdjson PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+
+
 
 # # Загружаем Dlib
 # FetchContent_Declare(
@@ -183,13 +207,20 @@ target_link_libraries(${PROJECT_NAME}
     tomlplusplus::tomlplusplus
     nlohmann_json::nlohmann_json
     sodium
-    fmt
     fmtlog-static
+    fmt
 )
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 add_subdirectory(examples)
+
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    CXX_SCAN_FOR_MODULES OFF
+    CXX_MODULE_STD_ONLY OFF
+)
+
 
 option(BUILD_TESTS_AOS "Build tests" ON)
 if(BUILD_TESTS_AOS)

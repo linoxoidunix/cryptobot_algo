@@ -2,7 +2,7 @@
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/signer/hmac_sha256/i_signer.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 namespace aoe {
 namespace bybit {
 namespace impl {

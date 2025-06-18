@@ -9,8 +9,8 @@
 #include "aoe/binance/session/rest/session.h"
 #include "aos/order_book/i_order_book.h"
 // #include "aos/order_book/order_book.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
-#include "fmtlog.h"
 
 namespace aoe {
 namespace binance {

@@ -4,8 +4,8 @@
 #include <map>
 #include <unordered_map>
 
+#include "aos/logger/mylog.h"
 #include "aos/min_tracker/i_min_tracker.h"
-#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -86,7 +86,8 @@ class MinTrackerDefault : public MinTrackerInterface<HashT, T> {
         min_element_;  // Карта для отслеживания минимальных элементов
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class MinTracker
     : public aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
@@ -163,18 +164,22 @@ class MinTracker
         min_element_;  // Карта для отслеживания минимальных элементов
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class MinTrackerBuilder {
   public:
     explicit MinTrackerBuilder(
-        MemoryPoolNotThreadSafety<MinTracker<HashT, T, MemoryPoolNotThreadSafety>>& pool)
+        MemoryPoolNotThreadSafety<
+            MinTracker<HashT, T, MemoryPoolNotThreadSafety>>& pool)
         : pool_(pool) {}
 
     // Строим объект MinTracker с заданным пулом памяти
-    boost::intrusive_ptr<MinTracker<HashT, T, MemoryPoolNotThreadSafety>> build() {
+    boost::intrusive_ptr<MinTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    build() {
         auto* obj = pool_.Allocate();
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<MinTracker<HashT, T, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            MinTracker<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:

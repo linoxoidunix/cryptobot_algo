@@ -5,8 +5,8 @@
 #include "aos/common/ref_counted.h"
 #include "aos/histogram/i_histogram_calculator.h"
 #include "aos/joint_histogram/i_joint_histogram_calculator.h"
+#include "aos/logger/mylog.h"
 #include "aos/mutual_information/i_mutual_information_calculator.h"
-#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -110,8 +110,8 @@ class MutualInformationCalculatorDefault
 };
 
 // // Стратегия для вычисления взаимной информации
-// template <class HashT, class T, template <typename> typename MemoryPoolNotThreadSafety>
-// class MutualInformationCalculator
+// template <class HashT, class T, template <typename> typename
+// MemoryPoolNotThreadSafety> class MutualInformationCalculator
 //     : public aos::IMutualInformationCalculator<
 //           T, MemoryPoolNotThreadSafety, HashT,
 //           MemoryPoolNotThreadSafety> {
@@ -126,7 +126,8 @@ class MutualInformationCalculatorDefault
 //         : hist_calculator_(hist_calculator),
 //           joint_hist_calculator_(joint_hist_calculator) {}
 
-//     T ComputeMutualInformation(const std::deque<T>& x, const std::deque<T>& y,
+//     T ComputeMutualInformation(const std::deque<T>& x, const std::deque<T>&
+//     y,
 //                                int bins) const override {
 //         auto hist_x = hist_calculator_->ComputeHistogram(x, bins);
 //         auto hist_y = hist_calculator_->ComputeHistogram(y, bins);
@@ -154,9 +155,11 @@ class MutualInformationCalculatorDefault
 //                                T y_min_value, T y_max_value,
 //                                int bins) const override {
 //         auto hist_x     = hist_calculator_->ComputeHistogram(x, x_min_value,
-//                                                              x_max_value, bins);
+//                                                              x_max_value,
+//                                                              bins);
 //         auto hist_y     = hist_calculator_->ComputeHistogram(y, y_min_value,
-//                                                              y_max_value, bins);
+//                                                              y_max_value,
+//                                                              bins);
 //         auto joint_hist = joint_hist_calculator_->ComputeJointHistogram(
 //             x, x_min_value, x_max_value, y, y_min_value, y_max_value, bins);
 
@@ -188,30 +191,36 @@ class MutualInformationCalculatorDefault
 //         }
 
 //         // Извлекаем данные для обоих активов
-//         const auto& data_x              = window_storage->GetData(hash_asset);
-//         const auto& data_y              = window_storage->GetData(paired_asset);
+//         const auto& data_x              =
+//         window_storage->GetData(hash_asset); const auto& data_y =
+//         window_storage->GetData(paired_asset);
 
 //         // Извлекаем минимальные и максимальные значения для каждого актива
 //         auto [min_status_x, min_hash_x] = window_storage->GetMin(hash_asset);
 //         auto [max_status_x, max_hash_x] = window_storage->GetMax(hash_asset);
-//         auto [min_status_y, min_hash_y] = window_storage->GetMin(paired_asset);
-//         auto [max_status_y, max_hash_y] = window_storage->GetMax(paired_asset);
+//         auto [min_status_y, min_hash_y] =
+//         window_storage->GetMin(paired_asset); auto [max_status_y, max_hash_y]
+//         = window_storage->GetMax(paired_asset);
 
 //         // Если хотя бы для одного актива нет данных, продолжаем
-//         if (!min_status_x || !max_status_x || !min_status_y || !max_status_y) {
+//         if (!min_status_x || !max_status_x || !min_status_y || !max_status_y)
+//         {
 //             return {false, T{}};  // Нет минимальных/максимальных данных
 //         }
 
 //         // Вычисляем взаимную информацию
-//         T mi = ComputeMutualInformation(data_x, min_hash_x, max_hash_x, data_y,
+//         T mi = ComputeMutualInformation(data_x, min_hash_x, max_hash_x,
+//         data_y,
 //                                         min_hash_y, max_hash_y, bins);
 
 //         return {true, mi};
 //     }
 
-//     static boost::intrusive_ptr<MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>> Create(
+//     static boost::intrusive_ptr<MutualInformationCalculator<HashT, T,
+//     MemoryPoolNotThreadSafety>> Create(
 //         MemoryPoolNotThreadSafety<
-//             MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>>& pool,
+//             MutualInformationCalculator<HashT, T,
+//             MemoryPoolNotThreadSafety>>& pool,
 //         boost::intrusive_ptr<
 //             IHistogramCalculator<T, MemoryPoolNotThreadSafety>>
 //             hist_calculator,
@@ -220,7 +229,8 @@ class MutualInformationCalculatorDefault
 //             joint_hist_calculator) {
 //         auto* obj = pool.Allocate(hist_calculator, joint_hist_calculator);
 //         obj->SetMemoryPool(&pool);
-//         return boost::intrusive_ptr<MutualInformationCalculator<HashT, T, MemoryPoolNotThreadSafety>>(obj);
+//         return boost::intrusive_ptr<MutualInformationCalculator<HashT, T,
+//         MemoryPoolNotThreadSafety>>(obj);
 //     }
 //     ~MutualInformationCalculator() override {
 //         logi("MutualInformationCalculator dtor");

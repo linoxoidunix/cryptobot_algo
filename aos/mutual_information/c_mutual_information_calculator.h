@@ -4,9 +4,9 @@
 
 #include "aos/histogram/histogram_calculator.h"
 #include "aos/joint_histogram/joint_histogram_calculator.h"
+#include "aos/logger/mylog.h"
 #include "aos/mutual_information/i_mutual_information_calculator.h"
 #include "aos/mutual_information/mutual_information_calculator.h"
-#include "fmtlog.h"
 
 namespace aos {
 namespace impl {

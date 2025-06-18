@@ -6,10 +6,10 @@
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
 #include "aos/aos.h"
 #include "aos/common/exchange_id.h"
-#include "aos/trading_pair/trading_pair.h"
-#include "fmtlog.h"
-#include "aos/logger/logger.h"
 #include "aos/common/mem_pool.h"
+#include "aos/logger/logger.h"
+#include "aos/logger/mylog.h"
+#include "aos/trading_pair/trading_pair.h"
 
 namespace str {
 struct Config {
@@ -46,13 +46,15 @@ class Strategy {
                         "on best bid "
                         "change");
                 });
-        bool status_set_cb_on_best_ask_change = infra_.SetCallbackOnBestAskChange(
-            config_.trading_pair, [](const aos::BestAsk<Price, Qty>& new_bid) {
-                logi(
-                    "[MY_ULTIMATE_FUTURES_STRATEGY] invoke callback on "
-                    "best ask "
-                    "change");
-            });
+        bool status_set_cb_on_best_ask_change =
+            infra_.SetCallbackOnBestAskChange(
+                config_.trading_pair,
+                [](const aos::BestAsk<Price, Qty>& new_bid) {
+                    logi(
+                        "[MY_ULTIMATE_FUTURES_STRATEGY] invoke callback on "
+                        "best ask "
+                        "change");
+                });
         strategy_init_success_ =
             status_set_cb_on_best_bid_change & status_set_cb_on_best_ask_change;
     }

@@ -1,7 +1,7 @@
 #pragma once
-#include "aos/uid/i_unique_id_generator.h"
 #include "aos/common/mem_pool.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
+#include "aos/uid/i_unique_id_generator.h"
 
 namespace aos {
 namespace impl {

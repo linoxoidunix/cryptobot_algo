@@ -10,12 +10,11 @@
 #include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aoe/signer/hmac_sha256/signer.h"
 #include "aos/aos.h"
-#include "fmtlog.h"
 #include "aos/logger/logger.h"
+#include "aos/logger/mylog.h"
 
-
-int main(int argc, char** argv) {
-    {
+int main(int, char** argv) {
+    try {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
 
@@ -23,10 +22,10 @@ int main(int argc, char** argv) {
         aoe::bybit::impl::CredentialsLoader bybit_credentials(config_path);
         //-------------------------------------------------------------------------------
         boost::asio::io_context ioc;
-        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_;
-        aoe::impl::ResponseQueueListener listener(thread_pool, response_queue_);
+        moodycamel::ConcurrentQueue<std::vector<char>> response_queue;
+        aoe::impl::ResponseQueueListener listener(thread_pool, response_queue);
         aoe::bybit::impl::test_net::private_channel::SessionRW ws(
-            ioc, response_queue_, listener);
+            ioc, response_queue, listener);
         //-------------------------------
         boost::asio::steady_timer timer(ioc);
         aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
@@ -41,11 +40,11 @@ int main(int argc, char** argv) {
         std::thread thread_ioc([&ioc]() { ioc.run(); });
         //-------------------------------------------------------------------------------
         boost::asio::io_context ioc_order;
-        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order_;
+        moodycamel::ConcurrentQueue<std::vector<char>> response_queue_order;
         aoe::impl::ResponseQueueListener listener_order(thread_pool,
-                                                        response_queue_order_);
+                                                        response_queue_order);
         aoe::bybit::impl::test_net::private_channel::SessionRW ws_order(
-            ioc_order, response_queue_order_, listener_order);
+            ioc_order, response_queue_order, listener_order);
         //-------------------------------
         boost::asio::steady_timer timer_order(ioc_order);
         aoe::bybit::impl::private_channel::PingManager<std::chrono::seconds>
@@ -61,6 +60,9 @@ int main(int argc, char** argv) {
         //-------------------------------------------------------------------------------
         // thread_ioc.join();
         thread_ioc_order.join();
+    } catch (...) {
+        loge("error occured");
     }
+    fmtlog::poll();
     return 0;
 }

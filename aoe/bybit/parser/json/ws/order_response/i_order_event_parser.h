@@ -1,7 +1,7 @@
 #pragma once
 #include "aoe/bybit/order_event/i_order_event.h"
 #include "boost/intrusive_ptr.hpp"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 
 namespace aoe {
 namespace bybit {

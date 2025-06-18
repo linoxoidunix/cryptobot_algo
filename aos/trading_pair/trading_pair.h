@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
-#include "fmtlog.h"
+
+#include "aos/logger/mylog.h"
 
 namespace aos {
-enum class TradingPair : uint32_t{
+enum class TradingPair : uint32_t {
     kBTCUSDT,
     kETHUSDT,
     kSOLUSDT,
@@ -11,15 +12,15 @@ enum class TradingPair : uint32_t{
 };
 };
 
-
-namespace aos{
-    using TradingPairRaw      = std::underlying_type_t<TradingPair>;
+namespace aos {
+using TradingPairRaw = std::underlying_type_t<TradingPair>;
 }
 
 namespace std {
 template <>
 struct hash<aos::TradingPair> {
-    std::underlying_type_t<aos::TradingPair> operator()(aos::TradingPair pair) const {
+    std::underlying_type_t<aos::TradingPair> operator()(
+        aos::TradingPair pair) const {
         return static_cast<std::underlying_type_t<aos::TradingPair>>(pair);
     }
 };

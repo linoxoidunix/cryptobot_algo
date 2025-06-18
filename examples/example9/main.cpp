@@ -1,10 +1,11 @@
+#include <string_view>
+
 #include "aos/common/mem_pool.h"
 #include "aos/uid/number_pool.h"
 #include "aos/uid/uid_manager.h"
 #include "aos/uid/unique_id_generator.h"
-#include <string_view>
-#include "fmt/core.h"
-#include "fmtlog.h"
+#include "fmt/core.h"  // NOLINT
+#include "fmtlog.h"    // NOLINT
 
 int main() {
     {
@@ -22,4 +23,3 @@ int main() {
     fmtlog::poll();
     return 0;
 }
-

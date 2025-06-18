@@ -1,12 +1,12 @@
 #pragma once
+#include "aoe/bybit/constants/constants.h"
 #include "aoe/bybit/order_book_sync/i_order_book_sync.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
-#include "aoe/bybit/constants/constants.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 
 namespace aoe {
 namespace bybit {
@@ -17,7 +17,8 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class Listener : public ResponseQueueListenerInterface {
     boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
     moodycamel::ConcurrentQueue<std::vector<char>>& queue_;
-    OrderBookEventParser<Price, Qty, MemoryPool> parser_{kMaximumOrderBookEventsFromExchange};
+    OrderBookEventParser<Price, Qty, MemoryPool> parser_{
+        kMaximumOrderBookEventsFromExchange};
     OrderBookSyncInterface<Price, Qty, MemoryPool>& sync_;
 
   public:

@@ -1,8 +1,8 @@
 #include <unordered_map>
 
-#include "aos/sum_tracker/i_sum_tracker.h"
-#include "fmtlog.h"
 #include "aos/common/mem_pool.h"
+#include "aos/logger/mylog.h"
+#include "aos/sum_tracker/i_sum_tracker.h"
 namespace aos {
 namespace impl {
 template <typename HashT, typename T>
@@ -46,7 +46,7 @@ class SumTrackerBuilder {
     // Строим объект SumTracker
     boost::intrusive_ptr<SumTracker<HashT, T>> build() {
         auto* obj = pool_.Allocate();  // Выделяем память для объекта
-        obj->SetMemoryPool(&pool_);    // Устанавливаем пул памяти
+        obj->SetMemoryPool(&pool_);  // Устанавливаем пул памяти
         return boost::intrusive_ptr<SumTracker<HashT, T>>(
             obj);  // Возвращаем умный указатель
     }

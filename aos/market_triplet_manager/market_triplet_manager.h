@@ -2,8 +2,8 @@
 
 #include <unordered_map>
 
+#include "aos/logger/mylog.h"
 #include "aos/market_triplet_manager/i_market_triplet_manager.h"
-#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -52,11 +52,14 @@ class MarketTripletManager
     ~MarketTripletManager() override {
         logi("{}", "MarketTripletManager dtor");
     }
-    static boost::intrusive_ptr<MarketTripletManager<T, MemoryPoolNotThreadSafety>> Create(
-        MemoryPoolNotThreadSafety<MarketTripletManager<T, MemoryPoolNotThreadSafety>>& pool) {
+    static boost::intrusive_ptr<
+        MarketTripletManager<T, MemoryPoolNotThreadSafety>>
+    Create(MemoryPoolNotThreadSafety<
+           MarketTripletManager<T, MemoryPoolNotThreadSafety>>& pool) {
         auto* obj = pool.Allocate();
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<MarketTripletManager<T, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            MarketTripletManager<T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:

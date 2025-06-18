@@ -6,7 +6,7 @@
 
 #include "aos/common/ref_counted.h"
 #include "aos/histogram/i_histogram_calculator.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 
 namespace aos {
 namespace impl {
@@ -96,11 +96,14 @@ class HistogramCalculator
 
         return histogram;
     };
-    static boost::intrusive_ptr<HistogramCalculator<T, MemoryPoolNotThreadSafety>> Create(
-        MemoryPoolNotThreadSafety<HistogramCalculator<T, MemoryPoolNotThreadSafety>>& pool) {
+    static boost::intrusive_ptr<
+        HistogramCalculator<T, MemoryPoolNotThreadSafety>>
+    Create(MemoryPoolNotThreadSafety<
+           HistogramCalculator<T, MemoryPoolNotThreadSafety>>& pool) {
         auto* obj = pool.Allocate();
         obj->SetMemoryPool(&pool);
-        return boost::intrusive_ptr<HistogramCalculator<T, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            HistogramCalculator<T, MemoryPoolNotThreadSafety>>(obj);
     }
     ~HistogramCalculator() override { logi("{}", "HistogramCalculator dtor"); }
 };

@@ -1,11 +1,11 @@
 #pragma once
 
+#include "aos/common/mem_pool.h"
+#include "aos/logger/mylog.h"
 #include "aos/uid/i_uid_manager.h"
 #include "aos/uid/number_pool.h"
 #include "aos/uid/unique_id_generator.h"
-#include "aos/common/mem_pool.h"
 #include "boost/intrusive_ptr.hpp"
-#include "fmtlog.h"
 
 namespace aos {
 namespace impl {
@@ -116,7 +116,7 @@ class UIDManagerContainer {
     UIDManagerContainer(size_t size)
         : number_pool_(size),
           uid_generator_pool_(size),
-          uid_manager_pool_(size) {};
+          uid_manager_pool_(size){};
     boost::intrusive_ptr<IUIDManager<size_t, common::MemoryPoolNotThreadSafety>>
     Build() {
         UIDManagerBuilder<size_t> builder(number_pool_, uid_generator_pool_,

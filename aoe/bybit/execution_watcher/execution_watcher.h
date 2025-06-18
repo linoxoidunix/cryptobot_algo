@@ -1,9 +1,9 @@
 #pragma once
 
 #include "aoe/bybit/execution_watcher/i_execution_watcher.h"
+#include "aos/logger/mylog.h"
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
-#include "fmtlog.h"
 
 namespace aoe {
 namespace bybit {
@@ -21,7 +21,7 @@ class ExecutionWatcherNetDefault
     ExecutionWatcherNetDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage) {};
+        : position_storage_(position_storage){};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {
@@ -43,7 +43,7 @@ class ExecutionWatcherHedgedDefault
     ExecutionWatcherHedgedDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage) {};
+        : position_storage_(position_storage){};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {
@@ -63,7 +63,7 @@ class ExecutionWatcherDefault
     ExecutionWatcherDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage) {};
+        : position_storage_(position_storage){};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {

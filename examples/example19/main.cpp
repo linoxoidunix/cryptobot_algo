@@ -7,10 +7,10 @@
 
 int main() {
     {
-        using HashT = std::size_t;
-        using Price = double;
-        using Qty   = double;
-        using namespace aos::impl;
+        using HashT     = std::size_t;
+        using Price     = double;
+        using Qty       = double;
+        // using namespace aos::impl;
         using PositionT = aos::impl::NetPositionDefault<Price, Qty>;
         aos::impl::RealizedPnlCalculatorDefault<Price, Qty>
             realized_pnl_calculator;
@@ -35,7 +35,7 @@ int main() {
         aoe::bybit::impl::ExecutionWatcherDefault<
             common::MemoryPoolThreadSafety, PositionT>
             watcher(position_storage_by_pair);
-        auto ptr = pool_event.Allocate();
+        auto* ptr = pool_event.Allocate();
         ptr->SetExecPrice(100);
         ptr->SetExecQty(10);
         ptr->SetMemoryPool(&pool_event);

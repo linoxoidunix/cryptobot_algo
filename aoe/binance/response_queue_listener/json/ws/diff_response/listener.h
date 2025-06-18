@@ -4,10 +4,10 @@
 #include "aoe/binance/parser/json/ws/diff_response/i_parser.h"
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
 #include "aoe/response_queue_listener/i_response_queue_listener.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio.hpp"
 #include "concurrentqueue.h"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 
 namespace aoe {
 namespace binance {

@@ -5,7 +5,7 @@
 #include "aoe/credentials/api_key/i_api_key.h"
 #include "aoe/credentials/secret_key/ed25519/url_safety_no_padding/i_secret_key.h"
 #include "aoe/signer/ed25519/i_signer.h"
-#include "fmtlog.h"
+#include "aos/logger/mylog.h"
 #include "boost/algorithm/string.hpp"
 #include "sodium.h"
 namespace aoe {

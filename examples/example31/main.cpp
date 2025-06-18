@@ -7,9 +7,8 @@
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
 
-
-int main(int argc, char** argv) {
-    {
+int main() {
+    try {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
 
@@ -39,8 +38,10 @@ int main(int argc, char** argv) {
             session_trade_channel, aoe::bybit::spot::Depth::k50,
             aos::TradingPair::kBTCUSDT};
         sub_builder.Subscribe();
-        auto thread_ = std::jthread(
+        auto thread = std::jthread(
             [&ioc_order_book_channel]() { ioc_order_book_channel.run(); });
+    } catch (...) {
+        loge("error occured");
     }
     fmtlog::poll();
     return 0;

@@ -7,7 +7,8 @@
 #include <new>  // For placement new
 #include <string>
 #include <vector>
-#include "fmtlog.h"
+
+#include "aos/logger/mylog.h"
 
 namespace common {
 template <typename T>

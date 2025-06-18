@@ -1,7 +1,7 @@
 #pragma once
 #include "aoe/binance/execution_event/i_types.h"
 #include "boost/intrusive_ptr.hpp"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 
 namespace aoe {
 namespace binance {

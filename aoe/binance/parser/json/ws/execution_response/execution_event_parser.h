@@ -8,7 +8,7 @@
 #include "aos/converters/big_string_view_to_trading_pair/big_string_view_to_trading_pair.h"
 #include "aos/trading_pair_factory/i_trading_pair_factory.h"
 #include "boost/intrusive_ptr.hpp"
-#include "simdjson.h"
+#include "simdjson.h"  // NOLINT
 namespace aoe {
 namespace binance {
 namespace spot {
