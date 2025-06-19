@@ -11,7 +11,7 @@ namespace bybit {
 template <template <typename> typename MemoryPool>
 class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
   public:
-    virtual ~OrderEventInterface()                      = default;
+    ~OrderEventInterface() override                     = default;
     virtual aoe::bybit::OrderStatus OrderStatus() const = 0;
     virtual double LeavesQty() const { return leaves_qty_; }
     virtual double LeavesValue() const { return leaves_value_; };

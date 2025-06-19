@@ -1,8 +1,8 @@
 #pragma once
+#include "aos/common/exchange_id.h"
 #include "aos/common/ref_counted.h"
 #include "aos/position_storage/position_storage_by_pair/i_position_storage_by_pair.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace binance {
@@ -11,7 +11,7 @@ class ExecutionEventInterface
     : public common::RefCounted<
           MemoryPool, ExecutionEventInterface<MemoryPool, PositionT>> {
   public:
-    virtual ~ExecutionEventInterface() = default;
+    ~ExecutionEventInterface() override = default;
     virtual double Fee() const { return fee_; }
     virtual double ExecPrice() const { return exec_price_; }
     virtual double ExecQty() const = 0;

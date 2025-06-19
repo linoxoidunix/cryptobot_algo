@@ -46,7 +46,7 @@ class ExecutionEventParser
         RegisterFromConfig();
     }
     std::pair<bool, EventPtr> ParseAndCreate(
-        simdjson::ondemand::document& doc) {
+        simdjson::ondemand::document& doc) override {
         auto data_json    = doc["data"];
         auto array_result = data_json.get_array();
         if (array_result.error() != simdjson::SUCCESS) return {false, nullptr};

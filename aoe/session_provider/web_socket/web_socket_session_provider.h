@@ -12,7 +12,7 @@ class WebSocketSessionProvider
     explicit WebSocketSessionProvider(
         WebSocketSessionWritableInterface& web_socket_session)
         : web_socket_session_(web_socket_session) {}
-    WebSocketSessionWritableInterface& Provide() {
+    WebSocketSessionWritableInterface& Provide() override {
         return web_socket_session_;
     };
     ~WebSocketSessionProvider() override = default;

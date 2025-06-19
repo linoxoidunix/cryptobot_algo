@@ -11,6 +11,6 @@ template <template <typename> typename MemoryPool>
 class OrderEventInterface
     : public common::RefCounted<MemoryPool, OrderEventInterface<MemoryPool>> {
   public:
-    virtual ~OrderEventInterface() = default;
+    ~OrderEventInterface() override = default;
 };
 };  // namespace aos

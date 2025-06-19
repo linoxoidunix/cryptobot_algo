@@ -6,20 +6,19 @@
 #include "aos/aos.h"  // Ваш класс
 #include "aos/best_ask/best_ask.h"
 #include "aos/best_bid/best_bid.h"
-#include "aos/order_book_level/order_book_level.h"
 #include "aos/common/mem_pool.h"
+#include "aos/order_book_level/order_book_level.h"
 #include "gmock/gmock.h"
-using ::testing::Return;
 
-using namespace aos;
-using namespace aoe::bybit;
-using namespace aoe::bybit::impl;
-using namespace aos;
+// using namespace aos;
+// using namespace aoe::bybit;
+// using namespace aoe::bybit::impl;
+// using namespace aos;
 
 // Объявление типа OrderBook с подстановкой
 using TestOrderBookInner = aos::OrderBookInner<
     double, double, common::MemoryPoolNotThreadSafety,
-    std::unordered_map<double, OrderBookLevel<double, double>*>>;
+    std::unordered_map<double, aos::OrderBookLevel<double, double>*>>;
 
 TEST(OrderBookTest, BasicAddAndGetBBO) {
     TestOrderBookInner book{100};
@@ -149,8 +148,8 @@ TEST(OrderBookTest, UpdateTopNBidsNoChangesReturnsFalse) {
     book.AddBidLevel(99.0, 2.0);
     using Price                                = double;
     using Qty                                  = double;
-    std::vector<aos::BestBid<Price, Qty>> bids = {BestBid{100.0, 1.0},
-                                                  BestBid{99.0, 2.0}};
+    std::vector<aos::BestBid<Price, Qty>> bids = {aos::BestBid{100.0, 1.0},
+                                                  aos::BestBid{99.0, 2.0}};
     std::size_t max_lvl = 42;  // должен остаться нетронутым
 
     bool updated        = book.UpdateTopNBids(2, bids, max_lvl);

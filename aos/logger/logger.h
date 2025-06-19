@@ -31,14 +31,14 @@ struct LogPolling {
         // });
         boost::asio::co_spawn(
             pool,
-            [&, interval]() -> net::awaitable<void> {
+            [&, interval]() -> boost::asio::awaitable<void> {
                 try {
                     co_await Run(interval);
                 } catch (const std::exception& e) {
                     loge("Error: {}", e.what());
                 }
             },
-            net::detached);
+            boost::asio::detached);
     }
 
     void Stop() { cancel_signal_.emit(boost::asio::cancellation_type::all); }

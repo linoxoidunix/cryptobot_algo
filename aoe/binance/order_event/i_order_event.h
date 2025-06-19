@@ -11,7 +11,7 @@ namespace binance {
 template <template <typename> typename MemoryPool>
 class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
   public:
-    virtual ~OrderEventInterface() = default;
+    ~OrderEventInterface() override = default;
     virtual void SetTradingPair(aos::TradingPair trading_pair) {
         trading_pair_ = trading_pair;
     };

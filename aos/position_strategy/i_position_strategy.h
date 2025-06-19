@@ -50,7 +50,7 @@ class INetPositionStrategy
                   "Price must be an arithmetic type");
     static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
-    virtual ~INetPositionStrategy()                               = default;
+    ~INetPositionStrategy() override                              = default;
     virtual void Add(common::ExchangeId exchange_id,
                      aos::TradingPair trading_pair, Price& avg_price,
                      Qty& net_qty, Price price, Qty qty) const    = 0;
@@ -70,7 +70,7 @@ class IHedgePositionStrategy
     static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    virtual ~IHedgePositionStrategy()                               = default;
+    ~IHedgePositionStrategy() override                              = default;
     virtual void Add(common::ExchangeId exchange_id,
                      aos::TradingPair trading_pair, Price (&avg_price)[2],
                      Qty (&net_qty)[2], Price price, Qty qty) const = 0;

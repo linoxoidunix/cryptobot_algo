@@ -9,7 +9,7 @@ class OrderWatcherInterface {
   public:
     virtual void OnEvent(
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) = 0;
-    ~OrderWatcherInterface()                                         = default;
+    virtual ~OrderWatcherInterface()                                 = default;
 };
 };  // namespace bybit
 };  // namespace aoe

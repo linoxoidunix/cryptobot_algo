@@ -66,7 +66,7 @@ class SingleOrderAPIInterface : public PlaceOrderInterface<MemoryPool>,
                                 public CancelOrderInterface<MemoryPool>,
                                 public CancelAllOrderInterface<MemoryPool> {
   public:
-    virtual ~SingleOrderAPIInterface() = default;
+    ~SingleOrderAPIInterface() override = default;
 };
 
 template <template <typename> typename MemoryPool>
@@ -74,7 +74,7 @@ class BatchOrderAPIInterface : public PlaceBacthOrderInterface<MemoryPool>,
                                public AmendBatchOrderInterface<MemoryPool>,
                                public CancelBatchOrderInterface<MemoryPool> {
   public:
-    virtual ~BatchOrderAPIInterface() = default;
+    ~BatchOrderAPIInterface() override = default;
 };
 };  // namespace bybit
 };  // namespace aoe

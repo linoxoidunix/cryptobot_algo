@@ -40,7 +40,7 @@ class ExecutionEventParser
         RegisterFromConfig();
     }
     std::pair<bool, EventPtr> ParseAndCreate(
-        simdjson::ondemand::document& doc) {
+        simdjson::ondemand::document& doc) override {
         // Тип исполнения может быть NEW, TRADE, FILLED и т.д.
         auto exec_type = doc["x"];
         if (exec_type.error() != simdjson::SUCCESS ||
@@ -132,7 +132,7 @@ class ExecutionEventParser
         RegisterFromConfig();
     }
     std::pair<bool, EventPtr> ParseAndCreate(
-        simdjson::ondemand::document& doc) {
+        simdjson::ondemand::document& doc) override {
         // Тип исполнения может быть NEW, TRADE, FILLED и т.д.
         auto exec_type = doc["x"];
         if (exec_type.error() != simdjson::SUCCESS ||

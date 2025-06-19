@@ -2,9 +2,9 @@
 #include "aoe/bybit/enums/enums.h"
 #include "aoe/bybit/request_maker/for_web_socket/place_order/i_request_maker.h"
 #include "aos/common/common.h"
+#include "aos/common/exchange_id.h"
 #include "aos/request/i_request.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace bybit {
@@ -12,7 +12,7 @@ namespace place_order {
 template <template <typename> typename MemoryPool>
 class RequestInterface : public aos::RequestInterface<MemoryPool> {
   public:
-    virtual ~RequestInterface() = default;
+    ~RequestInterface() override = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
     virtual const aos::TradingPair& TradingPair() const {
         return trading_pair_;

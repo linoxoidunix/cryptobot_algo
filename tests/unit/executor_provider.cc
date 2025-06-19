@@ -1,8 +1,10 @@
 #include "aos/executer_provider/executor_provider.h"
-#include "aos/common/mem_pool.h"
+
 #include <gtest/gtest.h>
 
 #include <memory>
+
+#include "aos/common/mem_pool.h"
 
 // Helper function to initialize the parser manager
 
@@ -11,14 +13,16 @@ class ExecutorProviderTest : public ::testing::Test {
     void SetUp() override {
         thread_pool_ = std::make_unique<boost::asio::thread_pool>(
             4);  // Используем 4 потока
-        provider_ = std::make_unique<aos::impl::ExecutorProvider<size_t, common::MemoryPoolNotThreadSafety>>(
-            *thread_pool_);
+        provider_ = std::make_unique<aos::impl::ExecutorProvider<
+            size_t, common::MemoryPoolNotThreadSafety>>(*thread_pool_);
     }
 
     void TearDown() override { thread_pool_->join(); }
 
     std::unique_ptr<boost::asio::thread_pool> thread_pool_;
-    std::unique_ptr<aos::impl::ExecutorProvider<size_t, common::MemoryPoolNotThreadSafety>> provider_;
+    std::unique_ptr<
+        aos::impl::ExecutorProvider<size_t, common::MemoryPoolNotThreadSafety>>
+        provider_;
 };
 
 TEST_F(ExecutorProviderTest, CreateStrandForNewAsset) {
@@ -63,7 +67,7 @@ TEST_F(ExecutorProviderTest, MultipleThreadsAccess) {
     std::atomic<bool> done{false};
 
     std::vector<std::thread> threads;
-
+    threads.reserve(10);
     for (int i = 0; i < 10; ++i) {
         threads.emplace_back([this, &done, hash_asset1]() {
             provider_->GetStrand(hash_asset1);

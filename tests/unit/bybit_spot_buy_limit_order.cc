@@ -2,17 +2,19 @@
 
 #include "aoe/aoe.h"  // Ваш класс
 #include "aos/aos.h"  // Ваш класс
-#include "aos/trading_pair/trading_pair.h"
 #include "aos/common/mem_pool.h"
+#include "aos/trading_pair/trading_pair.h"
 #include "gmock/gmock.h"
 #include "nlohmann/json.hpp"
-using ::testing::Return;
+// using ::testing::Return;
 
-using namespace aoe;
-using namespace aoe::bybit;
-using namespace aoe::bybit::impl;
-using namespace aoe::bybit::place_order::impl;
-using namespace aos;
+// using namespace aoe;
+// using namespace aoe::bybit;
+// using namespace aoe::bybit::impl;
+// using namespace aoe::bybit::place_order::impl;
+// using namespace aos;
+
+using aoe::bybit::place_order::impl::SpotBuyLimit;
 
 // Тесты для SpotBuyLimitOrder
 class SpotBuyLimitOrderTest : public ::testing::Test {

@@ -1,6 +1,6 @@
 #pragma once
-#include "aos/common/ref_counted.h"
 #include "aos/common/exchange_id.h"
+#include "aos/common/ref_counted.h"
 
 namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
@@ -12,7 +12,7 @@ class IUnRealizedPnlCalculator
 
     virtual UnRealizedPnl Calculate(Price avg_price, Qty net_qty, Price bid,
                                     Price ask) = 0;
-    virtual ~IUnRealizedPnlCalculator()        = default;
+    ~IUnRealizedPnlCalculator() override       = default;
 };
 
 template <typename Price, typename Qty>

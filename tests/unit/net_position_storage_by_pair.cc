@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "aos/common/mem_pool.h"
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
 #include "aos/pnl/realized_storage/pnl_realized_storage.h"
 #include "aos/pnl/unrealized_calculator/pnl_unrealized_calculator.h"
@@ -10,7 +11,6 @@
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
 #include "aos/position_strategy/position_strategy.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/mem_pool.h"
 
 using Price = double;
 using Qty   = double;
@@ -20,41 +20,42 @@ using Qty   = double;
 
 class NetPositionStorageDefaultTest : public ::testing::Test {
   protected:
-    aos::impl::RealizedPnlCalculatorDefault<Price, Qty> realized_pnl_calculator;
-    aos::impl::RealizedPnlStorageDefault<Price, Qty> realized_pnl_storage;
+    aos::impl::RealizedPnlCalculatorDefault<Price, Qty>
+        realized_pnl_calculator_;
+    aos::impl::RealizedPnlStorageDefault<Price, Qty> realized_pnl_storage_;
     aos::impl::UnRealizedPnlCalculatorDefault<Price, Qty>
-        unrealized_pnl_calculator;
+        unrealized_pnl_calculator_;
     aos::impl::NetUnRealizedPnlStorageDefault<Price, Qty>
-        un_realized_pnl_storage;
-    aos::impl::NetPositionStrategyDefault<Price, Qty> strategy;
+        un_realized_pnl_storage_;
+    aos::impl::NetPositionStrategyDefault<Price, Qty> strategy_;
     aos::impl::PositionStorageByPair<Price, Qty,
                                      aos::impl::NetPositionDefault<Price, Qty>>
-        position_storage_by_pair;
+        position_storage_by_pair_;
     void SetUp() override {}
     NetPositionStorageDefaultTest()
-        : realized_pnl_storage(realized_pnl_calculator),
-          un_realized_pnl_storage(unrealized_pnl_calculator),
-          strategy(realized_pnl_storage, un_realized_pnl_storage),
-          position_storage_by_pair([this]() {
-              return aos::impl::NetPositionDefault<Price, Qty>(strategy);
+        : realized_pnl_storage_(realized_pnl_calculator_),
+          un_realized_pnl_storage_(unrealized_pnl_calculator_),
+          strategy_(realized_pnl_storage_, un_realized_pnl_storage_),
+          position_storage_by_pair_([this]() {
+              return aos::impl::NetPositionDefault<Price, Qty>(strategy_);
           }) {
         // безопасно инициализировать поля
     }
 };
 
 TEST_F(NetPositionStorageDefaultTest, RemovePositionWithoutAddPostionEarlier) {
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, 3.0);
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_FALSE(position.has_value());
 }
 
 TEST_F(NetPositionStorageDefaultTest,
        AddPositionIncreasesNetQtyAndAveragesPrice) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, 3.0);
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetAveragePrice(),
@@ -64,15 +65,15 @@ TEST_F(NetPositionStorageDefaultTest,
 }
 
 TEST_F(NetPositionStorageDefaultTest, RemovePositionRealizedPnlForLong) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 3.0);
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, 1.0);
-    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+    auto [status, pnl] = realized_pnl_storage_.GetRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl, 20.0);  // PNL для лонга: (120 - 100) * 1.0 = 20.0
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
@@ -82,17 +83,17 @@ TEST_F(NetPositionStorageDefaultTest, RemovePositionRealizedPnlForLong) {
 }
 
 TEST_F(NetPositionStorageDefaultTest, RemovePositionRealizedPnlForShort) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, -3.0);
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, -1.0);
-    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+    auto [status, pnl] = realized_pnl_storage_.GetRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
 
     EXPECT_DOUBLE_EQ(pnl,
                      20.0);  // PNL для шорта: (120 - 100) * 1.0 = 20.0
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
@@ -102,17 +103,17 @@ TEST_F(NetPositionStorageDefaultTest, RemovePositionRealizedPnlForShort) {
 }
 
 TEST_F(NetPositionStorageDefaultTest, RemoveMoreThanNetQtyForLong) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 3.0);
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, 5.0);
-    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+    auto [status, pnl] = realized_pnl_storage_.GetRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
 
     EXPECT_DOUBLE_EQ(pnl,
                      60.0);  // PNL для лонга: (120 - 100) * 3 = 60.0
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
@@ -122,16 +123,16 @@ TEST_F(NetPositionStorageDefaultTest, RemoveMoreThanNetQtyForLong) {
 }
 
 TEST_F(NetPositionStorageDefaultTest, RemoveMoreThanNetQtyForShort) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, -3.0);
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, -5.0);
-    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+    auto [status, pnl] = realized_pnl_storage_.GetRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl,
                      60.0);  // PNL для шорта: (120 - 100) * 3 = 60.0
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
@@ -141,16 +142,16 @@ TEST_F(NetPositionStorageDefaultTest, RemoveMoreThanNetQtyForShort) {
 }
 
 TEST_F(NetPositionStorageDefaultTest, RemoveZeroQtyDoesNotChangePosition) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 3.0);
-    position_storage_by_pair.RemovePosition(
+    position_storage_by_pair_.RemovePosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 120.0, 0.0);
 
-    auto [status, pnl] = realized_pnl_storage.GetRealizedPnl(
+    auto [status, pnl] = realized_pnl_storage_.GetRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_EQ(status, true);
     EXPECT_DOUBLE_EQ(pnl, 0.0);  // Нет изменения в PNL
-    auto position = position_storage_by_pair.GetPosition(
+    auto position = position_storage_by_pair_.GetPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(position.has_value());
     EXPECT_DOUBLE_EQ(position.value().get().GetPosition(),
@@ -160,12 +161,12 @@ TEST_F(NetPositionStorageDefaultTest, RemoveZeroQtyDoesNotChangePosition) {
 }
 
 TEST_F(NetPositionStorageDefaultTest, UnrealizedPnlWithBBOAfterPosition) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 2.0);
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBinance,
-                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
+    un_realized_pnl_storage_.UpdateBBO(common::ExchangeId::kBinance,
+                                       aos::TradingPair::kBTCUSDT, 90.0, 110.0);
 
-    auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
+    auto [status, pnl] = un_realized_pnl_storage_.GetUnRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status);
     EXPECT_DOUBLE_EQ(pnl, -20.0);  // buy 100 sell use bid 90. unrealized
@@ -176,38 +177,38 @@ TEST_F(NetPositionStorageDefaultTest, UnrealizedPnlWithPositionAfterBBO) {
     double avg_price = 0;
     double net_qty   = 0;
 
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBinance,
-                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
-    position_storage_by_pair.AddPosition(
+    un_realized_pnl_storage_.UpdateBBO(common::ExchangeId::kBinance,
+                                       aos::TradingPair::kBTCUSDT, 90.0, 110.0);
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 2.0);
 
-    auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
+    auto [status, pnl] = un_realized_pnl_storage_.GetUnRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status);
     EXPECT_DOUBLE_EQ(pnl, -20.0);  // (95+105)/2 = 100, (100 - 90) * 2 = 20
 }
 
 TEST_F(NetPositionStorageDefaultTest, UnrealizedPnlIsUpdatedOnNewBBO) {
-    position_storage_by_pair.AddPosition(
+    position_storage_by_pair_.AddPosition(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT, 100.0, 1.0);
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBinance,
-                                      aos::TradingPair::kBTCUSDT, 90.0, 110.0);
+    un_realized_pnl_storage_.UpdateBBO(common::ExchangeId::kBinance,
+                                       aos::TradingPair::kBTCUSDT, 90.0, 110.0);
 
-    auto [status1, pnl1] = un_realized_pnl_storage.GetUnRealizedPnl(
+    auto [status1, pnl1] = un_realized_pnl_storage_.GetUnRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status1);
     EXPECT_DOUBLE_EQ(pnl1, -10.0);  // (-100+90)*2 = -20
 
-    un_realized_pnl_storage.UpdateBBO(common::ExchangeId::kBinance,
-                                      aos::TradingPair::kBTCUSDT, 95.0, 105.0);
-    auto [status2, pnl2] = un_realized_pnl_storage.GetUnRealizedPnl(
+    un_realized_pnl_storage_.UpdateBBO(common::ExchangeId::kBinance,
+                                       aos::TradingPair::kBTCUSDT, 95.0, 105.0);
+    auto [status2, pnl2] = un_realized_pnl_storage_.GetUnRealizedPnl(
         common::ExchangeId::kBinance, aos::TradingPair::kBTCUSDT);
     EXPECT_TRUE(status2);
     EXPECT_DOUBLE_EQ(pnl2, -5);  // (95 - 100) * 1
 }
 
 TEST_F(NetPositionStorageDefaultTest, GetUnrealizedPnlForNonexistentKey) {
-    auto [status, pnl] = un_realized_pnl_storage.GetUnRealizedPnl(
+    auto [status, pnl] = un_realized_pnl_storage_.GetUnRealizedPnl(
         common::ExchangeId::kBybit, aos::TradingPair::kCount);
     EXPECT_FALSE(status);
 }

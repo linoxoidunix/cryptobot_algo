@@ -3,8 +3,14 @@
 #include "aoe/bybit/enums/enums.h"
 #include "aoe/bybit/order_storage/order_storage.h"  // путь к вашему заголовочному файлу с OrderStorage
 
-using namespace aoe::bybit::impl;
-using namespace aoe::bybit;
+using aoe::bybit::Category;
+using aoe::bybit::OrderMode;
+using aoe::bybit::OrderStatus;
+using aoe::bybit::PendingAction;
+using aoe::bybit::Side;
+using aoe::bybit::impl::Order;
+using aoe::bybit::impl::OrderStorage;
+
 namespace {
 
 Order MakeOrder(uint64_t id, OrderStatus status, PendingAction pending_action,

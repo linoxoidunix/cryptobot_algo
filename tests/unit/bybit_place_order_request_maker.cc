@@ -7,10 +7,10 @@
 #include "nlohmann/json.hpp"
 using ::testing::Return;
 
-using namespace aoe;
-using namespace aoe::bybit;
-using namespace aoe::bybit::impl;
-using namespace aos;
+// using namespace aoe;
+// using namespace aoe::bybit;
+// using namespace aoe::bybit::impl;
+// using namespace aos;
 
 // мок для OrderTypeInterface
 template <template <typename> typename MemoryPool>

@@ -8,7 +8,8 @@ template <template <typename> typename MemoryPool>
 class LeavesQtyCalculator : public LeavesQtyCalculatorInterface<MemoryPool> {
   public:
     ~LeavesQtyCalculator() override = default;
-    double Calculate(const OrderEventInterface<MemoryPool>& event) const {
+    double Calculate(
+        const OrderEventInterface<MemoryPool>& event) const override {
         return event.OrderQty() - event.CumExecQty();
     };
 };

@@ -33,7 +33,7 @@ class PositionStorageByPair
 
   public:
     explicit PositionStorageByPair(std::function<PositionT()> position_factory)
-        : position_factory_(position_factory) {};
+        : position_factory_(std::move(position_factory)) {};
     ~PositionStorageByPair() override = default;
     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
         common::ExchangeId exchange,
@@ -105,7 +105,7 @@ class PositionStorageByPairDeprecated
   public:
     explicit PositionStorageByPairDeprecated(
         boost::intrusive_ptr<StrategyT> strategy)
-        : strategy_(strategy) {};
+        : strategy_(std::move(strategy)) {};
     std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange,
         aos::TradingPair tradingPair) const override {

@@ -77,7 +77,7 @@ class NetUnRealizedPnlStorageDefault
     }
 
     void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
-                   Price price_bid, Price price_ask) {
+                   Price price_bid, Price price_ask) override {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
         auto pos_it = position_info_.find(key);
@@ -180,7 +180,7 @@ class HedgedUnRealizedPnlStorageDefault
     }
 
     void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
-                   Price price_bid, Price price_ask) {
+                   Price price_bid, Price price_ask) override {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
         // Обновляем PnL для длинной позиции
@@ -256,8 +256,8 @@ class NetUnRealizedPnlStorage
     explicit NetUnRealizedPnlStorage(
         boost::intrusive_ptr<IUnRealizedPnlCalculator<Price, Qty, MemoryPool>>
             pnl_unrealized_calculator)
-        : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
-    ~NetUnRealizedPnlStorage() = default;
+        : pnl_unrealized_calculator_(std::move(pnl_unrealized_calculator)) {}
+    ~NetUnRealizedPnlStorage() override = default;
     void UpdatePosition(common::ExchangeId exchange,
                         aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
@@ -336,8 +336,8 @@ class HedgedUnRealizedPnlStorage
     explicit HedgedUnRealizedPnlStorage(
         boost::intrusive_ptr<IUnRealizedPnlCalculator<Price, Qty, MemoryPool>>
             pnl_unrealized_calculator)
-        : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
-    ~HedgedUnRealizedPnlStorage() = default;
+        : pnl_unrealized_calculator_(std::move(pnl_unrealized_calculator)) {}
+    ~HedgedUnRealizedPnlStorage() override = default;
     void UpdatePosition(common::ExchangeId exchange,
                         aos::TradingPair tradingPair, Price avg_price,
                         Qty net_qty) override {
@@ -381,7 +381,7 @@ class HedgedUnRealizedPnlStorage
     }
 
     void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
-                   Price price_bid, Price price_ask) {
+                   Price price_bid, Price price_ask) override {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
         // Обновляем PnL для длинной позиции

@@ -12,6 +12,10 @@ macro(cxx_executable_extended prjname src)
   endforeach()
   target_include_directories(${prj} PRIVATE ${CMAKE_SOURCE_DIR})
   set_property(TARGET ${prj} PROPERTY CXX_STANDARD 23)
+  set_target_properties(${prj} PROPERTIES
+    CXX_SCAN_FOR_MODULES OFF
+    CXX_MODULE_STD_ONLY OFF
+  )
   # Запрещаем CMake добавлять флаги модулей
   set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
   set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP 0)

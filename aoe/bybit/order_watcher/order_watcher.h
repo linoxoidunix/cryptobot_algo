@@ -14,10 +14,11 @@ class OrderWatcher : public OrderWatcherInterface<MemoryPool> {
   public:
     explicit OrderWatcher(OrderManagerInterface<MemoryPool>& order_manager)
         : order_manager_(order_manager) {};
-    void OnEvent(boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) {
+    void OnEvent(
+        boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) override {
         order_manager_.OnResponse(event);
     };
-    ~OrderWatcher() = default;
+    ~OrderWatcher() override = default;
 };
 };  // namespace impl
 };  // namespace bybit

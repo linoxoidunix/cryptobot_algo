@@ -66,7 +66,7 @@ class ExecutionWatcherDefault
         : position_storage_(position_storage) {};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
-            event) {
+            event) override {
         event->Accept(position_storage_);
     };
     ~ExecutionWatcherDefault() = default;

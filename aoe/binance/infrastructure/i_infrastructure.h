@@ -63,7 +63,7 @@ class InfrastructureNotifierInterface
     : public InfrastructureNotifierOnBestBidChangeInterface<Price, Qty>,
       public InfrastructureNotifierOnBestAskChangeInterface<Price, Qty> {
   public:
-    virtual ~InfrastructureNotifierInterface() = default;
+    ~InfrastructureNotifierInterface() override = default;
 };
 };  // namespace main_net
 };  // namespace spot

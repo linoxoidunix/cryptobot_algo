@@ -50,7 +50,7 @@ class MultiOrderManagerDefault : public MultiOrderManagerInterface<MemoryPool> {
         boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) override {
         oms_.at(id)->OnResponse(event);
     }
-    ~MultiOrderManagerDefault() = default;
+    ~MultiOrderManagerDefault() override = default;
 };
 
 };  // namespace impl

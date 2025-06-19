@@ -13,10 +13,10 @@ class MockApiKey : public aoe::ApiKeyInterface {
 
 // Заглушка для SecretKeyInterface
 class MockSecretKey : public aoe::SecretKeyInterface {
-    std::string key_;
+    const std::string& key_;
 
   public:
-    MockSecretKey(const std::string& key) : key_(key) {}
+    explicit MockSecretKey(const std::string& key) : key_(key) {}
 
     std::string_view SecretKey() override { return key_; }
 };

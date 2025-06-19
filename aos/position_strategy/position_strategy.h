@@ -116,8 +116,8 @@ class NetPositionStrategy
             pnl_realized_storage,
         boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
             pnl_unrealized_storage)
-        : pnl_realized_storage_(pnl_realized_storage),
-          pnl_unrealized_storage_(pnl_unrealized_storage) {}
+        : pnl_realized_storage_(std::move(pnl_realized_storage)),
+          pnl_unrealized_storage_(std::move(pnl_unrealized_storage)) {}
     void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price& avg_price, Qty& net_qty, Price price,
              Qty qty) const override {
@@ -158,8 +158,8 @@ class HedgedPositionStrategy
             pnl_realized_storage,
         boost::intrusive_ptr<IPnlUnRealizedStorage<Price, Qty, MemoryPool>>
             pnl_unrealized_storage)
-        : pnl_realized_storage_(pnl_realized_storage),
-          pnl_unrealized_storage_(pnl_unrealized_storage) {}
+        : pnl_realized_storage_(std::move(pnl_realized_storage)),
+          pnl_unrealized_storage_(std::move(pnl_unrealized_storage)) {}
 
     void Add(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
              Price (&avg_price)[2], Qty (&net_qty)[2], Price price,

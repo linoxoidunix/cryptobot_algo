@@ -118,7 +118,7 @@ class NetPosition {
     explicit NetPosition(
         boost::intrusive_ptr<INetPositionStrategy<Price, Qty, MemoryPool>>
             strategy)
-        : strategy_(strategy) {}
+        : strategy_(std::move(strategy)) {}
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,
@@ -156,7 +156,7 @@ class HedgePosition {
     explicit HedgePosition(
         boost::intrusive_ptr<IHedgePositionStrategy<Price, Qty, MemoryPool>>
             strategy)
-        : strategy_(strategy) {}
+        : strategy_(std::move(strategy)) {}
 
     // Добавить количество по заданной цене
     void AddPosition(common::ExchangeId exchange_id,

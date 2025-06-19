@@ -10,7 +10,7 @@ class IExecutorProvider
   public:
     virtual boost::asio::strand<boost::asio::thread_pool::executor_type>&
     GetStrand(const HashT& asset) = 0;
-    virtual ~IExecutorProvider()  = default;
+    ~IExecutorProvider() override = default;
 };
 
 }  // namespace aos
