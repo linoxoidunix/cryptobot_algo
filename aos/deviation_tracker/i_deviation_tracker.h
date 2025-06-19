@@ -34,7 +34,7 @@ class IDeviationAble {
 template <typename HashT, typename T>
 class DeviationTrackerInterface : public IDeviationAble<HashT, T> {
   public:
-    virtual ~DeviationTrackerInterface() = default;
+    ~DeviationTrackerInterface() override = default;
 };
 
 template <typename HashT, typename T, template <typename> class MemoryPool>
@@ -43,6 +43,6 @@ class IDeviationTracker
                                 IDeviationTracker<HashT, T, MemoryPool>>,
       public IDeviationAble<HashT, T> {
   public:
-    virtual ~IDeviationTracker() = default;
+    ~IDeviationTracker() override = default;
 };
 };  // namespace aos

@@ -1,4 +1,4 @@
 #pragma once
 namespace aos {
-enum class PositionSide { kShort, kLong };
+enum class PositionSide { kShort, kLong };  // NOLINT
 };

@@ -1,13 +1,14 @@
 #pragma once
-#include "boost/intrusive_ptr.hpp"
 #include <cassert>
 #include <unordered_map>
-#include "boost/functional/hash.hpp" // <- ОБЯЗАТЕЛЬНО
+
+#include "aos/common/exchange_id.h"
 #include "aos/common/types.h"
 #include "aos/common/types/position_info.h"
 #include "aos/pnl/unrealized_calculator/i_pnl_unrealized_calculator.h"
 #include "aos/pnl/unrealized_storage/i_pnl_unrealized_storage.h"
-#include "aos/common/exchange_id.h"
+#include "boost/functional/hash.hpp"  // <- ОБЯЗАТЕЛЬНО
+#include "boost/intrusive_ptr.hpp"
 
 namespace aos {
 namespace impl {
@@ -55,7 +56,7 @@ class NetUnRealizedPnlStorageDefault
     UnRealizedPnlCalculatorInterface<Price, Qty>& pnl_unrealized_calculator_;
 
   public:
-    NetUnRealizedPnlStorageDefault(
+    explicit NetUnRealizedPnlStorageDefault(
         UnRealizedPnlCalculatorInterface<Price, Qty>& pnl_unrealized_calculator)
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~NetUnRealizedPnlStorageDefault() = default;
@@ -132,7 +133,7 @@ class HedgedUnRealizedPnlStorageDefault
     UnRealizedPnlCalculatorInterface<Price, Qty>& pnl_unrealized_calculator_;
 
   public:
-    HedgedUnRealizedPnlStorageDefault(
+    explicit HedgedUnRealizedPnlStorageDefault(
         UnRealizedPnlCalculatorInterface<Price, Qty>& pnl_unrealized_calculator)
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
     ~HedgedUnRealizedPnlStorageDefault() = default;
@@ -252,7 +253,7 @@ class NetUnRealizedPnlStorage
         pnl_unrealized_calculator_;
 
   public:
-    NetUnRealizedPnlStorage(
+    explicit NetUnRealizedPnlStorage(
         boost::intrusive_ptr<IUnRealizedPnlCalculator<Price, Qty, MemoryPool>>
             pnl_unrealized_calculator)
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
@@ -274,7 +275,7 @@ class NetUnRealizedPnlStorage
     }
 
     void UpdateBBO(common::ExchangeId exchange, aos::TradingPair tradingPair,
-                   Price price_bid, Price price_ask) {
+                   Price price_bid, Price price_ask) override {
         Key key = {exchange, tradingPair};
         bbo_.try_emplace(key, price_bid, price_ask);
         auto pos_it = position_info_.find(key);
@@ -332,7 +333,7 @@ class HedgedUnRealizedPnlStorage
         pnl_unrealized_calculator_;
 
   public:
-    HedgedUnRealizedPnlStorage(
+    explicit HedgedUnRealizedPnlStorage(
         boost::intrusive_ptr<IUnRealizedPnlCalculator<Price, Qty, MemoryPool>>
             pnl_unrealized_calculator)
         : pnl_unrealized_calculator_(pnl_unrealized_calculator) {}
@@ -465,15 +466,15 @@ class UnRealizedPnlStorageContainer {
     MemoryPool<UnRealizedPnlStorageT> pool_;
     using Builder = UnRealizedPnlStorageBuilder<Price, Qty, MemoryPool,
                                                 UnRealizedPnlStorageT>;
-    UnrealizedPnlCalculatorContainerT unrealized_pnl_calculator_container;
+    UnrealizedPnlCalculatorContainerT unrealized_pnl_calculator_container_;
 
   public:
     explicit UnRealizedPnlStorageContainer(size_t size)
-        : pool_(size), unrealized_pnl_calculator_container(size) {}
+        : pool_(size), unrealized_pnl_calculator_container_(size) {}
 
     auto Build() {
         // Получаем указатель на калькулятор
-        auto ptr = unrealized_pnl_calculator_container.Build();
+        auto ptr = unrealized_pnl_calculator_container_.Build();
 
         // Создаем и возвращаем объект
         return Builder(pool_).SetPnlUnrealizedCalculator(ptr).Build();

@@ -14,7 +14,6 @@ namespace details {
 template <template <typename> typename MemoryPool>
 class BaseRequest : public RequestInterface<MemoryPool> {
   protected:
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
     std::string_view base_end_point_;
     std::string_view host_name_;
     BaseRequest(std::string_view endpoint, std::string_view host_name)
@@ -29,7 +28,7 @@ class BaseRequest : public RequestInterface<MemoryPool> {
         req.method(boost::beast::http::verb::get);
 
         auto [status, value] =
-            trading_pair_printer_.Convert(this->TradingPair());
+            aos::impl::TradingPairToBigStringView::Convert(this->TradingPair());
         if (!status) return {false, {}};
 
         auto end_point = fmt::format("{}?symbol={}&limit={}", base_end_point_,

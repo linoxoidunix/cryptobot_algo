@@ -8,7 +8,7 @@
 namespace aoe {
 namespace bybit {
 namespace impl {
-using namespace boost::multi_index;
+using namespace boost::multi_index;  // NOLINT
 
 struct ByOrderId {};
 struct ByStatus {};

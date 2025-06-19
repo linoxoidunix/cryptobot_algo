@@ -26,7 +26,6 @@ class ExecutionEventParser
             return std::hash<std::string_view>{}(k);
         }
     };
-    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
 
     MemoryPool<ExecutionEventSpotSellDefault<MemoryPool, PositionT>>
@@ -82,7 +81,7 @@ class ExecutionEventParser
         ptr->SetOrderId(order_id.value());
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol.value());
+            aos::impl::BigStringViewToTradingPair::Convert(symbol.value());
         if (!status) return {false, nullptr};
         ptr->SetTradingPair(trading_pair);
 
@@ -119,7 +118,6 @@ class ExecutionEventParser
             return std::hash<std::string_view>{}(k);
         }
     };
-    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     std::unordered_map<Key, FactoryFn, PairHash> factory_map_;
 
     MemoryPool<ExecutionEventFuturesSellDefault<MemoryPool, PositionT>>
@@ -175,7 +173,7 @@ class ExecutionEventParser
         ptr->SetOrderId(order_id.value());
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol.value());
+            aos::impl::BigStringViewToTradingPair::Convert(symbol.value());
         if (!status) return {false, nullptr};
         ptr->SetTradingPair(trading_pair);
 

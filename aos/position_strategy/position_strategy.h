@@ -42,7 +42,7 @@ class NetPositionStrategyDefault
         pnl_unrealized_storage_.UpdatePosition(exchange_id, trading_pair,
                                                avg_price, net_qty);
     }
-    ~NetPositionStrategyDefault() override {}
+    ~NetPositionStrategyDefault() override = default;
 };
 
 template <typename Price, typename Qty>
@@ -100,7 +100,7 @@ class HedgedPositionStrategyDefault
                     : void();
     }
 
-    ~HedgedPositionStrategyDefault() override {}
+    ~HedgedPositionStrategyDefault() override = default;
 };
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class NetPositionStrategy
@@ -141,7 +141,7 @@ class NetPositionStrategy
                                                 avg_price, net_qty);
         pnl_realized_storage_->Add(exchange_id, trading_pair, realized_pnl);
     }
-    ~NetPositionStrategy() override {}
+    ~NetPositionStrategy() override = default;
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
@@ -203,7 +203,7 @@ class HedgedPositionStrategy
                     : void();
     }
 
-    ~HedgedPositionStrategy() override {}
+    ~HedgedPositionStrategy() override = default;
 };
 
 template <typename PositionStrategyT, typename Price, typename Qty,

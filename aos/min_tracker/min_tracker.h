@@ -13,7 +13,7 @@ namespace impl {
 template <typename HashT, typename T>
 class MinTrackerDefault : public MinTrackerInterface<HashT, T> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         if (min_element_.find(hash_asset) == min_element_.end()) {
             // Если еще нет записей для данного ключа, инициализируем
             frequency_[hash_asset]   = std::map<T, size_t>();
@@ -32,7 +32,7 @@ class MinTrackerDefault : public MinTrackerInterface<HashT, T> {
              min_element_[hash_asset]);
     }
 
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         auto it = frequency_.find(hash_asset);
         if (it == frequency_.end()) {
             return;  // Нет данных для данного хэш-актива
@@ -91,7 +91,7 @@ template <typename HashT, typename T,
 class MinTracker
     : public aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         if (min_element_.find(hash_asset) == min_element_.end()) {
             // Если еще нет записей для данного ключа, инициализируем
             frequency_[hash_asset]   = std::map<T, size_t>();
@@ -110,7 +110,7 @@ class MinTracker
              min_element_[hash_asset]);
     }
 
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         auto it = frequency_.find(hash_asset);
         if (it == frequency_.end()) {
             return;  // Нет данных для данного хэш-актива

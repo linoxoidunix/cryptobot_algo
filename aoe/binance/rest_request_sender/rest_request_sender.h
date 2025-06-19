@@ -13,7 +13,7 @@ class SnapshotRequestSender : public RestRequestSenderInterface<MemoryPool> {
     RestSessionRWInterface& session_;
 
   public:
-    SnapshotRequestSender(RestSessionRWInterface& session)
+    explicit SnapshotRequestSender(RestSessionRWInterface& session)
         : session_(session) {}
     void Send(aos::RequestInterface<MemoryPool>& request) override {
         aoe::binance::snapshot::impl::RequestMaker<MemoryPool> request_maker;

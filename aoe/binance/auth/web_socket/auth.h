@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/signer/ed25519/i_signer.h"
@@ -16,7 +18,7 @@ class Authentificator : public AuthInterface {
         : web_socket_session_(web_socket_session), signer_(signer) {}
     void Auth() override {
         auto api_key = signer_.ApiKey();
-        long timestamp =
+        int64_t timestamp =
             std::time(nullptr) * 1000;  // Unix timestamp in milliseconds
         auto request =
             fmt::format("apiKey={}&timestamp={}", api_key, timestamp);

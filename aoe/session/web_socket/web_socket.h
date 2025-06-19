@@ -296,11 +296,29 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
           default_endpoint_(default_endpoint),
           timer_(ioc)  // Initialize the timer
     {
-        net::co_spawn(ioc_,
-                      Run(host.data(), port.data(), default_endpoint.data()),
-                      [](std::exception_ptr e) {
-                          if (e) std::rethrow_exception(e);
-                      });
+        // net::co_spawn(
+        //     ioc,
+        //     [&]() -> net::awaitable<void> {
+        //         try {
+        //             co_await Run(host.data(), port.data(),
+        //                          default_endpoint.data());
+        //         } catch (const std::exception& e) {
+        //             loge("Error: {}", e.what());
+        //         }
+        //     },
+        //     net::detached);
+        auto fut = net::co_spawn(
+            ioc,
+            [&]() -> net::awaitable<void> {
+                try {
+                    co_await Run(host.data(), port.data(),
+                                 default_endpoint.data());
+                } catch (const std::exception& e) {
+                    loge("Error: {}", e.what());
+                }
+            },
+            net::use_future);
+        fut.get();  // блокирует, ждет завершения
     }
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {

@@ -1,10 +1,11 @@
 #pragma once
 #include <utility>  // std::pair
-#include "boost/asio/awaitable.hpp"
+
 #include "aos/bbo_full/bbo_full.h"
 #include "aos/best_ask/best_ask.h"
 #include "aos/best_bid/best_bid.h"
 #include "aos/order_book_event/i_order_book_event.h"
+#include "boost/asio/awaitable.hpp"
 #include "boost/intrusive_ptr.hpp"
 
 namespace aos {
@@ -186,7 +187,7 @@ class OrderBookInterface : public ClearOrderBookInterface {
     // remove bid lvl
     virtual void AddAskOrder(Price price, Qty qty) = 0;
     // remove ask lvl
-    virtual ~OrderBookInterface()                  = default;
+    ~OrderBookInterface() override                 = default;
 };
 
 template <typename Price, typename Qty, template <typename> class MemoryPool>
@@ -195,6 +196,6 @@ class OrderBookEventListenerInterface : public ClearOrderBookInterface {
     // add bid level
     virtual void OnEvent(boost::intrusive_ptr<
                          OrderBookEventInterface<Price, Qty, MemoryPool>>) = 0;
-    virtual ~OrderBookEventListenerInterface() = default;
+    ~OrderBookEventListenerInterface() override = default;
 };
 };  // namespace aos

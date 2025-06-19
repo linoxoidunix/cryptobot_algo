@@ -2,7 +2,6 @@
 #include <cmath>
 
 #include "aoe/bybit/order_filter/i_order_filter.h"
-#include "aoe/bybit/order_min_qty_calculator/calculator.h"
 #include "aos/order_min_qty_calculator/i_calculator.h"
 
 namespace aoe {
@@ -24,7 +23,7 @@ class OrderMinQtyCalculator
     }
 
   public:
-    OrderMinQtyCalculator(OrderFilterInterface<Price, Qty>& filter)
+    explicit OrderMinQtyCalculator(OrderFilterInterface<Price, Qty>& filter)
         : filter_(filter) {}
 
     ~OrderMinQtyCalculator() override = default;

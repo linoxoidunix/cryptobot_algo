@@ -21,8 +21,9 @@ class SingleOrderAPIDefault : public SingleOrderAPIInterface<MemoryPool> {
         amend_order_request_maker_;
 
   public:
-    SingleOrderAPIDefault(WebSocketSessionProviderInterface<MemoryPool>&
-                              web_socket_session_provider)
+    explicit SingleOrderAPIDefault(
+        WebSocketSessionProviderInterface<MemoryPool>&
+            web_socket_session_provider)
         : api_(web_socket_session_provider, place_order_request_maker_,
                cancel_order_request_maker_, amend_order_request_maker_) {}
     void PlaceOrder(boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>

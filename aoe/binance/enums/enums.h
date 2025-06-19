@@ -1,6 +1,6 @@
 #pragma once
-#include <string_view>
 #include <cstdint>
+#include <string_view>
 
 namespace aoe {
 namespace binance {
@@ -43,7 +43,7 @@ constexpr std::string_view kWSHost1 = "fstream.binance.com";
 };  // namespace ws
 };  // namespace main_net
 
-enum class ExecType { kTrade, kUnknown };
+enum class ExecType { kTrade, kUnknown };  // NOLINT
 enum class Category : uint8_t {
     kInvalid,
     kSpot,
@@ -60,7 +60,7 @@ using CategoryRaw = std::underlying_type_t<Category>;
 // };
 
 // https://github.com/binance/binance-spot-api-docs/blob/master/enums.md
-enum class StopOrderType {
+enum class StopOrderType {  // NOLINT
     kInvalid,
     kStopLoss,
     kStopLossLimit,
@@ -75,7 +75,7 @@ enum class StopOrderType {
  * This enum defines the various stages an order may go through during its
  * lifecycle on an exchange, from creation to completion or cancellation.
  */
-enum class OrderStatus {
+enum class OrderStatus {  // NOLINT
     /**
      * @brief Invalid or uninitialized status.
      */
@@ -137,57 +137,57 @@ enum class OrderStatus {
     kExpiredInMatch
 };
 
-enum class Side {
+enum class Side {  // NOLINT
     kInvalid,
     kSell,
     kBuy,
 };
 
-enum class OrderMode {
+enum class OrderMode {  // NOLINT
     kInvalid,
     kMarket,
     kLimit,
 };
 
-enum class TimeInForce {
+enum class TimeInForce {  // NOLINT
     kInvalid,
     kGTC,  // До отмены
     kIOC,  // Исполнить сразу или отменить
     kFOK,  // Полностью исполнить или отменить
 };
 
-enum class OrderRouting {
-    kInternal,  // Внутренний (например, обработка внутри системы)
-    kExternal,  // Внешний (отправка на биржу)
-    kSmart,     // Умный маршрут (используется для лучшего исполнения)
-    kDarkPool   // Отправка в тёмный пул ликвидности
+enum class OrderRouting {  // NOLINT
+    kInternal,             // Внутренний (например, обработка внутри системы)
+    kExternal,             // Внешний (отправка на биржу)
+    kSmart,    // Умный маршрут (используется для лучшего исполнения)
+    kDarkPool  // Отправка в тёмный пул ликвидности
 };
 
-enum class PendingAction {
-    kNone,    // нет активного действия
-    kPlace,   // ожидается подтверждение размещения
-    kAmend,   // ожидается подтверждение изменения
-    kCancel,  // ожидается подтверждение отмены
-    kTrigger  // (опционально) ожидается срабатывание стопа
-};
-
-namespace spot {
-enum class Depth { k1, k5, k10, k20 };
+enum class PendingAction {  // NOLINT
+    kNone,                  // нет активного действия
+    kPlace,                 // ожидается подтверждение размещения
+    kAmend,                 // ожидается подтверждение изменения
+    kCancel,                // ожидается подтверждение отмены
+    kTrigger                // (опционально) ожидается срабатывание стопа
 };
 
 namespace spot {
-enum class DiffUpdateSpeed_ms { k100, k1000 };
+enum class Depth { k1, k5, k10, k20 };  // NOLINT
+};
+
+namespace spot {
+enum class DiffUpdateSpeed_ms { k100, k1000 };  // NOLINT
 };
 
 namespace futures {
 // it is unused. used for partiatial depth
 // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Partial-Book-Depth-Streams
-enum class Depth { k5, k10, k20 };
+enum class Depth { k5, k10, k20 };  // NOLINT
 };  // namespace futures
 
 namespace futures {
 // https://developers.binance.com/docs/derivatives/usds-margined-futures/websocket-market-streams/Diff-Book-Depth-Streams
-enum class DiffUpdateSpeed_ms { k100, k250, k500 };
+enum class DiffUpdateSpeed_ms { k100, k250, k500 };  // NOLINT
 };  // namespace futures
 
 // namespace linear {
@@ -207,8 +207,10 @@ enum class DiffUpdateSpeed_ms { k100, k250, k500 };
 namespace std {
 template <>
 struct hash<aoe::binance::Category> {
-    std::underlying_type_t<aoe::binance::Category> operator()(aoe::binance::Category pair) const {
-        return static_cast<std::underlying_type_t<aoe::binance::Category>>(pair);
+    std::underlying_type_t<aoe::binance::Category> operator()(
+        aoe::binance::Category pair) const {
+        return static_cast<std::underlying_type_t<aoe::binance::Category>>(
+            pair);
     }
 };
 };  // namespace std

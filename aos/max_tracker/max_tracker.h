@@ -10,7 +10,7 @@ namespace impl {
 template <typename HashT, typename T>
 class MaxTrackerDefault : public MaxTrackerInterface<HashT, T> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         if (max_element_.find(hash_asset) == max_element_.end()) {
             // Если еще нет записей для данного ключа, инициализируем
             frequency_[hash_asset]   = std::map<T, size_t>();
@@ -29,7 +29,7 @@ class MaxTrackerDefault : public MaxTrackerInterface<HashT, T> {
              max_element_[hash_asset]);
     }
 
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         auto it = frequency_.find(hash_asset);
         if (it == frequency_.end()) {
             return;  // Нет данных для данного хэш-актива
@@ -88,7 +88,7 @@ template <typename HashT, typename T,
 class MaxTracker
     : public aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         if (max_element_.find(hash_asset) == max_element_.end()) {
             // Если еще нет записей для данного ключа, инициализируем
             frequency_[hash_asset]   = std::map<T, size_t>();
@@ -107,7 +107,7 @@ class MaxTracker
              max_element_[hash_asset]);
     }
 
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         auto it = frequency_.find(hash_asset);
         if (it == frequency_.end()) {
             return;  // Нет данных для данного хэш-актива

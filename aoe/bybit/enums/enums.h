@@ -6,8 +6,8 @@
 
 namespace aoe {
 namespace bybit {
-enum class ExecType { kTrade, kUnknown };
-enum class Category {
+enum class ExecType { kTrade, kUnknown };  // NOLINT
+enum class Category {                      // NOLINT
     kInvalid,
     kSpot,
     kLinear,
@@ -17,13 +17,7 @@ enum class Category {
 
 using CategoryRaw = std::underlying_type_t<Category>;
 
-// enum class OrderType {
-//     kUnknown,
-//     kMarket,
-//     kLimit,
-// };
-
-enum class StopOrderType {
+enum class StopOrderType {  // NOLINT
     kInvalid,
     kTakeProfit,
     kStopLoss,
@@ -40,7 +34,7 @@ enum class StopOrderType {
  * Represents the lifecycle stages of an order, including open, closed, and
  * conditional states.
  */
-enum class OrderStatus {
+enum class OrderStatus {  // NOLINT
     /**
      * @brief Invalid or uninitialized order status.
      */
@@ -105,19 +99,19 @@ enum class OrderStatus {
     kDeactivated
 };
 
-enum class Side {
+enum class Side {  // NOLINT
     kInvalid,
     kSell,
     kBuy,
 };
 
-enum class OrderMode {
+enum class OrderMode {  // NOLINT
     kInvalid,
     kMarket,
     kLimit,
 };
 
-enum class TimeInForce {
+enum class TimeInForce {  // NOLINT
     kInvalid,
     kGTC,  // До отмены
     kIOC,  // Исполнить сразу или отменить
@@ -131,35 +125,35 @@ enum class TimeInForce {
     kLOC   // Лимит-ордер на закрытии
 };
 
-enum class OrderRouting {
-    kInternal,  // Внутренний (например, обработка внутри системы)
-    kExternal,  // Внешний (отправка на биржу)
-    kSmart,  // Умный маршрут (используется для лучшего исполнения)
+enum class OrderRouting {  // NOLINT
+    kInternal,             // Внутренний (например, обработка внутри системы)
+    kExternal,             // Внешний (отправка на биржу)
+    kSmart,    // Умный маршрут (используется для лучшего исполнения)
     kDarkPool  // Отправка в тёмный пул ликвидности
 };
 
-enum class PendingAction {
-    kNone,  // нет активного действия
-    kPlace,  // ожидается подтверждение размещения
-    kAmend,  // ожидается подтверждение изменения
-    kCancel,  // ожидается подтверждение отмены
-    kTrigger  // (опционально) ожидается срабатывание стопа
+enum class PendingAction {  // NOLINT
+    kNone,                  // нет активного действия
+    kPlace,                 // ожидается подтверждение размещения
+    kAmend,                 // ожидается подтверждение изменения
+    kCancel,                // ожидается подтверждение отмены
+    kTrigger                // (опционально) ожидается срабатывание стопа
 };
 
 namespace spot {
-enum class Depth { k1, k50, k200 };
+enum class Depth { k1, k50, k200 };  // NOLINT
 };
 
 namespace linear {
-enum class Depth { k1, k50, k200, k500 };
+enum class Depth { k1, k50, k200, k500 };  // NOLINT
 };
 
 namespace inverse {
-enum class Depth { k1, k50, k200, k500 };
+enum class Depth { k1, k50, k200, k500 };  // NOLINT
 };
 
 namespace option {
-enum class Depth { k25, k100 };
+enum class Depth { k25, k100 };  // NOLINT
 };
 };  // namespace bybit
 };  // namespace aoe

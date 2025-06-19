@@ -7,7 +7,12 @@
 #include "magic_enum/magic_enum.hpp"  // нужно для magic_enum::enum_name
 
 namespace common {
-enum class ExchangeId : uint16_t { kBinance, kBybit, kMexc, kInvalid };
+enum class ExchangeId : uint16_t {  // NOLINT(performance-enum-size)
+    kBinance,
+    kBybit,
+    kMexc,
+    kInvalid
+};
 }
 
 namespace common {
@@ -17,7 +22,9 @@ using ExchangeIdRaw = std::underlying_type_t<ExchangeId>;
 template <>
 class fmt::formatter<common::ExchangeId> {
   public:
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    static constexpr auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
     template <typename Context>
     constexpr auto format(const common::ExchangeId& foo, Context& ctx) const {
         return fmt::format_to(ctx.out(), "Exchange:{}",

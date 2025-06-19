@@ -1,8 +1,9 @@
 #pragma once
-#include <boost/pointer_cast.hpp>  // обязательно!
+#include <cstdint>
 
 #include "aoe/binance/request/place_order/i_request.h"
 #include "aoe/binance/request_maker/for_web_socket/place_order/i_request_maker.h"
+#include "boost/pointer_cast.hpp"  // обязательно!
 // #include "aot/common/time_utils.h"
 namespace aoe {
 namespace binance {
@@ -21,11 +22,7 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
 
   private:
     nlohmann::json CreateHeaderJson() {
-        // TODO
-        //  {"X-BAPI-RECV-WINDOW", "8000"},
-        //  {"Referer", "bot-001"}
-        // auto timestamp = common::getCurrentNanoS();
-        auto timestamp = std::time(nullptr) * 1000;
+        int64_t timestamp = std::time(nullptr) * 1000;
         return {
             {"X-BAPI-TIMESTAMP", std::to_string(timestamp)},
         };

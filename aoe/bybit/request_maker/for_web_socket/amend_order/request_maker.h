@@ -21,11 +21,7 @@ class RequestMaker : public RequestMakerInterface<MemoryPool> {
 
   private:
     nlohmann::json CreateHeaderJson() {
-        // TODO
-        //  {"X-BAPI-RECV-WINDOW", "8000"},
-        //  {"Referer", "bot-001"}
-        // auto timestamp = common::getCurrentNanoS();
-        auto timestamp = std::time(nullptr) * 1000;
+        int64_t timestamp = std::time(nullptr) * 1000;
         return {
             {"X-BAPI-TIMESTAMP", std::to_string(timestamp)},
         };

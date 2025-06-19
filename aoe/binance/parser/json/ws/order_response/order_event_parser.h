@@ -35,7 +35,7 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
 
   public:
     ~OrderEventParser() override = default;
-    OrderEventParser(std::size_t pool_size)
+    explicit OrderEventParser(std::size_t pool_size)
         : pool_order_new_(pool_size),
           pool_order_pending_new_(pool_size),
           pool_order_partially_filled_(pool_size),
@@ -86,7 +86,8 @@ class OrderEventParser : public OrderEventParserInterface<MemoryPool> {
         ptr->SetCumExecQty(cum_exec_qty.value());
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol.value());
+            aos::impl::BigStringViewToTradingPair::Convert(symbol.value());
+
         if (!status) return {false, nullptr};
 
         ptr->SetTradingPair(trading_pair);

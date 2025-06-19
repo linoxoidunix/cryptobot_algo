@@ -10,7 +10,7 @@ namespace common {
 template <template <typename> class MemoryPool, typename T>
 class RefCounted {
   public:
-    RefCounted() : memory_pool_(nullptr) {}
+    RefCounted()          = default;
     virtual ~RefCounted() = default;
     void SetMemoryPool(void *pool) { memory_pool_ = pool; }
 
@@ -33,6 +33,6 @@ class RefCounted {
 
   private:
     std::atomic<int> ref_count_{0};
-    void *memory_pool_;
+    void *memory_pool_ = nullptr;
 };
 };  // namespace common

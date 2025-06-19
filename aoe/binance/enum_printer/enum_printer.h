@@ -9,18 +9,18 @@ struct EnumValueWithStatus {
     bool status;
     std::string_view value;
 };
-EnumValueWithStatus ExecTypeToString(ExecType execType) {
+
+inline EnumValueWithStatus ExecTypeToString(ExecType execType) {
     switch (execType) {
         case ExecType::kTrade:
             return {true, "TRADE"};
-        case ExecType::kUnknown:
-            return {false, {}};
         default:
             return {false, {}};  // -1 — неизвестная ошибка
     }
+    return {false, {}};
 };
 
-EnumValueWithStatus CategoryToString(Category category) {
+inline EnumValueWithStatus CategoryToString(Category category) {
     switch (category) {
         case Category::kInvalid:
             return {false, {}};
@@ -31,9 +31,10 @@ EnumValueWithStatus CategoryToString(Category category) {
         default:
             return {false, ""};
     }
+    return {false, ""};
 }
 
-EnumValueWithStatus StopOrderTypeToString(StopOrderType stopOrderType) {
+inline EnumValueWithStatus StopOrderTypeToString(StopOrderType stopOrderType) {
     switch (stopOrderType) {
         case StopOrderType::kInvalid:
             return {false, {}};
@@ -50,7 +51,7 @@ EnumValueWithStatus StopOrderTypeToString(StopOrderType stopOrderType) {
     }
 }
 
-EnumValueWithStatus OrderStatusToString(OrderStatus orderStatus) {
+inline EnumValueWithStatus OrderStatusToString(OrderStatus orderStatus) {
     switch (orderStatus) {
         case OrderStatus::kInvalid:
             return {false, {}};
@@ -77,7 +78,7 @@ EnumValueWithStatus OrderStatusToString(OrderStatus orderStatus) {
     }
 }
 
-EnumValueWithStatus SideToString(Side side) {
+inline EnumValueWithStatus SideToString(Side side) {
     switch (side) {
         case Side::kInvalid:
             return {false, {}};
@@ -90,7 +91,7 @@ EnumValueWithStatus SideToString(Side side) {
     }
 }
 
-EnumValueWithStatus OrderModeToString(OrderMode orderMode) {
+inline EnumValueWithStatus OrderModeToString(OrderMode orderMode) {
     switch (orderMode) {
         case OrderMode::kInvalid:
             return {false, {}};
@@ -103,7 +104,7 @@ EnumValueWithStatus OrderModeToString(OrderMode orderMode) {
     }
 }
 
-EnumValueWithStatus TimeInForceToString(TimeInForce timeInForce) {
+inline EnumValueWithStatus TimeInForceToString(TimeInForce timeInForce) {
     switch (timeInForce) {
         case TimeInForce::kInvalid:
             return {false, {}};
@@ -118,7 +119,7 @@ EnumValueWithStatus TimeInForceToString(TimeInForce timeInForce) {
     }
 }
 
-EnumValueWithStatus OrderRoutingToString(OrderRouting orderRouting) {
+inline EnumValueWithStatus OrderRoutingToString(OrderRouting orderRouting) {
     switch (orderRouting) {
         case OrderRouting::kInternal:
             return {true, "Internal"};
@@ -134,7 +135,7 @@ EnumValueWithStatus OrderRoutingToString(OrderRouting orderRouting) {
 }
 
 namespace spot {
-EnumValueWithStatus DepthToString(Depth depth) {
+inline EnumValueWithStatus DepthToString(Depth depth) {
     switch (depth) {
         case Depth::k1:
             return {true, "1"};
@@ -150,7 +151,8 @@ EnumValueWithStatus DepthToString(Depth depth) {
 };
 };  // namespace spot
 namespace spot {
-EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
+inline EnumValueWithStatus DiffUpdateSpeed_ms_ToString(
+    DiffUpdateSpeed_ms speed) {
     switch (speed) {
         case DiffUpdateSpeed_ms::k100:
             return {true, "100ms"};
@@ -163,14 +165,15 @@ EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
 };  // namespace spot
 
 namespace futures {
-EnumValueWithStatus DiffUpdateSpeed_ms_ToString(DiffUpdateSpeed_ms speed) {
+inline EnumValueWithStatus DiffUpdateSpeed_ms_ToString(
+    DiffUpdateSpeed_ms speed) {
     switch (speed) {
         case DiffUpdateSpeed_ms::k100:
             return {true, "100ms"};
         case DiffUpdateSpeed_ms::k250:
             return {true, "250ms"};
         case DiffUpdateSpeed_ms::k500:
-            return {true, "250ms"};
+            return {true, "500ms"};
         default:
             return {false, ""};
     }

@@ -23,15 +23,15 @@ class Signer : public SignerInterface {
         std::uint8_t digest[EVP_MAX_MD_SIZE];
         std::uint32_t dilen{};
 
-        auto p =
-            ::HMAC(::EVP_sha256(), secret_key_.SecretKey().data(),
-                   secret_key_.SecretKey().length(), (std::uint8_t*)data.data(),
-                   data.size(), digest, &dilen);
+        auto* p = ::HMAC(::EVP_sha256(), secret_key_.SecretKey().data(),
+                         secret_key_.SecretKey().length(),
+                         reinterpret_cast<const std::uint8_t*>(data.data()),
+                         data.size(), digest, &dilen);
         assert(p);
 
         return B2aHex(digest, dilen);
     }
-    std::string SignByLowerCase(std::string_view data) {
+    std::string SignByLowerCase(std::string_view data) override {
         auto buffer = Sign(data);
         boost::algorithm::to_lower(buffer);
         return buffer;
@@ -40,15 +40,15 @@ class Signer : public SignerInterface {
     ~Signer() override = default;
 
   private:
-    std::string B2aHex(const std::uint8_t* p, std::size_t n) {
-        static const char hex[] = "0123456789abcdef";
+    static std::string B2aHex(const std::uint8_t* p, std::size_t n) {
+        static const char kHex[] = "0123456789abcdef";
         std::string res;
         res.reserve(n * 2);
 
-        for (auto end = p + n; p != end; ++p) {
+        for (const auto* end = p + n; p != end; ++p) {
             const std::uint8_t v  = (*p);
-            res                  += hex[(v >> 4) & 0x0F];
-            res                  += hex[v & 0x0F];
+            res                  += kHex[(v >> 4) & 0x0F];
+            res                  += kHex[v & 0x0F];
         }
 
         return res;

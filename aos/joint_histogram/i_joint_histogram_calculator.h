@@ -5,7 +5,7 @@
 
 #include "aos/common/ref_counted.h"
 namespace aos {
-struct pair_hash {
+struct PairHash {
     std::size_t operator()(const std::pair<int, int>& p) const {
         // Combine the two integers (x and y) into a single hash value
         std::size_t hash1 =
@@ -42,11 +42,11 @@ class JointHistogramCalculatorInterface {
      * @return A map where the key is a pair of bin indices (x-bin, y-bin) and
      * the value is the count of occurrences in that bin.
      */
-    virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
+    virtual std::unordered_map<std::pair<int, int>, T, PairHash>
     ComputeJointHistogram(const std::deque<T>& x, const std::deque<T>& y,
                           int bins) const = 0;
 
-    virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
+    virtual std::unordered_map<std::pair<int, int>, T, PairHash>
     ComputeJointHistogram(const std::deque<T>& x, T x_min_value, T x_max_value,
                           const std::deque<T>& y, T y_min_value, T y_max_value,
                           int bins) const = 0;
@@ -66,9 +66,9 @@ class JointHistogramCalculatorInterface {
  */
 template <typename T, template <typename> class MemoryPoolNotThreadSafety>
 class IJointHistogramCalculator
-    : public common::RefCounted<MemoryPoolNotThreadSafety,
-                                aos::IJointHistogramCalculator<
-                                    T, MemoryPoolNotThreadSafety>> {
+    : public common::RefCounted<
+          MemoryPoolNotThreadSafety,
+          aos::IJointHistogramCalculator<T, MemoryPoolNotThreadSafety>> {
   public:
     /**
      * @brief Virtual destructor to ensure proper cleanup in derived classes.
@@ -91,11 +91,11 @@ class IJointHistogramCalculator
      * @return A map where the key is a pair of bin indices (x-bin, y-bin) and
      * the value is the count of occurrences in that bin.
      */
-    virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
+    virtual std::unordered_map<std::pair<int, int>, T, PairHash>
     ComputeJointHistogram(const std::deque<T>& x, const std::deque<T>& y,
                           int bins) const = 0;
 
-    virtual std::unordered_map<std::pair<int, int>, T, pair_hash>
+    virtual std::unordered_map<std::pair<int, int>, T, PairHash>
     ComputeJointHistogram(const std::deque<T>& x, T x_min_value, T x_max_value,
                           const std::deque<T>& y, T y_min_value, T y_max_value,
                           int bins) const = 0;

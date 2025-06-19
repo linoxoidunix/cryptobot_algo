@@ -17,7 +17,7 @@ class UIDManagerDefault : public UIDManagerInterface<T> {
                       NumberPoolInterface<T>& pool)
         : id_generator_(generator), number_pool_(pool) {}
 
-    T GetUniqueID() {
+    T GetUniqueID() override {
         auto [status, id_from_pool] = number_pool_.GetFromPool();
         if (!status) {
             return id_generator_.GenerateUniqueID();
@@ -25,8 +25,8 @@ class UIDManagerDefault : public UIDManagerInterface<T> {
         return id_from_pool;
     }
 
-    void ReturnIDToPool(T id) { number_pool_.ReturnToPool(id); }
-    ~UIDManagerDefault() { logi("UIDManagerDefault dtor"); }
+    void ReturnIDToPool(T id) override { number_pool_.ReturnToPool(id); }
+    ~UIDManagerDefault() override { logi("UIDManagerDefault dtor"); }
 
   private:
     UniqueIDGeneratorInterface<T>& id_generator_;
@@ -47,9 +47,9 @@ class UIDManager
             generator,
         boost::intrusive_ptr<INumberPool<T, common::MemoryPoolNotThreadSafety>>
             pool)
-        : id_generator_(generator), number_pool_(pool) {}
+        : id_generator_(std::move(generator)), number_pool_(std::move(pool)) {}
 
-    T GetUniqueID() {
+    T GetUniqueID() override {
         auto [status, id_from_pool] = number_pool_->GetFromPool();
         if (!status) {
             return id_generator_->GenerateUniqueID();
@@ -57,8 +57,8 @@ class UIDManager
         return id_from_pool;
     }
 
-    void ReturnIDToPool(T id) { number_pool_->ReturnToPool(id); }
-    ~UIDManager() { logi("UIDManager dtor"); }
+    void ReturnIDToPool(T id) override { number_pool_->ReturnToPool(id); }
+    ~UIDManager() override { logi("UIDManager dtor"); }
 
   private:
     boost::intrusive_ptr<
@@ -113,10 +113,10 @@ class UIDManagerContainer {
         uid_manager_pool_;
 
   public:
-    UIDManagerContainer(size_t size)
+    explicit UIDManagerContainer(size_t size)
         : number_pool_(size),
           uid_generator_pool_(size),
-          uid_manager_pool_(size){};
+          uid_manager_pool_(size) {};
     boost::intrusive_ptr<IUIDManager<size_t, common::MemoryPoolNotThreadSafety>>
     Build() {
         UIDManagerBuilder<size_t> builder(number_pool_, uid_generator_pool_,

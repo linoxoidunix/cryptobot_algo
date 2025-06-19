@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/session/web_socket/i_web_socket.h"
 #include "aoe/signer/hmac_sha256/i_signer.h"
@@ -17,8 +19,8 @@ class Authentificator : public AuthInterface {
     void Auth() override {
         // https://github.com/bybit-exchange/api-usage-examples/blob/master/V5_demo/wss_demo/c%2B%2B/ws_trade_api_demo.cpp
         // wait 10ms to expire
-        long expires = std::time(nullptr) * 1000 +
-                       10000;  // Unix timestamp in milliseconds
+        int64_t expires = std::time(nullptr) * 1000 +
+                          10000;  // Unix timestamp in milliseconds
         std::string request    = fmt::format("GET/realtime{}", expires);
         std::string signature  = signer_.Sign(request);
         nlohmann::json message = {

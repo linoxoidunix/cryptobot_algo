@@ -15,9 +15,9 @@ class IMinAble {
 template <typename HashT, typename T>
 class MinTrackerInterface : public IMinAble<HashT, T> {
   public:
-    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
-    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
-    virtual ~MinTrackerInterface()                                = default;
+    virtual void OnAdd(const HashT& hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT& hash_asset, const T& value) = 0;
+    ~MinTrackerInterface() override                                = default;
 };
 
 template <typename HashT, typename T, template <typename> class MemoryPool>
@@ -25,9 +25,9 @@ class IMinTracker
     : public common::RefCounted<MemoryPool, IMinTracker<HashT, T, MemoryPool>>,
       public IMinAble<HashT, T> {
   public:
-    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
-    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
-    virtual ~IMinTracker()                                        = default;
+    virtual void OnAdd(const HashT& hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT& hash_asset, const T& value) = 0;
+    ~IMinTracker() override                                        = default;
 };
 
 };  // namespace aos

@@ -10,13 +10,10 @@ namespace impl {
 
 template <template <typename> typename MemoryPool>
 class Spot : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     Spot() { this->SetCategory(aoe::bybit::Category::kSpot); }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::cancel_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -26,7 +23,8 @@ class Spot : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -46,8 +44,7 @@ class Linear : public RequestInterface<MemoryPool> {
   public:
     Linear() { this->SetCategory(aoe::bybit::Category::kLinear); }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -57,7 +54,8 @@ class Linear : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }

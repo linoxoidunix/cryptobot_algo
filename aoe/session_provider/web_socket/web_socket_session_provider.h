@@ -9,7 +9,7 @@ class WebSocketSessionProvider
     WebSocketSessionWritableInterface& web_socket_session_;
 
   public:
-    WebSocketSessionProvider(
+    explicit WebSocketSessionProvider(
         WebSocketSessionWritableInterface& web_socket_session)
         : web_socket_session_(web_socket_session) {}
     WebSocketSessionWritableInterface& Provide() {

@@ -13,8 +13,8 @@ class PositionTracker : public IPositionTracker<Price, Qty, MemoryPool> {
         observers_;
 
   public:
-    PositionTracker() {}
-    ~PositionTracker() override {}
+    PositionTracker()           = default;
+    ~PositionTracker() override = default;
     void AddObserver(
         boost::intrusive_ptr<IPositionTracker<Price, Qty, MemoryPool>>
             observer) {

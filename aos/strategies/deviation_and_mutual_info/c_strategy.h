@@ -47,7 +47,7 @@ class Strategy : public StrategyInterface<HashT, T> {
         });
 
         core_strategy_.AddActionsToBuy([this](std::queue<HashT>& queue,
-                                              HashT hash, const T& value) {
+                                              HashT hash, const T&) {
             if (!market_triplet_manager_.HasPair(hash)) return;
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
@@ -60,7 +60,7 @@ class Strategy : public StrategyInterface<HashT, T> {
             }
         });
 
-        core_strategy_.AddActionsToBuy([](std::queue<HashT>& queue, HashT hash,
+        core_strategy_.AddActionsToBuy([](std::queue<HashT>&, HashT hash,
                                           const T& value) {
             common::ExchangeId exchange_id_1 = common::ExchangeId::kInvalid;
             aos::NetworkEnvironment network_environment_1;
@@ -95,7 +95,7 @@ class Strategy : public StrategyInterface<HashT, T> {
         });
 
         core_strategy_.AddActionsToSell([this](std::queue<HashT>& queue,
-                                               HashT hash, const T& value) {
+                                               HashT hash, const T&) {
             if (!market_triplet_manager_.HasPair(hash)) return;
             for (const auto& pair : market_triplet_manager_.GetPairs(hash)) {
                 auto [status, mi] = mi_calculator_.ComputeMutualInformation(
@@ -108,7 +108,7 @@ class Strategy : public StrategyInterface<HashT, T> {
             }
         });
 
-        core_strategy_.AddActionsToSell([](std::queue<HashT>& queue, HashT hash,
+        core_strategy_.AddActionsToSell([](std::queue<HashT>&, HashT hash,
                                            const T& value) {
             common::ExchangeId exchange_id_1 = common::ExchangeId::kInvalid;
             aos::NetworkEnvironment network_environment_1;
@@ -133,14 +133,14 @@ class Strategy : public StrategyInterface<HashT, T> {
         InitSellActions();
     }
 
-    void AnalyzeToBuy(const HashT asset, const T& value) override {
+    void AnalyzeToBuy(const HashT& asset, const T& value) override {
         core_strategy_.AnalyzeToBuy(asset, value);
     }
 
-    void AnalyzeToSell(const HashT asset, const T& value) override {
+    void AnalyzeToSell(const HashT& asset, const T& value) override {
         core_strategy_.AnalyzeToSell(asset, value);
     }
-    void AddData(const HashT hash_asset, const T& value) override {
+    void AddData(const HashT& hash_asset, const T& value) override {
         sliding_window_.AddData(hash_asset, value);
     };
     ~Strategy() override = default;

@@ -12,8 +12,8 @@ class OrderWatcher : public OrderWatcherInterface<MemoryPool> {
     OrderManagerInterface<MemoryPool>& order_manager_;
 
   public:
-    OrderWatcher(OrderManagerInterface<MemoryPool>& order_manager)
-        : order_manager_(order_manager){};
+    explicit OrderWatcher(OrderManagerInterface<MemoryPool>& order_manager)
+        : order_manager_(order_manager) {};
     void OnEvent(boost::intrusive_ptr<OrderEventInterface<MemoryPool>> event) {
         order_manager_.OnResponse(event);
     };

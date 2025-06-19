@@ -6,16 +6,16 @@ namespace bybit {
 template <template <typename> typename MemoryPool>
 class OrderEventDefault : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventDefault() = default;
-    ~OrderEventDefault() override {};
+    OrderEventDefault()           = default;
+    ~OrderEventDefault() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {};
 };
 
 template <template <typename> typename MemoryPool>
 class OrderEventNew : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventNew() = default;
-    ~OrderEventNew() override {};
+    OrderEventNew()           = default;
+    ~OrderEventNew() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::bybit::OrderStatus::kNew,
@@ -26,8 +26,8 @@ class OrderEventNew : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventPartiallyFilled : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventPartiallyFilled() = default;
-    ~OrderEventPartiallyFilled() override {};
+    OrderEventPartiallyFilled()           = default;
+    ~OrderEventPartiallyFilled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::bybit::OrderStatus::kPartiallyFilled,
@@ -40,8 +40,8 @@ class OrderEventPartiallyFilled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventUntriggered : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventUntriggered() = default;
-    ~OrderEventUntriggered() override {};
+    OrderEventUntriggered()           = default;
+    ~OrderEventUntriggered() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::bybit::OrderStatus::kUntriggered,
@@ -52,8 +52,8 @@ class OrderEventUntriggered : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventRejected : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventRejected() = default;
-    ~OrderEventRejected() override {};
+    OrderEventRejected()           = default;
+    ~OrderEventRejected() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -63,8 +63,8 @@ template <template <typename> typename MemoryPool>
 class OrderEventPartiallyFilledCancelled
     : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventPartiallyFilledCancelled() = default;
-    ~OrderEventPartiallyFilledCancelled() override {};
+    OrderEventPartiallyFilledCancelled()           = default;
+    ~OrderEventPartiallyFilledCancelled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -73,8 +73,8 @@ class OrderEventPartiallyFilledCancelled
 template <template <typename> typename MemoryPool>
 class OrderEventFilled : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventFilled() = default;
-    ~OrderEventFilled() override {};
+    OrderEventFilled()           = default;
+    ~OrderEventFilled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -83,8 +83,8 @@ class OrderEventFilled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventCancelled : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventCancelled() = default;
-    ~OrderEventCancelled() override {};
+    OrderEventCancelled()           = default;
+    ~OrderEventCancelled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -93,8 +93,8 @@ class OrderEventCancelled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventTriggered : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventTriggered() = default;
-    ~OrderEventTriggered() override {};
+    OrderEventTriggered()           = default;
+    ~OrderEventTriggered() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -103,8 +103,8 @@ class OrderEventTriggered : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventDeactivated : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventDeactivated() = default;
-    ~OrderEventDeactivated() override {};
+    OrderEventDeactivated()           = default;
+    ~OrderEventDeactivated() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };

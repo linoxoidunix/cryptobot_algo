@@ -8,7 +8,7 @@ namespace aoe {
 namespace binance {
 class OrderStorageInterface : public OrderMutatorInterface {
   public:
-    virtual ~OrderStorageInterface() = default;
+    ~OrderStorageInterface() override = default;
     virtual std::vector<const impl::Order*> Get(
         aoe::binance::Category category)                                 = 0;
     virtual std::vector<const impl::Order*> Get(aoe::binance::Category category,

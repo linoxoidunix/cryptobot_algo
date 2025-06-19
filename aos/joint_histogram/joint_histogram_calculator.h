@@ -34,10 +34,10 @@ class JointHistogramCalculatorDefault
      * the value is the normalized count of occurrences in the corresponding
      * joint bin.
      */
-    std::unordered_map<std::pair<int, int>, T, pair_hash> ComputeJointHistogram(
+    std::unordered_map<std::pair<int, int>, T, PairHash> ComputeJointHistogram(
         const std::deque<T>& x, const std::deque<T>& y,
         int bins) const override {
-        std::unordered_map<std::pair<int, int>, T, pair_hash> joint_histogram;
+        std::unordered_map<std::pair<int, int>, T, PairHash> joint_histogram;
         T min_x       = *std::min_element(x.begin(), x.end());
         T max_x       = *std::max_element(x.begin(), x.end());
         T min_y       = *std::min_element(y.begin(), y.end());
@@ -60,11 +60,11 @@ class JointHistogramCalculatorDefault
         return joint_histogram;
     }
 
-    std::unordered_map<std::pair<int, int>, T, pair_hash> ComputeJointHistogram(
+    std::unordered_map<std::pair<int, int>, T, PairHash> ComputeJointHistogram(
         const std::deque<T>& x, T x_min_value, T x_max_value,
         const std::deque<T>& y, T y_min_value, T y_max_value,
         int bins) const override {
-        std::unordered_map<std::pair<int, int>, T, pair_hash> joint_histogram;
+        std::unordered_map<std::pair<int, int>, T, PairHash> joint_histogram;
 
         T bin_width_x = (x_max_value - x_min_value) / bins;
         T bin_width_y = (y_max_value - y_min_value) / bins;
@@ -126,10 +126,10 @@ class JointHistogramCalculator
      * the value is the normalized count of occurrences in the corresponding
      * joint bin.
      */
-    std::unordered_map<std::pair<int, int>, T, pair_hash> ComputeJointHistogram(
+    std::unordered_map<std::pair<int, int>, T, PairHash> ComputeJointHistogram(
         const std::deque<T>& x, const std::deque<T>& y,
         int bins) const override {
-        std::unordered_map<std::pair<int, int>, T, pair_hash> joint_histogram;
+        std::unordered_map<std::pair<int, int>, T, PairHash> joint_histogram;
         T min_x       = *std::min_element(x.begin(), x.end());
         T max_x       = *std::max_element(x.begin(), x.end());
         T min_y       = *std::min_element(y.begin(), y.end());
@@ -152,11 +152,11 @@ class JointHistogramCalculator
         return joint_histogram;
     }
 
-    std::unordered_map<std::pair<int, int>, T, pair_hash> ComputeJointHistogram(
+    std::unordered_map<std::pair<int, int>, T, PairHash> ComputeJointHistogram(
         const std::deque<T>& x, T x_min_value, T x_max_value,
         const std::deque<T>& y, T y_min_value, T y_max_value,
         int bins) const override {
-        std::unordered_map<std::pair<int, int>, T, pair_hash> joint_histogram;
+        std::unordered_map<std::pair<int, int>, T, PairHash> joint_histogram;
 
         T bin_width_x = (x_max_value - x_min_value) / bins;
         T bin_width_y = (y_max_value - y_min_value) / bins;

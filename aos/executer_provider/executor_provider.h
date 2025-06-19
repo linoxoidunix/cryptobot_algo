@@ -15,7 +15,7 @@ class ExecutorProvider
         : thread_pool_(thread_pool) {}
 
     boost::asio::strand<boost::asio::thread_pool::executor_type>& GetStrand(
-        const HashT hash_asset) override {
+        const HashT& hash_asset) override {
         auto& flag = flags_[hash_asset];
         // auto& strand = strands_[hash_asset];
 
@@ -49,22 +49,27 @@ class ExecutorProvider
     std::unordered_map<std::size_t, std::atomic<bool>> flags_;
 };
 
-template <typename HashT, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class ExecutorProviderBuilder {
   public:
     explicit ExecutorProviderBuilder(
-        MemoryPoolNotThreadSafety<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool,
+        MemoryPoolNotThreadSafety<
+            ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool,
         boost::asio::thread_pool& thread_pool)
         : pool_(pool), thread_pool_(thread_pool) {}
 
-    boost::intrusive_ptr<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>> build() {
+    boost::intrusive_ptr<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>
+    build() {
         auto* obj = pool_.Allocate(thread_pool_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    MemoryPoolNotThreadSafety<ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool_;
+    MemoryPoolNotThreadSafety<
+        ExecutorProvider<HashT, MemoryPoolNotThreadSafety>>& pool_;
     boost::asio::thread_pool& thread_pool_;
 };
 }  // namespace impl

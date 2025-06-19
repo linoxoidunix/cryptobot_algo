@@ -26,7 +26,9 @@ struct hash<aos::NetworkEnvironment> {
 template <>
 class fmt::formatter<aos::NetworkEnvironment> {
   public:
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    static constexpr auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
     template <typename Context>
     constexpr auto format(const aos::NetworkEnvironment& foo,
                           Context& ctx) const {

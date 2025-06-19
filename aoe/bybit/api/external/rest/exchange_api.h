@@ -8,7 +8,7 @@ namespace rest {
 template <template <typename> typename MemoryPool>
 class SingleOrderAPI : public SingleOrderAPIInterface<MemoryPool> {
   public:
-    SingleOrderAPI() {}
+    explicit SingleOrderAPI() = default;
     void PlaceOrder(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) override {}
     void AmendOrder(

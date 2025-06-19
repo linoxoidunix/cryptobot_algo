@@ -12,16 +12,17 @@
 namespace aos {
 // 📌 Интерфейс хранилища данных (Liskov Substitution - L)
 template <typename HashT, typename T>
-class SlidingWindowStorageAvgDevMinMaxInterface : public common::IWaitable,
-                                      public IAvgAble<HashT, T>,
-                                      public IDeviationAble<HashT, T>,
-                                      public IMinAble<HashT, T>,
-                                      public IMaxAble<HashT, T> {
+class SlidingWindowStorageAvgDevMinMaxInterface
+    : public common::IWaitable,
+      public IAvgAble<HashT, T>,
+      public IDeviationAble<HashT, T>,
+      public IMinAble<HashT, T>,
+      public IMaxAble<HashT, T> {
   public:
-    virtual void AddData(const HashT hash_asset, const T& value)        = 0;
+    virtual void AddData(const HashT& hash_asset, const T& value)       = 0;
     virtual const std::deque<T>& GetData(const HashT& hash_asset) const = 0;
     virtual bool HasEnoughData(const HashT& hash_asset) const           = 0;
-    virtual ~SlidingWindowStorageAvgDevMinMaxInterface() = default;
+    ~SlidingWindowStorageAvgDevMinMaxInterface() override = default;
 };
 
 template <typename HashT, typename T, template <typename> class MemoryPool>
@@ -34,10 +35,10 @@ class ISlidingWindowStorage
       public IMinAble<HashT, T>,
       public IMaxAble<HashT, T> {
   public:
-    virtual void AddData(const HashT hash_asset, const T& value)        = 0;
+    virtual void AddData(const HashT& hash_asset, const T& value)       = 0;
     virtual const std::deque<T>& GetData(const HashT& hash_asset) const = 0;
     virtual bool HasEnoughData(const HashT& hash_asset) const           = 0;
-    virtual ~ISlidingWindowStorage() = default;
+    ~ISlidingWindowStorage() override = default;
 };
 
 // 📌 Расширенный интерфейс с поддержкой наблюдателей (OCP - открыт для

@@ -6,8 +6,8 @@ template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventDefault() = default;
-    ~ExecutionEventDefault() override {};
+    ExecutionEventDefault()           = default;
+    ~ExecutionEventDefault() override = default;
     double ExecQty() const override { return 0; }
     void Accept(aos::PositionStorageByPairInterface<double, double, PositionT>&
                     position_storage) override {};
@@ -17,8 +17,8 @@ template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventSpotSellDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventSpotSellDefault() = default;
-    ~ExecutionEventSpotSellDefault() override {};
+    ExecutionEventSpotSellDefault()           = default;
+    ~ExecutionEventSpotSellDefault() override = default;
     double ExecQty() const override { return this->exec_qty_; }
     void Accept(aos::PositionStorageByPairInterface<double, double, PositionT>&
                     position_storage) override {
@@ -31,8 +31,8 @@ template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventSpotBuyDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventSpotBuyDefault() = default;
-    ~ExecutionEventSpotBuyDefault() override {};
+    ExecutionEventSpotBuyDefault()           = default;
+    ~ExecutionEventSpotBuyDefault() override = default;
     double ExecQty() const override { return this->exec_qty_; }
     void Accept(aos::PositionStorageByPairInterface<double, double, PositionT>&
                     position_storage) override {
@@ -45,8 +45,8 @@ template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventFuturesSellDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventFuturesSellDefault() = default;
-    ~ExecutionEventFuturesSellDefault() override {};
+    ExecutionEventFuturesSellDefault()           = default;
+    ~ExecutionEventFuturesSellDefault() override = default;
     double ExecQty() const override {
         return -this->exec_qty_;  // minus is determine that sell for futures
     };
@@ -61,8 +61,8 @@ template <template <typename> typename MemoryPool, typename PositionT>
 class ExecutionEventFuturesBuyDefault
     : public ExecutionEventInterface<MemoryPool, PositionT> {
   public:
-    ExecutionEventFuturesBuyDefault() = default;
-    ~ExecutionEventFuturesBuyDefault() override {};
+    ExecutionEventFuturesBuyDefault()           = default;
+    ~ExecutionEventFuturesBuyDefault() override = default;
     double ExecQty() const override {
         return -this->exec_qty_;  // minus is determine that buy for futures
     };

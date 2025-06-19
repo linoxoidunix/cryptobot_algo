@@ -16,14 +16,13 @@ constexpr std::array<std::pair<Ticker, Ticker>,
 namespace aos {
 constexpr std::pair<bool, std::pair<Ticker, Ticker>> TradingPairToTickers(
     TradingPair id) {
-    constexpr std::pair<Ticker, Ticker> invalid_pair{Ticker::kCount,
+    constexpr std::pair<Ticker, Ticker> kInvalidPair{Ticker::kCount,
                                                      Ticker::kCount};
-    const size_t index = static_cast<size_t>(id);
+    const auto index = static_cast<size_t>(id);
 
     if (index < static_cast<size_t>(TradingPair::kCount)) {
         return {true, kTradingPairMap[index]};
-    } else {
-        return {false, invalid_pair};
     }
+    return {false, kInvalidPair};
 }
 };  // namespace aos

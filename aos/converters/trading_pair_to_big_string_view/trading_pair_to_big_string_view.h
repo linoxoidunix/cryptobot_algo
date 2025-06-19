@@ -10,7 +10,7 @@ namespace impl {
 class TradingPairToBigStringView {
     constexpr static std::array<std::pair<TradingPair, std::string_view>,
                                 static_cast<std::size_t>(TradingPair::kCount)>
-        dictionary_ = {{
+        kDictionary = {{
             {TradingPair::kBTCUSDT, "BTCUSDT"},
             {TradingPair::kETHUSDT, "ETHUSDT"},
             {TradingPair::kSOLUSDT, "SOLUSDT"},
@@ -19,13 +19,13 @@ class TradingPairToBigStringView {
   public:
     virtual ~TradingPairToBigStringView() = default;
     // Используем constexpr хэш-таблицу для O(1) доступа
-    constexpr std::pair<bool, std::string_view> Convert(
-        const TradingPair& trading_pair) const {
+    static constexpr std::pair<bool, std::string_view> Convert(
+        const TradingPair& trading_pair) {
         auto index = std::hash<TradingPair>{}(trading_pair);
         // Сравниваем хэш с предустановленными значениями
-        if (index < dictionary_.size() &&
-            dictionary_[index].first == trading_pair) {
-            return {true, dictionary_[index].second};
+        if (index < kDictionary.size() &&
+            kDictionary[index].first == trading_pair) {
+            return {true, kDictionary[index].second};
         }
         return {false, std::string_view{}};
     }

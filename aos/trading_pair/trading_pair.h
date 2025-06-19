@@ -4,7 +4,7 @@
 #include "aos/logger/mylog.h"
 
 namespace aos {
-enum class TradingPair : uint32_t {
+enum class TradingPair : uint32_t {  // NOLINT
     kBTCUSDT,
     kETHUSDT,
     kSOLUSDT,
@@ -30,7 +30,9 @@ struct hash<aos::TradingPair> {
 template <>
 class fmt::formatter<aos::TradingPair> {
   public:
-    constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+    static constexpr auto parse(format_parse_context& ctx) {
+        return ctx.begin();
+    }
     template <typename Context>
     constexpr auto format(const aos::TradingPair& foo, Context& ctx) const {
         return fmt::format_to(ctx.out(), "TradingPair:{}",

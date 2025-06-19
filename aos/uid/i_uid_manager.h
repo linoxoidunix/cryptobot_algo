@@ -16,7 +16,7 @@ template <typename T, template <typename> class MemoryPool>
 class IUIDManager
     : public common::RefCounted<MemoryPool, aos::IUIDManager<T, MemoryPool>> {
   public:
-    virtual ~IUIDManager()            = default;
+    ~IUIDManager() override           = default;
 
     virtual T GetUniqueID()           = 0;
     virtual void ReturnIDToPool(T id) = 0;

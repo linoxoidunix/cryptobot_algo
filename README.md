@@ -5,7 +5,10 @@
 ![G++](https://img.shields.io/badge/G++-14.2.0-blue)
 ![Build System](https://img.shields.io/badge/build%20system-ninja-blue?logo=ninja)
 ![License](https://img.shields.io/github/license/linoxoidunix/cryptobot_algo)
+![Clang-Format](https://img.shields.io/badge/style-clang--format-brightgreen)
+![Clang-Tidy](https://img.shields.io/badge/lint-clang--tidy-blue)
 ![Last Commit](https://img.shields.io/github/last-commit/linoxoidunix/cryptobot_algo)
+
 
 ## 🧩 3rd Party Libraries
 

@@ -1,14 +1,13 @@
 #pragma once
-#include "boost/asio/strand.hpp"
-#include "boost/asio/thread_pool.hpp"
-#include "boost/asio/co_spawn.hpp"
-#include "boost/asio/detached.hpp"
-
+#include "aos/common/exchange_id.h"
 #include "aos/order_book/i_order_book.h"
 #include "aos/order_book_level/order_book_level.h"
 #include "aos/order_book_subscriber/i_order_book_subscriber.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
+#include "boost/asio/co_spawn.hpp"
+#include "boost/asio/detached.hpp"
+#include "boost/asio/strand.hpp"
+#include "boost/asio/thread_pool.hpp"
 #include "boost/intrusive/avltree.hpp"
 namespace aos {
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
@@ -20,14 +19,14 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         boost::intrusive::member_hook<OrderBookLevel<Price, Qty>,
                                       boost::intrusive::avl_set_member_hook<>,
                                       &OrderBookLevel<Price, Qty>::member_hook>;
-    using BidTree = boost::intrusive::avltree<
-        OrderBookLevel<Price, Qty>,
-        boost::intrusive::compare<std::greater<OrderBookLevel<Price, Qty>>>,
-        MemberOption>;
-    using AskTree = boost::intrusive::avltree<
-        OrderBookLevel<Price, Qty>,
-        boost::intrusive::compare<std::less<OrderBookLevel<Price, Qty>>>,
-        MemberOption>;
+    using BidTree =
+        boost::intrusive::avltree<OrderBookLevel<Price, Qty>,
+                                  boost::intrusive::compare<std::greater<>>,
+                                  MemberOption>;
+    using AskTree =
+        boost::intrusive::avltree<OrderBookLevel<Price, Qty>,
+                                  boost::intrusive::compare<std::less<>>,
+                                  MemberOption>;
 
     HashMap price_to_bid_level_;
     HashMap price_to_ask_level_;
@@ -40,7 +39,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
     MemoryPool<OrderBookLevel<Price, Qty>> ask_lvl_memory_pool_;
 
   public:
-    OrderBookInner(size_t max_level)
+    explicit OrderBookInner(size_t max_level)
         : bid_lvl_memory_pool_(max_level), ask_lvl_memory_pool_(max_level) {};
     OrderBookInner(common::ExchangeId exchange_id,
                    aos::TradingPair trading_pair, size_t max_level)
@@ -66,7 +65,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
             ask_lvl_memory_pool_.Deallocate(node);
         }
     }
-    void AddBidLevel(Price price, Qty qty) {
+    void AddBidLevel(Price price, Qty qty) override {
         logi("[ORDER_BOOK] add bid price:{} qty:{}", price, qty);
         auto contains = price_to_bid_level_.contains(price);
         if (contains) {
@@ -78,7 +77,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         price_to_bid_level_.insert({price, ptr});
         bid_levels_.insert_unique(*ptr);
     }
-    void AddAskLevel(Price price, Qty qty) {
+    void AddAskLevel(Price price, Qty qty) override {
         logi("[ORDER_BOOK] add ask price:{} qty:{}", price, qty);
         auto contains = price_to_ask_level_.contains(price);
         if (contains) {
@@ -90,7 +89,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         price_to_ask_level_.insert({price, ptr});
         ask_levels_.insert_unique(*ptr);
     }
-    void RemoveBidLevel(Price price) {
+    void RemoveBidLevel(Price price) override {
         logi("[ORDER_BOOK] rm bid price:{}", price);
         auto contains = price_to_bid_level_.contains(price);
         if (!contains) {
@@ -101,7 +100,7 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         bid_levels_.erase(*ptr);
         bid_lvl_memory_pool_.Deallocate(ptr);
     }
-    void RemoveAskLevel(Price price) {
+    void RemoveAskLevel(Price price) override {
         logi("[ORDER_BOOK] rm ask price:{}", price);
         auto contains = price_to_ask_level_.contains(price);
         if (!contains) {
@@ -230,7 +229,7 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
     OrderBookInner<Price, Qty, MemoryPool, HashMap> inner_order_book_;
 
   public:
-    OrderBook(size_t max_levels) : inner_order_book_(max_levels) {}
+    explicit OrderBook(size_t max_levels) : inner_order_book_(max_levels) {}
     OrderBook(common::ExchangeId exchange_id, aos::TradingPair trading_pair,
               size_t max_level)
         : inner_order_book_(exchange_id, trading_pair, max_level) {}
@@ -276,7 +275,7 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
         return inner_order_book_.UpdateTopNAsks(n, asks, max_valid_lvl);
     };
 
-    ~OrderBook() = default;
+    ~OrderBook() override = default;
 };
 
 template <typename Price, typename Qty, template <typename> typename MemoryPool,
@@ -300,7 +299,7 @@ class OrderBookEventListener
     ~OrderBookEventListener() override = default;
     void OnEvent(
         boost::intrusive_ptr<OrderBookEventInterface<Price, Qty, MemoryPool>>
-            ptr) {
+            ptr) override {
         boost::asio::co_spawn(strand_, ProcessEvent(ptr),
                               boost::asio::detached);
     }
@@ -370,7 +369,7 @@ class OrderBookNotifier
         subscribers_;
 
   public:
-    OrderBookNotifier(
+    explicit OrderBookNotifier(
         OrderBookEventListenerInterface<Price, Qty, MemoryPool>& order_book)
         : order_book_(order_book) {}
 

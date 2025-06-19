@@ -10,9 +10,9 @@ class SignerInterface : public ApiKeyInterface {
     virtual std::pair<bool, std::string> SignBase64EncodeUrlSafeNoPadding(
         std::string_view data) = 0;
     virtual std::pair<bool, std::string> SignBase64EncodeStandard(
-        std::string_view data) = 0;
+        std::string_view data)  = 0;
 
-    virtual ~SignerInterface() = default;
+    ~SignerInterface() override = default;
 };
 };  // namespace ed25519
 };  // namespace aoe

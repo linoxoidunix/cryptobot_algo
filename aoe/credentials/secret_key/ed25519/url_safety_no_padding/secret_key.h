@@ -13,10 +13,11 @@ class StaticSecretKeyBase64URLSafetyNoPadding
     int rc_ = -1;
     unsigned char sk_[crypto_sign_SECRETKEYBYTES];
     std::string secret_key_;
-    bool returned_status = false;
+    bool returned_status_ = false;
 
   public:
-    StaticSecretKeyBase64URLSafetyNoPadding(std::string_view secret_key)
+    explicit StaticSecretKeyBase64URLSafetyNoPadding(
+        std::string_view secret_key)
         : secret_key_(secret_key.data()) {
         size_t sk_len;
 
@@ -24,14 +25,14 @@ class StaticSecretKeyBase64URLSafetyNoPadding
                                 secret_key_.size(), nullptr, &sk_len, nullptr,
                                 sodium_base64_VARIANT_URLSAFE_NO_PADDING);
         if (rc_ != 0) {
-            returned_status = false;
+            returned_status_ = false;
             return;
         }
         if (sk_len != crypto_sign_SECRETKEYBYTES) {
-            returned_status = false;
+            returned_status_ = false;
             return;
         }
-        returned_status = true;
+        returned_status_ = true;
     }
     std::string_view SecretKey() override { return secret_key_; }
     /**
@@ -49,7 +50,7 @@ class StaticSecretKeyBase64URLSafetyNoPadding
      * (64 bytes) containing the full Ed25519 secret key.
      */
     std::pair<bool, const unsigned char*> GetSecretKey64Bytes() const override {
-        return std::make_pair(returned_status, sk_);
+        return std::make_pair(returned_status_, sk_);
     }
     ~StaticSecretKeyBase64URLSafetyNoPadding() override = default;
 };
@@ -58,7 +59,8 @@ class StaticSecretKeyByte64 : public SecretKeyByte64Interface {
     unsigned char sk_[crypto_sign_SECRETKEYBYTES];
 
   public:
-    StaticSecretKeyByte64(unsigned char (&sk)[crypto_sign_SECRETKEYBYTES]) {
+    explicit StaticSecretKeyByte64(
+        unsigned char (&sk)[crypto_sign_SECRETKEYBYTES]) {
         std::memcpy(sk_, sk, crypto_sign_SECRETKEYBYTES);
     }
     std::pair<bool, const unsigned char*> GetSecretKey64Bytes() const override {

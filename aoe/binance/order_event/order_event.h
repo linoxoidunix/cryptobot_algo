@@ -6,16 +6,16 @@ namespace binance {
 template <template <typename> typename MemoryPool>
 class OrderEventDefault : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventDefault() = default;
-    ~OrderEventDefault() override {};
+    OrderEventDefault()           = default;
+    ~OrderEventDefault() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {};
 };
 
 template <template <typename> typename MemoryPool>
 class OrderEventNew : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventNew() = default;
-    ~OrderEventNew() override {};
+    OrderEventNew()           = default;
+    ~OrderEventNew() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::binance::OrderStatus::kNew,
@@ -26,8 +26,8 @@ class OrderEventNew : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventPendingNew : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventPendingNew() = default;
-    ~OrderEventPendingNew() override {};
+    OrderEventPendingNew()           = default;
+    ~OrderEventPendingNew() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::binance::OrderStatus::kPendingNew,
@@ -40,8 +40,8 @@ class OrderEventPartiallyFilled : public OrderEventInterface<MemoryPool> {
     impl::LeavesQtyCalculator<MemoryPool> calculator_;
 
   public:
-    OrderEventPartiallyFilled() = default;
-    ~OrderEventPartiallyFilled() override {};
+    OrderEventPartiallyFilled()           = default;
+    ~OrderEventPartiallyFilled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.UpdateStatus(this->order_id_,
                                    aoe::binance::OrderStatus::kPartiallyFilled,
@@ -55,8 +55,8 @@ class OrderEventPartiallyFilled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventFilled : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventFilled() = default;
-    ~OrderEventFilled() override {};
+    OrderEventFilled()           = default;
+    ~OrderEventFilled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -65,8 +65,8 @@ class OrderEventFilled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventCancelled : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventCancelled() = default;
-    ~OrderEventCancelled() override {};
+    OrderEventCancelled()           = default;
+    ~OrderEventCancelled() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -75,8 +75,8 @@ class OrderEventCancelled : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventPendingCancel : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventPendingCancel() = default;
-    ~OrderEventPendingCancel() override {};
+    OrderEventPendingCancel()           = default;
+    ~OrderEventPendingCancel() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         // https://github.com/binance/binance-spot-api-docs/blob/master/enums.md
         // currently unused
@@ -86,8 +86,8 @@ class OrderEventPendingCancel : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventRejected : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventRejected() = default;
-    ~OrderEventRejected() override {};
+    OrderEventRejected()           = default;
+    ~OrderEventRejected() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -96,8 +96,8 @@ class OrderEventRejected : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventExpired : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventExpired() = default;
-    ~OrderEventExpired() override {};
+    OrderEventExpired()           = default;
+    ~OrderEventExpired() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };
@@ -106,8 +106,8 @@ class OrderEventExpired : public OrderEventInterface<MemoryPool> {
 template <template <typename> typename MemoryPool>
 class OrderEventExpiredInMatch : public OrderEventInterface<MemoryPool> {
   public:
-    OrderEventExpiredInMatch() = default;
-    ~OrderEventExpiredInMatch() override {};
+    OrderEventExpiredInMatch()           = default;
+    ~OrderEventExpiredInMatch() override = default;
     void Accept(OrderMutatorInterface& order_mutator) override {
         order_mutator.Remove(this->order_id_);
     };

@@ -33,8 +33,8 @@ class OrderBookEventParser
         pool_order_diff_;
 
   public:
-    ~OrderBookEventParser() override {}
-    OrderBookEventParser(std::size_t pool_size)
+    ~OrderBookEventParser() override = default;
+    explicit OrderBookEventParser(std::size_t pool_size)
         : pool_order_snapshot_(pool_size), pool_order_diff_(pool_size) {
         RegisterFromConfig();
     }
@@ -69,7 +69,8 @@ class OrderBookEventParser
         if (symbol_result.error() != simdjson::SUCCESS) return {false, nullptr};
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol_result.value());
+            aos::impl::BigStringViewToTradingPair::Convert(
+                symbol_result.value());
         if (!status) return {false, nullptr};
         ptr->SetTradingPair(trading_pair);
 

@@ -34,7 +34,7 @@ class BestBidNotifierInterface
       public OrderBookSubscriberCallbackSetterOnBestBidChangeInterface<Price,
                                                                        Qty> {
   public:
-    virtual ~BestBidNotifierInterface() = default;
+    ~BestBidNotifierInterface() override = default;
 };
 
 template <typename Price, typename Qty>
@@ -43,6 +43,6 @@ class BestAskNotifierInterface
       public OrderBookSubscriberCallbackSetterOnBestAskChangeInterface<Price,
                                                                        Qty> {
   public:
-    virtual ~BestAskNotifierInterface() = default;
+    ~BestAskNotifierInterface() override = default;
 };
 };  // namespace aos

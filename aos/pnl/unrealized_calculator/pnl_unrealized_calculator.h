@@ -12,7 +12,7 @@ class UnRealizedPnlCalculatorDefault
         UnRealizedPnlCalculatorInterface<Price, Qty>::UnRealizedPnl;
 
   public:
-    ~UnRealizedPnlCalculatorDefault() override {};
+    ~UnRealizedPnlCalculatorDefault() override = default;
     // Реализация метода Calculate для интерфейса
     UnRealizedPnl Calculate(Price avg_price, Qty net_qty, Price bid,
                             Price ask) override {

@@ -8,18 +8,18 @@
 
 namespace aos {
 // Таблица соответствия: [base][quote] -> TradingPair
-constexpr std::size_t TickerCount = static_cast<std::size_t>(Ticker::kCount);
+constexpr std::size_t kTickerCount = static_cast<std::size_t>(Ticker::kCount);
 
 // Прямое преобразование двумерного индекса [base][quote] в одномерный индекс
 constexpr std::size_t FlatIndex(Ticker base, Ticker quote) {
-    return static_cast<std::size_t>(base) * TickerCount +
+    return static_cast<std::size_t>(base) * kTickerCount +
            static_cast<std::size_t>(quote);
 }
 
 // Плоский массив размером COUNT * COUNT
-constexpr std::array<TradingPair, TickerCount * TickerCount> kReverseMapFlat =
+constexpr std::array<TradingPair, kTickerCount * kTickerCount> kReverseMapFlat =
     [] {
-        std::array<TradingPair, TickerCount * TickerCount> map{};
+        std::array<TradingPair, kTickerCount * kTickerCount> map{};
 
         for (auto& e : map) {
             e = TradingPair::kCount;  // По умолчанию — "неизвестная пара"
@@ -33,7 +33,8 @@ constexpr std::array<TradingPair, TickerCount * TickerCount> kReverseMapFlat =
     }();
 
 // Возвращает найденную пару, если существует
-constexpr std::pair<bool, TradingPair> TickersToTradingPair(Ticker base, Ticker quote) {
+constexpr std::pair<bool, TradingPair> TickersToTradingPair(Ticker base,
+                                                            Ticker quote) {
     TradingPair pair = kReverseMapFlat[FlatIndex(base, quote)];
     return {pair != TradingPair::kCount, pair};
 }

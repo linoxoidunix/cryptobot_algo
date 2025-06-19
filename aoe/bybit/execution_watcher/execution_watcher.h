@@ -18,10 +18,10 @@ class ExecutionWatcherNetDefault
         position_storage_;
 
   public:
-    ExecutionWatcherNetDefault(
+    explicit ExecutionWatcherNetDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage){};
+        : position_storage_(position_storage) {};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {
@@ -40,10 +40,10 @@ class ExecutionWatcherHedgedDefault
         position_storage_;
 
   public:
-    ExecutionWatcherHedgedDefault(
+    explicit ExecutionWatcherHedgedDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage){};
+        : position_storage_(position_storage) {};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {
@@ -60,10 +60,10 @@ class ExecutionWatcherDefault
         position_storage_;
 
   public:
-    ExecutionWatcherDefault(
+    explicit ExecutionWatcherDefault(
         aos::PositionStorageByPairInterface<Price, Qty, PositionT>&
             position_storage)
-        : position_storage_(position_storage){};
+        : position_storage_(position_storage) {};
     void OnEvent(
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>
             event) {

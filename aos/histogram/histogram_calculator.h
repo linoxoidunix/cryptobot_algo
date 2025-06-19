@@ -33,9 +33,9 @@ class HistogramCalculatorDefault : public HistogramCalculatorInterface<T> {
 
         return histogram;
     }
-    virtual std::unordered_map<int, T> ComputeHistogram(
-        const std::deque<T>& data, T min_val, T max_val,
-        int bins) const override {
+    std::unordered_map<int, T> ComputeHistogram(const std::deque<T>& data,
+                                                T min_val, T max_val,
+                                                int bins) const override {
         std::unordered_map<int, T> histogram;
         T bin_width = (max_val - min_val) / bins;
 
@@ -78,9 +78,9 @@ class HistogramCalculator
 
         return histogram;
     }
-    virtual std::unordered_map<int, T> ComputeHistogram(
-        const std::deque<T>& data, T min_val, T max_val,
-        int bins) const override {
+    std::unordered_map<int, T> ComputeHistogram(const std::deque<T>& data,
+                                                T min_val, T max_val,
+                                                int bins) const override {
         std::unordered_map<int, T> histogram;
         T bin_width = (max_val - min_val) / bins;
 

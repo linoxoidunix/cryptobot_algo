@@ -1,6 +1,7 @@
 #pragma once
 #include <list>
 #include <unordered_map>
+
 #include "aos/executer_provider/executor_provider.h"
 #include "aos/executer_provider/i_executor_provider.h"
 #include "aos/sliding_window_storage/i_sliding_window_storage.h"
@@ -29,11 +30,11 @@ class SlidingWindowStorageDefault
           min_tracker_(min_tracker),
           max_tracker_(max_tracker) {}
 
-    ~SlidingWindowStorageDefault() {
+    ~SlidingWindowStorageDefault() override {
         logi("{}", "SlidingWindowStorageDefault dtor");
     }
 
-    void AddData(const HashT asset, const T& value) override {
+    void AddData(const HashT& asset, const T& value) override {
         auto& window = data_[asset];
         window.emplace_back(value);
 
@@ -87,7 +88,7 @@ class SlidingWindowStorageDefault
     }
 
     bool HasEnoughData(const HashT& hash_asset) const override {
-        return data_.count(hash_asset) &&
+        return data_.contains(hash_asset) &&
                data_.at(hash_asset).size() >= window_size_;
     }
 
@@ -119,10 +120,10 @@ class SlidingWindowStorageDefault
     }
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class SlidingWindowStorage
-    : public aos::ISlidingWindowStorage<HashT, T,
-                                        MemoryPoolNotThreadSafety> {
+    : public aos::ISlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety> {
   public:
     explicit SlidingWindowStorage(
         int window_size,
@@ -217,17 +218,14 @@ class SlidingWindowStorage
   private:
     int window_size_;
     std::unordered_map<HashT, std::deque<T>> data_;
-    boost::intrusive_ptr<
-        aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
         avg_tracker_;
     boost::intrusive_ptr<
         aos::IDeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>
         deviation_tracker_;
-    boost::intrusive_ptr<
-        aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
         min_tracker_;
-    boost::intrusive_ptr<
-        aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
         max_tracker_;
     void UpdateTrackersOnAdd(const HashT& asset, const T& value) {
         avg_tracker_->OnAdd(asset, value);
@@ -246,11 +244,13 @@ class SlidingWindowStorage
     }
 };
 // Builder Class for SlidingWindowStorage
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class SlidingWindowStorageBuilder {
   public:
     explicit SlidingWindowStorageBuilder(
-        MemoryPoolNotThreadSafety<SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>& pool)
+        MemoryPoolNotThreadSafety<
+            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>& pool)
         : pool_(pool) {}
 
     SlidingWindowStorageBuilder& SetWindowSize(int window_size) {
@@ -290,32 +290,34 @@ class SlidingWindowStorageBuilder {
         return *this;
     }
 
-    boost::intrusive_ptr<SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>> build() {
+    boost::intrusive_ptr<
+        SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>
+    build() {
         auto* obj =
             pool_.Allocate(window_size_, avg_tracker_, deviation_tracker_,
                            min_tracker_, max_tracker_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>(obj);
+        return boost::intrusive_ptr<
+            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    MemoryPoolNotThreadSafety<SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>& pool_;
+    MemoryPoolNotThreadSafety<
+        SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>>& pool_;
     int window_size_ = 100;  // Default value
-    boost::intrusive_ptr<
-        aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
         avg_tracker_;
     boost::intrusive_ptr<
         aos::IDeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>
         deviation_tracker_;
-    boost::intrusive_ptr<
-        aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
         min_tracker_;
-    boost::intrusive_ptr<
-        aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
         max_tracker_;
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class SlidingWindowStorageDefaultObservable
     : public SlidingWindowStorageDefault<HashT, T>,
       public IObservable<HashT, T> {
@@ -374,7 +376,8 @@ class SlidingWindowStorageDefaultObservable
             }
 
             logi("Start add hash:{} value:{} to sliding window", asset, value);
-            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>::AddData(asset, value);
+            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>::AddData(
+                asset, value);
         });
     }
     void AddActionsToBuy(std::function<void(std::queue<HashT>& queue_to_buy,
@@ -415,9 +418,11 @@ class SlidingWindowStorageDefaultObservable
         executor_provider_;
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
-class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>,
-                                       public IObservable<HashT, T> {
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
+class SlidingWindowStorageObservable
+    : public SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>,
+      public IObservable<HashT, T> {
   public:
     explicit SlidingWindowStorageObservable(
         int window_size,
@@ -437,9 +442,9 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T, Mem
             aos::IExecutorProvider<HashT, MemoryPoolNotThreadSafety>>
             executor_provider,
         boost::asio::thread_pool& thread_pool)
-        : aos::impl::SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>(window_size, avg_tracker,
-                                                    deviation_tracker,
-                                                    min_tracker, max_tracker),
+        : aos::impl::SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>(
+              window_size, avg_tracker, deviation_tracker, min_tracker,
+              max_tracker),
           thread_pool_(thread_pool),
           strand_(boost::asio::make_strand(thread_pool.get_executor())),
           executor_provider_(executor_provider) {}
@@ -486,7 +491,8 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T, Mem
             }
 
             logi("Start add hash:{} value:{} to sliding window", asset, value);
-            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>::AddData(asset, value);
+            SlidingWindowStorage<HashT, T, MemoryPoolNotThreadSafety>::AddData(
+                asset, value);
         });
     }
     void AddActionsToBuy(std::function<void(std::queue<HashT>& queue_to_buy,
@@ -527,12 +533,13 @@ class SlidingWindowStorageObservable : public SlidingWindowStorage<HashT, T, Mem
         executor_provider_;
 };
 
-template <typename HashT, typename T, template <typename> typename MemoryPoolNotThreadSafety>
+template <typename HashT, typename T,
+          template <typename> typename MemoryPoolNotThreadSafety>
 class SlidingWindowStorageObservableBuilder {
   public:
     explicit SlidingWindowStorageObservableBuilder(
-        MemoryPoolNotThreadSafety<
-            SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>>& pool,
+        MemoryPoolNotThreadSafety<SlidingWindowStorageObservable<
+            HashT, T, MemoryPoolNotThreadSafety>>& pool,
         boost::asio::thread_pool& thread_pool)
         : pool_(pool), thread_pool_(thread_pool) {}
 
@@ -581,30 +588,30 @@ class SlidingWindowStorageObservableBuilder {
         return *this;
     }
 
-    boost::intrusive_ptr<SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>> Build() {
+    boost::intrusive_ptr<
+        SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>>
+    Build() {
         auto* obj = pool_.Allocate(
             window_size_, avg_tracker_, deviation_tracker_, min_tracker_,
             max_tracker_, executor_provider_, thread_pool_);
         obj->SetMemoryPool(&pool_);
-        return boost::intrusive_ptr<SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>>(
-            obj);
+        return boost::intrusive_ptr<SlidingWindowStorageObservable<
+            HashT, T, MemoryPoolNotThreadSafety>>(obj);
     }
 
   private:
-    MemoryPoolNotThreadSafety<SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>>&
+    MemoryPoolNotThreadSafety<
+        SlidingWindowStorageObservable<HashT, T, MemoryPoolNotThreadSafety>>&
         pool_;
     int window_size_ = 100;  // Значение по умолчанию
-    boost::intrusive_ptr<
-        aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety>>
         avg_tracker_;
     boost::intrusive_ptr<
         aos::IDeviationTracker<HashT, T, MemoryPoolNotThreadSafety>>
         deviation_tracker_;
-    boost::intrusive_ptr<
-        aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMinTracker<HashT, T, MemoryPoolNotThreadSafety>>
         min_tracker_;
-    boost::intrusive_ptr<
-        aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
+    boost::intrusive_ptr<aos::IMaxTracker<HashT, T, MemoryPoolNotThreadSafety>>
         max_tracker_;
     boost::intrusive_ptr<
         aos::IExecutorProvider<HashT, MemoryPoolNotThreadSafety>>
@@ -617,62 +624,78 @@ class SlidingWindowStorageObservableBuilder {
 //     SlidingWindowStorageFactory(boost::asio::thread_pool& _thread_pool)
 //         : thread_pool(_thread_pool) {}
 //     boost::asio::thread_pool& thread_pool;
-//     MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>>
+//     MemoryPoolNotThreadSafety<aos::impl::HistogramCalculator<double,
+//     MemoryPoolNotThreadSafety>>
 //         hc_pool{2};
 //     MemoryPoolNotThreadSafety<
-//         aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>>
-//         jhc_pool{2};
+//         aos::impl::JointHistogramCalculator<double,
+//         MemoryPoolNotThreadSafety>> jhc_pool{2};
 //     MemoryPoolNotThreadSafety<
-//         aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>>
-//         mi_pool{2};
+//         aos::impl::MutualInformationCalculator<size_t, double,
+//         MemoryPoolNotThreadSafety>> mi_pool{2};
 //     MemoryPoolNotThreadSafety<
-//         aos::impl::SlidingWindowStorageObservable<std::size_t, double, MemoryPoolNotThreadSafety>>
-//         sw_pool{2};
-//     MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>>
+//         aos::impl::SlidingWindowStorageObservable<std::size_t, double,
+//         MemoryPoolNotThreadSafety>> sw_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::MarketTripletManager<size_t,
+//     MemoryPoolNotThreadSafety>>
 //         mt_pool{2};
-//     MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//     MemoryPoolNotThreadSafety<aos::impl::AvgTracker<size_t, double,
+//     MemoryPoolNotThreadSafety>>
 //         avg_pool{2};
 //     MemoryPoolNotThreadSafety<
-//         aos::impl::DeviationTracker<size_t, double, MemoryPoolNotThreadSafety>>
-//         deviation_pool{2};
-//     MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//         aos::impl::DeviationTracker<size_t, double,
+//         MemoryPoolNotThreadSafety>> deviation_pool{2};
+//     MemoryPoolNotThreadSafety<aos::impl::MinTracker<size_t, double,
+//     MemoryPoolNotThreadSafety>>
 //         min_pool{2};
-//     MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double, MemoryPoolNotThreadSafety>>
+//     MemoryPoolNotThreadSafety<aos::impl::MaxTracker<size_t, double,
+//     MemoryPoolNotThreadSafety>>
 //         max_pool{2};
-//     MemoryPoolNotThreadSafety<aos::impl::ExecutorProvider<size_t, MemoryPoolNotThreadSafety>>
+//     MemoryPoolNotThreadSafety<aos::impl::ExecutorProvider<size_t,
+//     MemoryPoolNotThreadSafety>>
 //         exec_prov_pool{2};
 //     auto Create() {
 //         auto hist_calculator =
-//             aos::impl::HistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(hc_pool);
+//             aos::impl::HistogramCalculator<double,
+//             MemoryPoolNotThreadSafety>::Create(hc_pool);
 //         auto joint_hist_calculator =
-//             aos::impl::JointHistogramCalculator<double, MemoryPoolNotThreadSafety>::Create(jhc_pool);
+//             aos::impl::JointHistogramCalculator<double,
+//             MemoryPoolNotThreadSafety>::Create(jhc_pool);
 //         auto mi_calculator =
-//             aos::impl::MutualInformationCalculator<size_t, double, MemoryPoolNotThreadSafety>::Create(
+//             aos::impl::MutualInformationCalculator<size_t, double,
+//             MemoryPoolNotThreadSafety>::Create(
 //                 mi_pool, hist_calculator, joint_hist_calculator);
 
 //         auto avg_tracker =
-//             aos::impl::AvgTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(avg_pool).build();
+//             aos::impl::AvgTrackerBuilder<std::size_t, double,
+//             MemoryPoolNotThreadSafety>(avg_pool).build();
 //         auto deviation_tracker =
-//             aos::impl::DeviationTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(
+//             aos::impl::DeviationTrackerBuilder<std::size_t, double,
+//             MemoryPoolNotThreadSafety>(
 //                 deviation_pool)
 //                 .SetAvgTracker(avg_tracker)
 //                 .build();
 //         auto minimum_tracker =
-//             aos::impl::MinTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(min_pool).build();
+//             aos::impl::MinTrackerBuilder<std::size_t, double,
+//             MemoryPoolNotThreadSafety>(min_pool).build();
 //         auto maximum_tracker =
-//             aos::impl::MaxTrackerBuilder<std::size_t, double, MemoryPoolNotThreadSafety>(max_pool).build();
+//             aos::impl::MaxTrackerBuilder<std::size_t, double,
+//             MemoryPoolNotThreadSafety>(max_pool).build();
 
 //         auto market_triplet_manager =
-//             aos::impl::MarketTripletManager<size_t, MemoryPoolNotThreadSafety>::Create(mt_pool);
+//             aos::impl::MarketTripletManager<size_t,
+//             MemoryPoolNotThreadSafety>::Create(mt_pool);
 
 //         auto executor_provider =
-//             aos::impl::ExecutorProviderBuilder<std::size_t, MemoryPoolNotThreadSafety>(exec_prov_pool,
+//             aos::impl::ExecutorProviderBuilder<std::size_t,
+//             MemoryPoolNotThreadSafety>(exec_prov_pool,
 //                                                             thread_pool)
 //                 .build();
 
 //         auto sliding_window_storage =
 //             aos::impl::SlidingWindowStorageObservableBuilder<std::size_t,
-//                                                              double, MemoryPoolNotThreadSafety>(
+//                                                              double,
+//                                                              MemoryPoolNotThreadSafety>(
 //                 sw_pool, thread_pool)
 //                 .SetWindowSize(5)
 //                 .SetDeviationTracker(deviation_tracker)

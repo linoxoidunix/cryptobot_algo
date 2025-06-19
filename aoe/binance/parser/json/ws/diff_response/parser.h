@@ -24,14 +24,14 @@ class DiffEventParserBase
     using FactoryFn = std::function<EventPtr()>;
 
   protected:
-    aos::impl::BigStringViewToTradingPair trading_pair_factory_;
     FactoryFn factory_event_;
     MemoryPool<DiffEventType> pool_order_diff_;
 
   public:
     ~DiffEventParserBase() override = default;
 
-    DiffEventParserBase(std::size_t pool_size) : pool_order_diff_(pool_size) {
+    explicit DiffEventParserBase(std::size_t pool_size)
+        : pool_order_diff_(pool_size) {
         RegisterFromConfig();
     }
 
@@ -53,12 +53,11 @@ class DiffEventParserBase
 
         // Parse futures-specific field if needed
         if constexpr (requires { ptr->SetPreviousUpdateId(0); }) {
-            if (auto pu_result = doc["pu"].get_uint64();
-                pu_result.error() != simdjson::SUCCESS) {
+            auto pu_result = doc["pu"].get_uint64();
+            if (pu_result.error() != simdjson::SUCCESS) {
                 return {false, nullptr};
-            } else {
-                ptr->SetPreviousUpdateId(pu_result.value());
             }
+            ptr->SetPreviousUpdateId(pu_result.value());
         }
 
         // Parse trading pair
@@ -89,19 +88,17 @@ class DiffEventParserBase
     }
 
     bool ParseCommonFields(simdjson::ondemand::document& doc, EventPtr ptr) {
-        if (auto u_result = doc["u"].get_uint64();
-            u_result.error() != simdjson::SUCCESS) {
+        auto u_result = doc["u"].get_uint64();
+        if (u_result.error() != simdjson::SUCCESS) {
             return false;
-        } else {
-            ptr->SetFinalUpdateId(u_result.value());
         }
+        ptr->SetFinalUpdateId(u_result.value());
 
-        if (auto U_result = doc["U"].get_uint64();
-            U_result.error() != simdjson::SUCCESS) {
+        auto U_result = doc["U"].get_uint64();  // NOLINT
+        if (U_result.error() != simdjson::SUCCESS) {
             return false;
-        } else {
-            ptr->SetFirstUpdateId(U_result.value());
         }
+        ptr->SetFirstUpdateId(U_result.value());
 
         return true;
     }
@@ -114,7 +111,8 @@ class DiffEventParserBase
         }
 
         auto [status, trading_pair] =
-            trading_pair_factory_.Convert(symbol_result.value());
+            aos::impl::BigStringViewToTradingPair::Convert(
+                symbol_result.value());
         if (!status) {
             return false;
         }
@@ -176,7 +174,7 @@ class DiffEventParser
         aoe::binance::impl::spot::OrderBookDiffEventDefault<Price, Qty,
                                                             MemoryPool>>;
 
-    DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
+    explicit DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
 };
 
 }  // namespace impl
@@ -197,7 +195,7 @@ class DiffEventParser
         aoe::binance::impl::futures::OrderBookDiffEventDefault<Price, Qty,
                                                                MemoryPool>>;
 
-    DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
+    explicit DiffEventParser(std::size_t pool_size) : Base(pool_size) {}
 };
 
 }  // namespace impl

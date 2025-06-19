@@ -21,14 +21,24 @@ struct LogPolling {
     LogPolling(boost::asio::thread_pool& pool,
                std::chrono::microseconds interval)
         : timer(std::make_shared<boost::asio::steady_timer>(pool)) {
-        cancel_signal_.slot().assign(
-            [this](boost::asio::cancellation_type_t type) {
-                run_ = false;
-                timer->cancel();
-            });
-        boost::asio::co_spawn(pool, Run(interval), [](std::exception_ptr e) {
-            if (e) std::rethrow_exception(e);
+        cancel_signal_.slot().assign([this](boost::asio::cancellation_type_t) {
+            run_ = false;
+            timer->cancel();
         });
+        // boost::asio::co_spawn(pool, Run(interval), [](std::exception_ptr& e)
+        // {
+        //     if (e) std::rethrow_exception(e);
+        // });
+        boost::asio::co_spawn(
+            pool,
+            [&, interval]() -> net::awaitable<void> {
+                try {
+                    co_await Run(interval);
+                } catch (const std::exception& e) {
+                    loge("Error: {}", e.what());
+                }
+            },
+            net::detached);
     }
 
     void Stop() { cancel_signal_.emit(boost::asio::cancellation_type::all); }

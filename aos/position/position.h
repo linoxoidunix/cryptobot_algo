@@ -17,7 +17,8 @@ class NetPositionDefault {
 
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    NetPositionDefault(NetPositionStrategyInterface<Price, Qty>& strategy)
+    explicit NetPositionDefault(
+        NetPositionStrategyInterface<Price, Qty>& strategy)
         : strategy_(strategy) {}
 
     // Добавить количество по заданной цене
@@ -52,7 +53,8 @@ class HedgedPositionDefault {
 
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    HedgedPositionDefault(HedgePositionStrategyInterface<Price, Qty>& strategy)
+    explicit HedgedPositionDefault(
+        HedgePositionStrategyInterface<Price, Qty>& strategy)
         : strategy_(strategy) {}
 
     // Добавить количество по заданной цене
@@ -113,7 +115,7 @@ class NetPosition {
 
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    NetPosition(
+    explicit NetPosition(
         boost::intrusive_ptr<INetPositionStrategy<Price, Qty, MemoryPool>>
             strategy)
         : strategy_(strategy) {}
@@ -151,7 +153,7 @@ class HedgePosition {
 
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    HedgePosition(
+    explicit HedgePosition(
         boost::intrusive_ptr<IHedgePositionStrategy<Price, Qty, MemoryPool>>
             strategy)
         : strategy_(strategy) {}

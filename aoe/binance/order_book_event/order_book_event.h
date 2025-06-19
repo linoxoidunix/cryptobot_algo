@@ -10,13 +10,15 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSnapshotEventDefault
     : public OrderBookSnapshotEventInterface<Price, Qty, MemoryPool> {
   public:
-    OrderBookSnapshotEventDefault() = default;
-    ~OrderBookSnapshotEventDefault() override {};
-    void Accept(spot::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
+    OrderBookSnapshotEventDefault()           = default;
+    ~OrderBookSnapshotEventDefault() override = default;
+    void Accept(
+        spot::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
         logi("process event as snapshot");
         sync.AcceptSnapshot(this);
     };
-    void Accept(futures::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync) override {
+    void Accept(futures::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync)
+        override {
         logi("process event as snapshot");
         sync.AcceptSnapshot(this);
     };
@@ -27,7 +29,7 @@ class OrderBookSnapshotEventDefault
 //     : public OrderBookDiffEventInterface<Price, Qty, MemoryPool> {
 //   public:
 //     OrderBookDiffEventDefault() = default;
-//     ~OrderBookDiffEventDefault() override {};
+//     ~OrderBookDiffEventDefault() override = default;
 //     void Accept(OrderBookSyncInterface<Price, Qty, MemoryPool>& sync)
 //     override {
 //         logi("process event as diff");
@@ -40,8 +42,8 @@ class OrderBookDiffEventDefault
     : public aoe::binance::spot::OrderBookDiffEventInterface<Price, Qty,
                                                              MemoryPool> {
   public:
-    OrderBookDiffEventDefault() = default;
-    ~OrderBookDiffEventDefault() override {};
+    OrderBookDiffEventDefault()           = default;
+    ~OrderBookDiffEventDefault() override = default;
     void Accept(
         aoe::binance::spot::OrderBookSyncInterface<Price, Qty, MemoryPool>&
             sync) override {
@@ -57,8 +59,8 @@ class OrderBookDiffEventDefault
     : public aoe::binance::futures::OrderBookDiffEventInterface<Price, Qty,
                                                                 MemoryPool> {
   public:
-    OrderBookDiffEventDefault() = default;
-    ~OrderBookDiffEventDefault() override {};
+    OrderBookDiffEventDefault()           = default;
+    ~OrderBookDiffEventDefault() override = default;
     void Accept(
         aoe::binance::futures::OrderBookSyncInterface<Price, Qty, MemoryPool>&
             sync) override {

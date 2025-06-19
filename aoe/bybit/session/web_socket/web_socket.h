@@ -37,7 +37,7 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     aoe::impl::WebSocketSessionW ws_;
 
   public:
-    SessionW(boost::asio::io_context& ioc)
+    explicit SessionW(boost::asio::io_context& ioc)
         : ws_(ioc, ctx_, "stream.bybit.com", "443", "/v5/trade") {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
@@ -99,7 +99,7 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     aoe::impl::WebSocketSessionW ws_;
 
   public:
-    SessionW(boost::asio::io_context& ioc)
+    explicit SessionW(boost::asio::io_context& ioc)
         : ws_(ioc, ctx_, "stream-testnet.bybit.com", "443", "/v5/trade") {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));

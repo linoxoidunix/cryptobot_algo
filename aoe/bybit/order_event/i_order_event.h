@@ -1,10 +1,10 @@
 #pragma once
 #include "aoe/bybit/enums/enums.h"
 #include "aoe/bybit/order_mutator/i_order_mutator.h"
+#include "aos/common/exchange_id.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_event/i_order_event.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace bybit {
@@ -18,7 +18,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     virtual double CumExecQty() const { return cum_exec_qty_; };
     virtual double CumExecValue() const { return cum_exec_value_; };
 
-    virtual common::ExchangeId ExchangeId() const { return exchange_id; };
+    virtual common::ExchangeId ExchangeId() const { return kExchangeId_; };
     virtual aos::TradingPair TradingPair() const { return trading_pair_; };
     virtual double Price() const { return price_; };
 
@@ -46,7 +46,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     double leaves_value_                  = 0;
     double cum_exec_qty_                  = 0;
     double cum_exec_value_                = 0;
-    common::ExchangeId exchange_id        = common::ExchangeId::kBybit;
+    common::ExchangeId kExchangeId_       = common::ExchangeId::kBybit;
     aos::TradingPair trading_pair_;
     uint64_t order_id_;
     double price_ = 0;

@@ -8,6 +8,6 @@ class OrderBookEventInterface
           MemoryPool, OrderBookEventInterface<Price, Qty, MemoryPool>>,
       public OrderBookTwoSideViewInterface<Price, Qty> {
   public:
-    virtual ~OrderBookEventInterface() = default;
+    ~OrderBookEventInterface() override = default;
 };
 };  // namespace aos

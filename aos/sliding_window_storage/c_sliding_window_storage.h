@@ -18,11 +18,11 @@ class SlidingWindowStorageAvgDevMinMax
     impl::SlidingWindowStorageDefault<HashT, T> sliding_window_storage_;
 
   public:
-    SlidingWindowStorageAvgDevMinMax(int window_size)
+    explicit SlidingWindowStorageAvgDevMinMax(int window_size)
         : deviation_tracker_(avg_tracker_),
           sliding_window_storage_(window_size, avg_tracker_, deviation_tracker_,
                                   min_tracker_, max_tracker_) {}
-    void AddData(const HashT hash_asset, const T& value) override {
+    void AddData(const HashT& hash_asset, const T& value) override {
         sliding_window_storage_.AddData(hash_asset, value);
     }
 

@@ -6,7 +6,8 @@ class StaticApiKey : public ApiKeyInterface {
     std::string api_key_;
 
   public:
-    StaticApiKey(std::string_view api_key) : api_key_(api_key.data()) {}
+    explicit StaticApiKey(std::string_view api_key)
+        : api_key_(api_key.data()) {}
     std::string_view ApiKey() override { return api_key_; }
     ~StaticApiKey() override = default;
 };

@@ -102,7 +102,7 @@ class OrderBookSync
         request.SetTradingPair(pair);
         // default depth = 5000;
         sender.Send(request);
-        auto thread_ = std::jthread([&ioc]() { ioc.run(); });
+        auto thread = std::jthread([&ioc]() { ioc.run(); });
         co_return;
     }
     boost::asio::awaitable<void> ProcessSnapshot(
@@ -289,7 +289,7 @@ class OrderBookSync
         request.SetTradingPair(pair);
         // default depth = 5000;
         sender.Send(request);
-        auto thread_ = std::jthread([&ioc]() { ioc.run(); });
+        auto thread = std::jthread([&ioc]() { ioc.run(); });
         co_return;
     }
     boost::asio::awaitable<void> ProcessSnapshot(

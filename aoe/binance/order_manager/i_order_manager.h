@@ -8,7 +8,7 @@ template <template <typename> typename MemoryPool>
 class OrderManagerInterface : public aos::OrderManagerInterface<MemoryPool>,
                               public OrderMutatorInterface {
   public:
-    virtual ~OrderManagerInterface() = default;
+    ~OrderManagerInterface() override = default;
 };
 };  // namespace binance
 };  // namespace aoe

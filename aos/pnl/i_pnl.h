@@ -1,13 +1,13 @@
 #pragma once
-#include "aos/trading_pair/trading_pair.h"
 #include "aos/common/exchange_id.h"
+#include "aos/trading_pair/trading_pair.h"
 namespace aos {
 namespace impl {
 template <typename Price, typename Qty>
 class IRealizedPnl {
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
-    virtual ~IRealizedPnl() {}
+    virtual ~IRealizedPnl()              = default;
     virtual RealizedPnl GetRealizedPnl() = 0;
 };
 
@@ -16,7 +16,7 @@ class IRealizedPnlForTradingPair {
   public:
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
 
-    virtual ~IRealizedPnlForTradingPair() {}
+    virtual ~IRealizedPnlForTradingPair() = default;
 
     // Метод для получения реализованной прибыли для заданной пары
     virtual std::pair<bool, RealizedPnl> GetRealizedPnl(

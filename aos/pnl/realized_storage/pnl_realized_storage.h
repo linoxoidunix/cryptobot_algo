@@ -1,7 +1,7 @@
 #pragma once
-#include "boost/functional/hash.hpp"
 #include "aos/pnl/realized_calculator/i_pnl_realized_calculator.h"
 #include "aos/pnl/realized_storage/i_pnl_realized_storage.h"
+#include "boost/functional/hash.hpp"
 namespace aos {
 namespace impl {
 
@@ -29,7 +29,7 @@ class RealizedPnlStorageDefault
     std::unordered_map<Key, Price, KeyHash> realized_pnl_;
 
   public:
-    RealizedPnlStorageDefault(
+    explicit RealizedPnlStorageDefault(
         RealizedPnlCalculatorInterface<Price, Qty>& realized_pnl_calculator)
         : realized_pnl_calculator_(realized_pnl_calculator) {};
     RealizedPnl FixProfit(common::ExchangeId exchange,
@@ -56,7 +56,7 @@ class RealizedPnlStorageDefault
         }
         return {true, it->second};
     }
-    ~RealizedPnlStorageDefault() override {}
+    ~RealizedPnlStorageDefault() override = default;
 };
 template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
@@ -101,7 +101,7 @@ class RealizedPnlStorage : public IPnlRealizedStorage<Price, Qty, MemoryPool> {
         }
         return {true, it->second};
     }
-    ~RealizedPnlStorage() override {}
+    ~RealizedPnlStorage() override = default;
 };
 
 // === Билдер для RealizedPnlStorage ===

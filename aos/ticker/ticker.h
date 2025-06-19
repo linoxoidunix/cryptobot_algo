@@ -1,7 +1,7 @@
 #pragma once
 
 namespace aos {
-enum class Ticker {
+enum class Ticker {  // NOLINT
     kUSDT,
     kBTC,
     kETH,

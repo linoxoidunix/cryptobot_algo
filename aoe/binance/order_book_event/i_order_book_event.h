@@ -3,11 +3,11 @@
 
 #include "aoe/binance/enums/enums.h"
 #include "aoe/binance/order_book_sync/i_order_book_sync.h"
+#include "aos/common/exchange_id.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_book_event/i_order_book_event.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"
 #include "aos/order_book_view/i_order_book_view.h"
-#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace binance {
@@ -16,7 +16,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookEventInterface
     : public aos::OrderBookEventInterface<Price, Qty, MemoryPool> {
   public:
-    virtual ~OrderBookEventInterface() = default;
+    ~OrderBookEventInterface() override = default;
 
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; }
     virtual aos::TradingPair TradingPair() const { return trading_pair_; }
@@ -54,7 +54,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookSnapshotEventInterface
     : public OrderBookEventInterface<Price, Qty, MemoryPool> {
   public:
-    virtual ~OrderBookSnapshotEventInterface() = default;
+    ~OrderBookSnapshotEventInterface() override = default;
 
     virtual uint64_t UpdateId() const { return update_id_; }
     virtual void SetUpdateId(uint64_t update_id) { update_id_ = update_id; }
@@ -71,7 +71,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookDiffEventInterface
     : public OrderBookEventInterface<Price, Qty, MemoryPool> {
   public:
-    virtual ~OrderBookDiffEventInterface() = default;
+    ~OrderBookDiffEventInterface() override = default;
 
     virtual uint64_t FirstUpdateId() const { return first_update_id_; }
     virtual uint64_t FinalUpdateId() const { return final_update_id_; }
@@ -98,7 +98,7 @@ template <typename Price, typename Qty, template <typename> typename MemoryPool>
 class OrderBookDiffEventInterface
     : public aoe::binance::OrderBookDiffEventInterface<Price, Qty, MemoryPool> {
   public:
-    virtual ~OrderBookDiffEventInterface() = default;
+    ~OrderBookDiffEventInterface() override = default;
     virtual uint64_t PreviousUpdateId() const { return previoues_update_id_; }
     virtual void SetPreviousUpdateId(uint64_t id) { previoues_update_id_ = id; }
     virtual void Accept(

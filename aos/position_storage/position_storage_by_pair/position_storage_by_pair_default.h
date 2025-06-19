@@ -92,7 +92,7 @@ using HedgedPositionStorageByPairDefault = GenericPositionStorageByPair<
 //           un_realized_pnl_storage_(unrealized_pnl_calculator),
 //           strategy_(realized_pnl_storage_, un_realized_pnl_storage_),
 //           storage_([this]() { return CreateNewPosition(); }) {};
-//     ~NetPositionStorageByPairDefault() override {};
+//     ~NetPositionStorageByPairDefault() override = default;
 //     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
 //         common::ExchangeId exchange,
 //         aos::TradingPair trading_pair) const override {
@@ -137,7 +137,7 @@ using HedgedPositionStorageByPairDefault = GenericPositionStorageByPair<
 //           un_realized_pnl_storage_(unrealized_pnl_calculator),
 //           strategy_(realized_pnl_storage_, un_realized_pnl_storage_),
 //           storage_([this]() { return CreateNewPosition(); }) {};
-//     ~HedgedPositionStorageByPairDefault() override {};
+//     ~HedgedPositionStorageByPairDefault() override = default;
 //     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
 //         common::ExchangeId exchange,
 //         aos::TradingPair trading_pair) const override {

@@ -9,24 +9,24 @@ namespace impl {
 template <typename T>
 class UIDGeneratorDefault : public UniqueIDGeneratorInterface<T> {
   public:
-    UIDGeneratorDefault() : current_id(0) {}
+    UIDGeneratorDefault() = default;
     ~UIDGeneratorDefault() override { logi("UIDGenerator dtor"); }
-    T GenerateUniqueID() override { return current_id++; }
+    T GenerateUniqueID() override { return current_id_++; }
 
   private:
-    T current_id;
+    T current_id_ = 0;
 };
 
 template <typename T>
 class UIDGenerator
     : public IUniqueIDGenerator<T, common::MemoryPoolNotThreadSafety> {
   public:
-    UIDGenerator() : current_id(0) {}
+    UIDGenerator() = default;
     ~UIDGenerator() override { logi("UIDGenerator dtor"); }
-    T GenerateUniqueID() override { return current_id++; }
+    T GenerateUniqueID() override { return current_id_++; }
 
   private:
-    T current_id;
+    T current_id_ = 0;
 };
 
 template <typename T>

@@ -8,6 +8,7 @@ set(CMAKE_CXX_CLANG_TIDY
     -format-style=file
     --extra-arg=-Wno-unknown-warning-option
     --extra-arg=-Wno-unused-command-line-argument
+    -header-filter=aos.*\|aoe.*
 )
 
 set(CLANG_TIDY_FOR_3RD_PARTY "" CACHE STRING "" FORCE)
@@ -18,6 +19,15 @@ endfunction()
 # Запрещаем CMake добавлять флаги модулей
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP OFF)
+
+# Установка lld как линковщика по умолчанию
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=lld")
+
+# Включение профилирования времени
+set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
+set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CMAKE_COMMAND} -E time")
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -98,19 +108,12 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(nlohmann_json)
 
-# # Fetch fmt
-# FetchContent_Declare(
-#   fmt
-#   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-#   GIT_TAG        master  # or a specific commit/tag
-# )
-# FetchContent_MakeAvailable(fmt)
-
-# Fetch fmtlog
+# Fetch fork fmtlog
+set(BUILD_TESTS_FMTLOG OFF CACHE BOOL "Suppressing fmtlog's tests" FORCE)
 FetchContent_Declare(
   fmtlog
-  GIT_REPOSITORY https://github.com/MengRao/fmtlog.git
-  GIT_TAG        main  # or use a stable tag/commit
+  GIT_REPOSITORY https://github.com/linoxoidunix/fmtlog.git
+  GIT_TAG        main
 )
 FetchContent_MakeAvailable(fmtlog)
 include_directories(${fmtlog_SOURCE_DIR})
@@ -132,46 +135,30 @@ set_target_properties(fmt PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}
 set_target_properties(fmtlog-static PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(benchmark PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(gtest_main PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+set_target_properties(gtest PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(simdjson PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 
-
-
-# # Загружаем Dlib
-# FetchContent_Declare(
-#     dlib
-#     GIT_REPOSITORY https://github.com/davisking/dlib.git
-#     GIT_TAG master  # Укажите нужную версию
-# )
-# FetchContent_MakeAvailable(dlib)
-
-# # Загружаем Cereal
-# FetchContent_Declare(
-#     cereal
-#     GIT_REPOSITORY https://github.com/USCiLab/cereal.git
-#     GIT_TAG v1.3.2  # или укажите нужную версию
-# )
-
-# # Загружаем mlpack
-# FetchContent_Declare(
-#     mlpack
-#     GIT_REPOSITORY https://github.com/mlpack/mlpack.git
-#     GIT_TAG master  # или укажите конкретную версию, например v4.2.0
-# )
-
-# # Загружаем зависимости для mlpack
 # set(DOWNLOAD_DEPENDENCIES ON CACHE BOOL "Download dependencies for mlpack")
-
-# Загружаем все зависимости
-# FetchContent_MakeAvailable(cereal)
-# FetchContent_MakeAvailable(mlpack)
 
 set_target_properties(gtest PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(gtest_main PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(gmock PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(gmock_main PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(fmt PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(fmtlog-static PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(fmtlog-shared PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(simdjson PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(benchmark PROPERTIES FOLDER "Hide3rdPartyLibrary")
+set_target_properties(benchmark_main PROPERTIES FOLDER "Hide3rdPartyLibrary")
 
 set_target_properties(magic_enum PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(tomlplusplus_tomlplusplus PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(fmtlog-static PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(fmtlog-shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(simdjson PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(benchmark PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(benchmark_main PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 file(GLOB LIST_H
      "aos/*h"
@@ -230,3 +217,8 @@ if(BUILD_TESTS_AOS)
 else()
     message(STATUS "Tests of ${PROJECT_NAME} are skipped.")
 endif()
+
+add_custom_target(stats
+    COMMAND ${CMAKE_COMMAND} -E echo "=== Build statistics ==="
+    COMMAND ${CMAKE_COMMAND} -E echo "Total build time: $<TARGET_PROPERTY:${PROJECT_NAME},TIME_BUILD>"
+)

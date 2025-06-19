@@ -12,13 +12,13 @@ class Spot : public RequestInterface<MemoryPool> {
     aos::TradingPairPrinterInterface& trading_pair_printer_;
 
   public:
-    Spot(aos::TradingPairPrinterInterface& trading_pair_printer)
+    explicit Spot(aos::TradingPairPrinterInterface& trading_pair_printer)
         : trading_pair_printer_(trading_pair_printer) {
         this->SetCategory(aoe::binance::Category::kSpot);
     }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::binance::amend_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::binance::amend_order::RequestMakerInterface<MemoryPool>*)
+        override {
         nlohmann::json order;
         // set mandatory field
         {

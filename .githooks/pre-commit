@@ -1,14 +1,19 @@
 #!/bin/sh
+
+# Generate aos/aos.h
 echo "#pragma once" > aos/aos.h
 echo "" >> aos/aos.h
-find aos -type f -name "*.h" | sort | sed 's/^/#include "/; s/$/"/' >> aos/aos.h
+# Find all .h files in aos excluding aos/aos.h itself, sort and include them
+find aos -type f -name "*.h" ! -name "aos.h" | sort | sed 's/^/#include "/; s/$/"/' >> aos/aos.h
 
-# Добавляем изменения файла aos/aos.h в staged
+# Stage the updated aos/aos.h file
 git add aos/aos.h
 
+# Generate aoe/aoe.h
 echo "#pragma once" > aoe/aoe.h
 echo "" >> aoe/aoe.h
-find aoe -type f -name "*.h" | sort | sed 's/^/#include "/; s/$/"/' >> aoe/aoe.h
+# Find all .h files in aoe excluding aoe/aoe.h itself, sort and include them
+find aoe -type f -name "*.h" ! -name "aoe.h" | sort | sed 's/^/#include "/; s/$/"/' >> aoe/aoe.h
 
-# Добавляем изменения файла aos/aos.h в staged
+# Stage the updated aoe/aoe.h file
 git add aoe/aoe.h

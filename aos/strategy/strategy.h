@@ -27,7 +27,7 @@ class Strategy : public CoreStrategyInterface<HashT, T> {
                               observer) override {
         actions_to_sell_.push_back(observer);
     }
-    void AnalyzeToBuy(const HashT asset, const T& value) override{
+    void AnalyzeToBuy(const HashT& asset, const T& value) override {
         std::queue<HashT> assets_to_buy;
         assets_to_buy.push(asset);
         auto begin = actions_to_buy_.begin();
@@ -46,7 +46,7 @@ class Strategy : public CoreStrategyInterface<HashT, T> {
         }
     }
 
-    void AnalyzeToSell(const HashT asset, const T& value) override{
+    void AnalyzeToSell(const HashT& asset, const T& value) override {
         std::queue<HashT> assets_to_sell;
         assets_to_sell.push(asset);
         auto begin = actions_to_sell_.begin();

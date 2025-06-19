@@ -32,9 +32,9 @@ class PositionStorageByPair
         position_factory_;  // 👈 теперь используем фабрику
 
   public:
-    PositionStorageByPair(std::function<PositionT()> position_factory)
+    explicit PositionStorageByPair(std::function<PositionT()> position_factory)
         : position_factory_(position_factory) {};
-    ~PositionStorageByPair() override {};
+    ~PositionStorageByPair() override = default;
     std::optional<std::reference_wrapper<const PositionT>> GetPosition(
         common::ExchangeId exchange,
         aos::TradingPair trading_pair) const override {
@@ -49,9 +49,7 @@ class PositionStorageByPair
                      Price price, Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
-            storage_position_.emplace(
-                key,
-                position_factory_());  // TODO: Передавать стратегию
+            storage_position_.emplace(key, position_factory_());
         }
         storage_position_.at(key).AddPosition(exchange, trading_pair, price,
                                               qty);
@@ -105,7 +103,8 @@ class PositionStorageByPairDeprecated
     boost::intrusive_ptr<StrategyT> strategy_;
 
   public:
-    PositionStorageByPairDeprecated(boost::intrusive_ptr<StrategyT> strategy)
+    explicit PositionStorageByPairDeprecated(
+        boost::intrusive_ptr<StrategyT> strategy)
         : strategy_(strategy) {};
     std::pair<bool, Qty> GetPosition(
         common::ExchangeId exchange,
@@ -122,9 +121,7 @@ class PositionStorageByPairDeprecated
                      Price price, Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
-            storage_position_.emplace(
-                key,
-                PositionT(strategy_));  // TODO: Передавать стратегию
+            storage_position_.emplace(key, PositionT(strategy_));
         }
         storage_position_.at(key).AddPosition(exchange, trading_pair, price,
                                               qty);
@@ -137,9 +134,7 @@ class PositionStorageByPairDeprecated
                         Qty qty) override {
         Key key = {exchange, trading_pair};
         if (storage_position_.find(key) == storage_position_.end()) {
-            storage_position_.emplace(
-                key,
-                PositionT(strategy_));  // TODO: Передавать стратегию
+            storage_position_.emplace(key, PositionT(strategy_));
         }
         storage_position_.at(key).RemovePosition(exchange, trading_pair, price,
                                                  qty);

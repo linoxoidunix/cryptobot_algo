@@ -16,7 +16,7 @@ template <typename T, template <typename> class MemoryPool>
 class INumberPool
     : public common::RefCounted<MemoryPool, aos::INumberPool<T, MemoryPool>> {
   public:
-    virtual ~INumberPool()                   = default;
+    ~INumberPool() override                  = default;
     virtual void ReturnToPool(T id)          = 0;
     virtual std::pair<bool, T> GetFromPool() = 0;
 };

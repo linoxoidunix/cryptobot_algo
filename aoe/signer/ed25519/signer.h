@@ -23,7 +23,7 @@ class SignerBase64URLKey : public SignerInterface {
     ApiKeyInterface& api_key_;
     SecretKeyBase64URLSafetyNoPaddingInterface& secret_key_;
 
-    inline std::string Base64EncodeUrlSafeNoPadding(const unsigned char* data,
+    static std::string Base64EncodeUrlSafeNoPadding(const unsigned char* data,
                                                     size_t len) {
         const size_t max_encoded_len = sodium_base64_encoded_len(
             len, sodium_base64_VARIANT_URLSAFE_NO_PADDING);
@@ -33,7 +33,7 @@ class SignerBase64URLKey : public SignerInterface {
         encoded.resize(strlen(encoded.c_str()));  // Убираем лишние нули
         return encoded;
     }
-    inline std::string Base64EncodeStandard(const unsigned char* data,
+    static std::string Base64EncodeStandard(const unsigned char* data,
                                             size_t len) {
         const size_t max_encoded_len =
             sodium_base64_encoded_len(len, sodium_base64_VARIANT_ORIGINAL);
@@ -130,7 +130,7 @@ class SignerRaw64ByteKey : public SignerInterface {
     ApiKeyInterface& api_key_;
     SecretKeyByte64Interface& secret_key_;
 
-    inline std::string Base64EncodeUrlSafeNoPadding(const unsigned char* data,
+    static std::string Base64EncodeUrlSafeNoPadding(const unsigned char* data,
                                                     size_t len) {
         const size_t max_encoded_len = sodium_base64_encoded_len(
             len, sodium_base64_VARIANT_URLSAFE_NO_PADDING);
@@ -140,7 +140,7 @@ class SignerRaw64ByteKey : public SignerInterface {
         encoded.resize(strlen(encoded.c_str()));  // Убираем лишние нули
         return encoded;
     }
-    inline std::string Base64EncodeStandard(const unsigned char* data,
+    static std::string Base64EncodeStandard(const unsigned char* data,
                                             size_t len) {
         const size_t max_encoded_len =
             sodium_base64_encoded_len(len, sodium_base64_VARIANT_ORIGINAL);

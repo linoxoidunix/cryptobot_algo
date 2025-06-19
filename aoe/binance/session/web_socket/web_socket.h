@@ -39,7 +39,7 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     aoe::impl::WebSocketSessionW ws_;
 
   public:
-    SessionW(boost::asio::io_context& ioc)
+    explicit SessionW(boost::asio::io_context& ioc)
         : ws_(ioc, ctx_, "ws-api.binance.com", "443", "/ws-api/v3") {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
@@ -101,7 +101,7 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     aoe::impl::WebSocketSessionW ws_;
 
   public:
-    SessionW(boost::asio::io_context& ioc)
+    explicit SessionW(boost::asio::io_context& ioc)
         : ws_(ioc, ctx_, "ws-api.testnet.binance.vision", "443", "/v5/trade") {}
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
@@ -114,9 +114,10 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
     aoe::impl::WebSocketSessionRW ws_;
 
   public:
-    SessionRW(boost::asio::io_context& ioc,
-              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
-              ResponseQueueListenerInterface& listener)
+    explicit SessionRW(
+        boost::asio::io_context& ioc,
+        moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+        ResponseQueueListenerInterface& listener)
         : ws_(ioc, ctx_, "ws-api.testnet.binance.vision", "443", "/v5/trade",
               response_queue, listener) {}
     void AsyncWrite(nlohmann::json&& j) override {

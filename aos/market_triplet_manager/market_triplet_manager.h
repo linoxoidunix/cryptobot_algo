@@ -19,12 +19,12 @@ class MarketTripletManagerDefault
 
     const std::unordered_set<HashT>& GetPairs(
         const HashT& asset) const override {
-        static const std::unordered_set<HashT> empty_set;
-        return pairs_.count(asset) ? pairs_.at(asset) : empty_set;
+        static const std::unordered_set<HashT> kEmptySet;
+        return pairs_.contains(asset) ? pairs_.at(asset) : kEmptySet;
     }
 
     bool HasPair(const HashT& asset) const override {
-        return pairs_.count(asset);
+        return pairs_.contains(asset);
     }
     ~MarketTripletManagerDefault() override {
         logi("{}", "MarketTripletManagerDefault dtor");
@@ -44,11 +44,13 @@ class MarketTripletManager
     }
 
     const std::unordered_set<T>& GetPairs(const T& asset) const override {
-        static const std::unordered_set<T> empty_set;
-        return pairs_.count(asset) ? pairs_.at(asset) : empty_set;
+        static const std::unordered_set<T> kEmptySet;
+        return pairs_.contains(asset) ? pairs_.at(asset) : kEmptySet;
     }
 
-    bool HasPair(const T& asset) const override { return pairs_.count(asset); }
+    bool HasPair(const T& asset) const override {
+        return pairs_.contains(asset);
+    }
     ~MarketTripletManager() override {
         logi("{}", "MarketTripletManager dtor");
     }

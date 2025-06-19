@@ -13,16 +13,13 @@ class Standart : public RequestInterface<MemoryPool> {
   public:
     ~Standart() override = default;
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         return {};
     };
 };
 
 template <template <typename> typename MemoryPool>
 class SpotBuyLimit : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     SpotBuyLimit() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
@@ -30,8 +27,7 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
     std::pair<bool, nlohmann::json> Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -41,7 +37,8 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -74,8 +71,6 @@ class SpotBuyLimit : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class SpotSellLimit : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     SpotSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
@@ -83,8 +78,7 @@ class SpotSellLimit : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -94,7 +88,8 @@ class SpotSellLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -126,8 +121,6 @@ class SpotSellLimit : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class SpotBuyMarket : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     SpotBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
@@ -135,8 +128,7 @@ class SpotBuyMarket : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -146,7 +138,8 @@ class SpotBuyMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -176,8 +169,6 @@ class SpotBuyMarket : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class SpotSellMarket : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     SpotSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
@@ -185,8 +176,7 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -196,7 +186,8 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -227,8 +218,6 @@ class SpotSellMarket : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class LinearBuyLimit : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     LinearBuyLimit() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
@@ -236,8 +225,7 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -247,7 +235,8 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -278,8 +267,6 @@ class LinearBuyLimit : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class LinearSellLimit : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     LinearSellLimit() {
         this->SetOrderSide(aos::Side::kSell);
@@ -287,8 +274,7 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kLimit);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -298,7 +284,8 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -330,8 +317,6 @@ class LinearSellLimit : public RequestInterface<MemoryPool> {
 
 template <template <typename> typename MemoryPool>
 class LinearBuyMarket : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     LinearBuyMarket() {
         this->SetOrderSide(aoe::bybit::Side::kBuy);
@@ -339,8 +324,7 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -350,7 +334,8 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }
@@ -380,8 +365,6 @@ class LinearBuyMarket : public RequestInterface<MemoryPool> {
 };
 template <template <typename> typename MemoryPool>
 class LinearSellMarket : public RequestInterface<MemoryPool> {
-    aos::impl::TradingPairToBigStringView trading_pair_printer_;
-
   public:
     LinearSellMarket() {
         this->SetOrderSide(aos::Side::kSell);
@@ -389,8 +372,7 @@ class LinearSellMarket : public RequestInterface<MemoryPool> {
         this->SetOrderMode(aoe::bybit::OrderMode::kMarket);
     }
     nlohmann::json Accept(
-        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*
-            request_maker) override {
+        aoe::bybit::place_order::RequestMakerInterface<MemoryPool>*) override {
         nlohmann::json order;
         // set mandatory field
         {
@@ -400,7 +382,8 @@ class LinearSellMarket : public RequestInterface<MemoryPool> {
         }
         {
             auto [status, value] =
-                trading_pair_printer_.Convert(this->TradingPair());
+                aos::impl::TradingPairToBigStringView::Convert(
+                    this->TradingPair());
             if (!status) return {false, {}};
             order["symbol"] = value;  // Значение категории
         }

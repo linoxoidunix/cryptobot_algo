@@ -10,27 +10,27 @@ namespace binance {
 class WebSocketPrivateSessionWInterface
     : public WebSocketSessionWritableInterface {
   public:
-    virtual ~WebSocketPrivateSessionWInterface() = default;
+    ~WebSocketPrivateSessionWInterface() override = default;
 };
 
 class WebSocketPrivateSessionRWInterface
     : public WebSocketPrivateSessionWInterface,
       public WebSocketSessionReadableInterface {
   public:
-    virtual ~WebSocketPrivateSessionRWInterface() = default;
+    ~WebSocketPrivateSessionRWInterface() override = default;
 };
 
 class WebSocketPublicSessionWInterface
     : public WebSocketSessionWritableInterface {
   public:
-    virtual ~WebSocketPublicSessionWInterface() = default;
+    ~WebSocketPublicSessionWInterface() override = default;
 };
 
 class WebSocketPublicSessionRWInterface
     : public WebSocketPublicSessionWInterface,
       public WebSocketSessionReadableInterface {
   public:
-    virtual ~WebSocketPublicSessionRWInterface() = default;
+    ~WebSocketPublicSessionRWInterface() override = default;
 };
 
 };  // namespace binance

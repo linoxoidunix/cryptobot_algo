@@ -8,24 +8,24 @@ namespace binance {
 
 class RestAuthSessionWInterface : public RestSessionWritableInterface {
   public:
-    virtual ~RestAuthSessionWInterface() = default;
+    ~RestAuthSessionWInterface() override = default;
 };
 
 class RestAuthSessionRWInterface : public RestSessionWritableInterface,
                                    public RestSessionReadableInterface {
   public:
-    virtual ~RestAuthSessionRWInterface() = default;
+    ~RestAuthSessionRWInterface() override = default;
 };
 
 class RestSessionWInterface : public RestSessionWritableInterface {
   public:
-    virtual ~RestSessionWInterface() = default;
+    ~RestSessionWInterface() override = default;
 };
 
 class RestSessionRWInterface : public RestSessionWritableInterface,
                                public RestSessionReadableInterface {
   public:
-    virtual ~RestSessionRWInterface() = default;
+    ~RestSessionRWInterface() override = default;
 };
 
 };  // namespace binance

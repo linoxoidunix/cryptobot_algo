@@ -15,9 +15,9 @@ class IMaxAble {
 template <typename HashT, typename T>
 class MaxTrackerInterface : public IMaxAble<HashT, T> {
   public:
-    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
-    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
-    virtual ~MaxTrackerInterface()                                = default;
+    virtual void OnAdd(const HashT& hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT& hash_asset, const T& value) = 0;
+    ~MaxTrackerInterface() override                                = default;
 };
 
 template <typename HashT, typename T, template <typename> class MemoryPool>
@@ -25,9 +25,9 @@ class IMaxTracker
     : public common::RefCounted<MemoryPool, IMaxTracker<HashT, T, MemoryPool>>,
       public IMaxAble<HashT, T> {
   public:
-    virtual void OnAdd(const HashT hash_asset, const T& value)    = 0;
-    virtual void OnRemove(const HashT hash_asset, const T& value) = 0;
-    virtual ~IMaxTracker()                                        = default;
+    virtual void OnAdd(const HashT& hash_asset, const T& value)    = 0;
+    virtual void OnRemove(const HashT& hash_asset, const T& value) = 0;
+    ~IMaxTracker() override                                        = default;
 };
 
 };  // namespace aos

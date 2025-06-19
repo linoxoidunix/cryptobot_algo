@@ -2,9 +2,9 @@
 #include "aoe/binance/enums/enums.h"
 #include "aoe/binance/request_maker/for_rest/get_snapshot/i_request_maker.h"
 #include "aos/common/common.h"
+#include "aos/common/exchange_id.h"
 #include "aos/request/i_request.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 #include "boost/asio.hpp"
 #include "boost/beast/http.hpp"
 #include "boost/beast/http/message.hpp"
@@ -15,7 +15,7 @@ namespace snapshot {
 template <template <typename> typename MemoryPool>
 class RequestInterface : public aos::RequestInterface<MemoryPool> {
   public:
-    virtual ~RequestInterface() = default;
+    ~RequestInterface() override = default;
     virtual common::ExchangeId ExchangeId() const { return exchange_id_; };
     virtual const aos::TradingPair& TradingPair() const {
         return trading_pair_;

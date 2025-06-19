@@ -1,18 +1,17 @@
 #pragma once
 
+#include "aos/common/exchange_id.h"
 #include "aos/common/ref_counted.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 namespace aos {
 
 template <typename Price, typename Qty>
 class NetPositionStrategyInterface {
   public:
     // Статическая проверка на поддерживаемость умножения
-    static_assert(std::is_arithmetic<Price>::value,
+    static_assert(std::is_arithmetic_v<Price>,
                   "Price must be an arithmetic type");
-    static_assert(std::is_arithmetic<Qty>::value,
-                  "Qty must be an arithmetic type");
+    static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
     virtual ~NetPositionStrategyInterface()                       = default;
     virtual void Add(common::ExchangeId exchange_id,
@@ -27,10 +26,9 @@ template <typename Price, typename Qty>
 class HedgePositionStrategyInterface {
   public:
     // Статическая проверка на поддерживаемость умножения
-    static_assert(std::is_arithmetic<Price>::value,
+    static_assert(std::is_arithmetic_v<Price>,
                   "Price must be an arithmetic type");
-    static_assert(std::is_arithmetic<Qty>::value,
-                  "Qty must be an arithmetic type");
+    static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     virtual ~HedgePositionStrategyInterface()                       = default;
@@ -48,10 +46,9 @@ class INetPositionStrategy
                                 INetPositionStrategy<Price, Qty, MemoryPool>> {
   public:
     // Статическая проверка на поддерживаемость умножения
-    static_assert(std::is_arithmetic<Price>::value,
+    static_assert(std::is_arithmetic_v<Price>,
                   "Price must be an arithmetic type");
-    static_assert(std::is_arithmetic<Qty>::value,
-                  "Qty must be an arithmetic type");
+    static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
     virtual ~INetPositionStrategy()                               = default;
     virtual void Add(common::ExchangeId exchange_id,
@@ -68,10 +65,9 @@ class IHedgePositionStrategy
           MemoryPool, IHedgePositionStrategy<Price, Qty, MemoryPool>> {
   public:
     // Статическая проверка на поддерживаемость умножения
-    static_assert(std::is_arithmetic<Price>::value,
+    static_assert(std::is_arithmetic_v<Price>,
                   "Price must be an arithmetic type");
-    static_assert(std::is_arithmetic<Qty>::value,
-                  "Qty must be an arithmetic type");
+    static_assert(std::is_arithmetic_v<Qty>, "Qty must be an arithmetic type");
 
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     virtual ~IHedgePositionStrategy()                               = default;

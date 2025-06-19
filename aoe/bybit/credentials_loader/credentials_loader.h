@@ -5,6 +5,7 @@
 #include "aoe/credentials/api_key/i_api_key.h"
 #include "aoe/credentials/secret_key/i_secret_key.h"
 #include "aoe/credentials_loader/i_credentials_loader.h"
+#define TOML_EXCEPTIONS 0
 #include "toml++/toml.hpp"
 
 namespace aoe {
@@ -15,11 +16,11 @@ class CredentialsLoader : public CredentialsLoaderInterface {
     bool config_loaded_ = false;
 
   public:
-    CredentialsLoader(std::string& config_path) {
-        try {
-            config_        = toml::parse_file(config_path);
+    explicit CredentialsLoader(std::string& config_path) {
+        toml::parse_result result = toml::parse_file(config_path);
+        if (result) {
             config_loaded_ = true;
-        } catch (const std::exception& e) {
+            config_        = result.table();
         }
     };
     std::pair<bool, std::string_view> ApiKeyHmacSha256MainNet() override {
@@ -56,7 +57,7 @@ class CredentialsLoader : public CredentialsLoaderInterface {
                                           std::string_view key) const {
         if (!config_loaded_) return {false, {}};
 
-        auto* table = config_[group][type_key][network].as_table();
+        const auto* table = config_[group][type_key][network].as_table();
         if (!table) return {false, {}};
 
         const auto* value = table->get_as<std::string>(key);

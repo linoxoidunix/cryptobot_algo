@@ -26,6 +26,6 @@ class HmacSha256CredentialsLoaderInterface {
 class CredentialsLoaderInterface : public Ed25519CredentialsLoaderInterface,
                                    public HmacSha256CredentialsLoaderInterface {
   public:
-    virtual ~CredentialsLoaderInterface() = default;
+    ~CredentialsLoaderInterface() override = default;
 };
 };  // namespace aoe

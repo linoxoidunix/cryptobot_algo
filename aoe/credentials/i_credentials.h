@@ -7,6 +7,6 @@
 namespace aoe {
 class CredentialsInterface : public SecretKeyInterface, public ApiKeyInterface {
   public:
-    virtual ~CredentialsInterface() = default;
+    ~CredentialsInterface() override = default;
 };
 };  // namespace aoe

@@ -1,10 +1,10 @@
 #pragma once
 #include "aoe/binance/enums/enums.h"
 #include "aoe/binance/order_mutator/i_order_mutator.h"
+#include "aos/common/exchange_id.h"
 #include "aos/common/ref_counted.h"
 #include "aos/order_event/i_order_event.h"
 #include "aos/trading_pair/trading_pair.h"
-#include "aos/common/exchange_id.h"
 
 namespace aoe {
 namespace binance {
@@ -41,7 +41,7 @@ class OrderEventInterface : public aos::OrderEventInterface<MemoryPool> {
     virtual void Accept(OrderMutatorInterface& order_storage) = 0;
 
   protected:
-    common::ExchangeId exchange_id = common::ExchangeId::kBinance;
+    common::ExchangeId kExchangeId_ = common::ExchangeId::kBinance;
     aos::TradingPair trading_pair_;
     aoe::binance::OrderStatus order_status_ =
         aoe::binance::OrderStatus::kInvalid;

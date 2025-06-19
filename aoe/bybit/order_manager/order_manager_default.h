@@ -19,7 +19,7 @@ class OrderManagerDefault : public OrderManagerInterface<MemoryPool> {
     OrderManager<MemoryPool> order_manager_;
 
   public:
-    OrderManagerDefault(
+    explicit OrderManagerDefault(
         aoe::bybit::SingleOrderAPIInterface<MemoryPool>& bybit_single_order_api)
         : uid_manager_(uid_generator_, number_pool_),
           order_manager_(order_storage_, bybit_single_order_api, uid_manager_) {

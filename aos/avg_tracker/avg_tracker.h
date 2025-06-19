@@ -12,13 +12,13 @@ namespace impl {
 template <typename HashT, typename T>
 class AvgTrackerDefault : public AvgTrackerInterface<HashT, T> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         sums_[hash_asset]   += value;
         counts_[hash_asset] += 1;
         logi("Add {} for {}, new sum: {}", value, hash_asset,
              sums_[hash_asset]);
     };
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         sums_[hash_asset]   -= value;
         counts_[hash_asset] -= 1;
         logi("Remove {} for {}, new sum: {}", value, hash_asset,
@@ -45,13 +45,13 @@ template <typename HashT, typename T,
 class AvgTracker
     : public aos::IAvgTracker<HashT, T, MemoryPoolNotThreadSafety> {
   public:
-    void OnAdd(const HashT hash_asset, const T& value) override {
+    void OnAdd(const HashT& hash_asset, const T& value) override {
         sums_[hash_asset]   += value;
         counts_[hash_asset] += 1;
         logi("Add {} for {}, new sum: {}", value, hash_asset,
              sums_[hash_asset]);
     };
-    void OnRemove(const HashT hash_asset, const T& value) override {
+    void OnRemove(const HashT& hash_asset, const T& value) override {
         sums_[hash_asset]   -= value;
         counts_[hash_asset] -= 1;
         logi("Remove {} for {}, new sum: {}", value, hash_asset,

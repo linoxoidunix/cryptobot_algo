@@ -7,7 +7,7 @@ template <typename Price, typename Qty>
 class RealizedPnlCalculatorDefault
     : public RealizedPnlCalculatorInterface<Price, Qty> {
   public:
-    ~RealizedPnlCalculatorDefault() override {}
+    ~RealizedPnlCalculatorDefault() override = default;
     using RealizedPnl = decltype(std::declval<Price>() * std::declval<Qty>());
     Price Calculate(Price avg_price, Qty net_qty, Price price, Qty qty) {
         Qty abs_qty = std::abs(qty);

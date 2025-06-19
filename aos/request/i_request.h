@@ -6,6 +6,6 @@ template <template <typename> typename MemoryPool>
 class RequestInterface
     : public common::RefCounted<MemoryPool, RequestInterface<MemoryPool>> {
   public:
-    virtual ~RequestInterface() = default;
+    ~RequestInterface() override = default;
 };
 };  // namespace aos

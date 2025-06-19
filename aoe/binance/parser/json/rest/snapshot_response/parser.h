@@ -31,8 +31,8 @@ class SnapshotEventParser
         pool_order_snapshot_;
 
   public:
-    ~SnapshotEventParser() override {}
-    SnapshotEventParser(std::size_t pool_size)
+    ~SnapshotEventParser() override = default;
+    explicit SnapshotEventParser(std::size_t pool_size)
         : pool_order_snapshot_(pool_size) {
         RegisterFromConfig();
     }

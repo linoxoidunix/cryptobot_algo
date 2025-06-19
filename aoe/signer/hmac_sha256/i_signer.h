@@ -10,7 +10,7 @@ class SignerInterface : public ApiKeyInterface {
     virtual std::string Sign(std::string_view data)            = 0;
     virtual std::string SignByLowerCase(std::string_view data) = 0;
 
-    virtual ~SignerInterface()                                 = default;
+    ~SignerInterface() override                                = default;
 };
 };  // namespace hmac_sha256
 };  // namespace aoe
