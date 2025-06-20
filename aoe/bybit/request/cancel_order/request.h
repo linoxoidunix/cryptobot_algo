@@ -1,8 +1,10 @@
 #pragma once
 #include "aoe/bybit/enum_printer/enum_printer.h"
 #include "aoe/bybit/request/cancel_order/i_request.h"
+#include "aoe/bybit/request/place_order/request.h"
 #include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
 #include "aos/trading_pair_printer/i_trading_pair_printer.h"
+
 namespace aoe {
 namespace bybit {
 namespace cancel_order {

@@ -1,10 +1,10 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
-#include "aos/aos.h"
+#include "aoe/session/web_socket/web_socket.h"
 #include "aos/logger/logger.h"
 #include "aos/logger/mylog.h"
+#include "nlohmann/json.hpp"
 
 void SendSubscribePeriodically(boost::asio::steady_timer& timer,
                                aoe::impl::WebSocketSessionRW& ws) {

@@ -1,10 +1,10 @@
-#include <gtest/gtest.h>
-
-#include "aoe/aoe.h"  // Ваш класс
-#include "aos/aos.h"  // Ваш класс
+#include "aoe/bybit/request/place_order/i_request.h"
+#include "aoe/bybit/request_maker/for_web_socket/place_order/request_maker.h"
 #include "aos/common/mem_pool.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include "nlohmann/json.hpp"
+
 using ::testing::Return;
 
 // using namespace aoe;

@@ -1,8 +1,7 @@
-#include <gtest/gtest.h>
-
 #include <memory>
 
 #include "aos/converters/trading_pair_to_big_string_view/trading_pair_to_big_string_view.h"
+#include "gtest/gtest.h"
 using aos::TradingPair;
 
 TEST(TradingPairToBigStringViewTest, ConvertValidPair) {

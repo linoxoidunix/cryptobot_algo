@@ -1,10 +1,8 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/binance/infrastructure/infrastructure.h"
 #include "aoe/binance/order_book_sync/order_book_sync.h"
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
-#include "aos/aos.h"
 #include "aos/common/exchange_id.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"

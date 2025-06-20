@@ -3,13 +3,22 @@ set (PROJECT_NAME aos)
 project(${PROJECT_NAME} C CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_CLANG_TIDY
-    clang-tidy
-    -format-style=file
-    --extra-arg=-Wno-unknown-warning-option
-    --extra-arg=-Wno-unused-command-line-argument
-    -header-filter=aos.*\|aoe.*
-)
+
+option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
+
+if (ENABLE_CLANG_TIDY)
+    set(CMAKE_CXX_CLANG_TIDY
+        clang-tidy
+        -format-style=file
+        --extra-arg=-Wno-unknown-warning-option
+        --extra-arg=-Wno-unused-command-line-argument
+        -header-filter=aos.*\|aoe.*
+    )
+    message(STATUS "Clang-Tidy enabled")
+else()
+    message(STATUS "Clang-Tidy disabled")
+endif()
+
 
 set(CLANG_TIDY_FOR_3RD_PARTY "" CACHE STRING "" FORCE)
 function(disable_clang_tidy_for_target target)
@@ -201,16 +210,20 @@ target_link_libraries(${PROJECT_NAME}
     fmt
 )
 
+option(BUILD_EXAMPLES_AOS "Build example applications" ON)
 
-add_subdirectory(examples)
+if (BUILD_EXAMPLES)
+    add_subdirectory(examples)
+else()
+    message(STATUS "Examples are skipped.")
+endif()
 
-
+# Disable C++20 modules support to avoid experimental behavior and improve compatibility
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_SCAN_FOR_MODULES OFF
     CXX_MODULE_STD_ONLY OFF
 )
-
 
 option(BUILD_TESTS_AOS "Build tests" ON)
 if(BUILD_TESTS_AOS)

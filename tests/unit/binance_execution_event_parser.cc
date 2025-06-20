@@ -4,9 +4,8 @@
 
 #include "aoe/binance/execution_event/types.h"
 #include "aoe/binance/parser/json/ws/execution_response/execution_event_parser.h"
-#include "aos/aos.h"
-#include "aos/trading_pair/trading_pair.h"
 #include "aos/common/mem_pool.h"
+#include "aos/trading_pair/trading_pair.h"
 
 using PositionT  = int;  // Или ваша реальная структура позиции
 using SpotParser = aoe::binance::spot::impl::ExecutionEventParser<

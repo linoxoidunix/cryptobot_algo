@@ -1,17 +1,22 @@
-// #include "aoe/bybit/order_manager/order_manager.h"
-// #include "aoe/bybit/order_storage/order_storage.h"
-// #include "aoe/bybit/request/amend_order/request.h"
-// #include "aoe/bybit/request/cancel_order/request.h"
-// #include "aoe/bybit/request/place_order/request.h"
-// #include "aoe/bybit/request_maker/for_web_socket/place_order/request_maker.h"
-// #include "aoe/session/web_socket/web_socket.h"
-// #include "aoe/session_provider/web_socket/web_socket_session_provider.h"
-// #include "aos/multi_order_manager/multi_order_manager.h"
-#include "aoe/aoe.h"
-#include "aos/aos.h"
+#include <memory>
+
+#include "aoe/bybit/api/external/web_socket/exchange_api_default.h"
+#include "aoe/bybit/credentials_loader/credentials_loader.h"
+#include "aoe/bybit/order_manager/order_manager.h"
+#include "aoe/bybit/order_storage/order_storage.h"
+#include "aoe/bybit/ping_manager/for_private_channel/ping_manager.h"
+#include "aoe/bybit/request/cancel_order/request.h"
+#include "aoe/bybit/request/place_order/request.h"
+#include "aoe/bybit/session/web_socket/web_socket.h"
+#include "aoe/bybit/session_setup/web_socket/private/session_setup.h"
+#include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
+#include "aos/multi_order_manager/multi_order_manager.h"
 #include "aos/trading_pair/trading_pair.h"
+#include "aos/uid/number_pool.h"
+#include "aos/uid/uid_manager.h"
+#include "aos/uid/unique_id_generator.h"
 
 using BybitSpotBuyLimit =
     aoe::bybit::place_order::impl::SpotBuyLimit<common::MemoryPoolThreadSafety>;

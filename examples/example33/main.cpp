@@ -1,14 +1,15 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/binance/credentials_loader/credentials_loader.h"
+#include "aoe/binance/order_book_sync/order_book_sync.h"
+#include "aoe/binance/parser/json/rest/snapshot_response/parser.h"
 #include "aoe/binance/request/get_snapshot/request.h"
 #include "aoe/binance/rest_request_sender/rest_request_sender.h"
 #include "aoe/binance/session/rest/session.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
-#include "aos/aos.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/mylog.h"
+#include "aos/order_book/order_book.h"
 
 int main() {
     {

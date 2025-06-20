@@ -1,5 +1,4 @@
 #include "aoe/bybit/order_storage/order_storage.h"
-#include "aos/aos.h"
 
 int main() {
     {

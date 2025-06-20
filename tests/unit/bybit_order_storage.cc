@@ -1,7 +1,6 @@
-#include <gtest/gtest.h>
-
 #include "aoe/bybit/enums/enums.h"
 #include "aoe/bybit/order_storage/order_storage.h"  // путь к вашему заголовочному файлу с OrderStorage
+#include "gtest/gtest.h"
 
 using aoe::bybit::Category;
 using aoe::bybit::OrderMode;

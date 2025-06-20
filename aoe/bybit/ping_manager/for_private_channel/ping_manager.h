@@ -1,7 +1,9 @@
 #pragma once
 #include "aoe/bybit/session/web_socket/i_web_socket.h"
 #include "aoe/ping_manager/i_ping_manager.h"
+#include "boost/asio/steady_timer.hpp"
 #include "nlohmann/json.hpp"
+
 namespace aoe {
 namespace bybit {
 namespace impl {

@@ -1,6 +1,5 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/bybit/auth/web_socket/auth.h"
 #include "aoe/bybit/credentials_loader/credentials_loader.h"
 #include "aoe/bybit/ping_manager/for_private_channel/ping_manager.h"
@@ -9,7 +8,6 @@
 #include "aoe/bybit/subscription_builder/subscription_builder.h"
 #include "aoe/response_queue_listener/response_queue_listener.h"
 #include "aoe/signer/hmac_sha256/signer.h"
-#include "aos/aos.h"
 #include "aos/logger/logger.h"
 #include "aos/logger/mylog.h"
 

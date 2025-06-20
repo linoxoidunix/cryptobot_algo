@@ -2,8 +2,6 @@
 
 #include <gtest/gtest.h>
 
-#include "aoe/aoe.h"  // Ваш класс
-#include "aos/aos.h"  // Ваш класс
 #include "aos/best_ask/best_ask.h"
 #include "aos/best_bid/best_bid.h"
 #include "aos/common/mem_pool.h"

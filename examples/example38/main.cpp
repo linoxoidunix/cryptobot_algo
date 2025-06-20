@@ -1,10 +1,11 @@
 #include <boost/asio.hpp>
 
 #include "aoe/binance/hash_utils/hash_utils.h"
-#include "aos/aos.h"
+#include "aos/market_triplet_manager/market_triplet_manager.h"
 #include "aos/mutual_information/c_mutual_information_calculator.h"
 #include "aos/sliding_window_storage/c_sliding_window_storage.h"
 #include "aos/strategies/deviation_and_mutual_info/c_strategy.h"
+#include "aos/strategy_engine/strategy_engine.h"
 #include "fmt/format.h"  //NOLINT
 #include "fmt/ranges.h"  // NOLINT
 #include "fmtlog.h"      // NOLINT

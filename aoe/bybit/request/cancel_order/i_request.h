@@ -4,6 +4,7 @@
 #include "aos/common/common.h"
 #include "aos/common/exchange_id.h"
 #include "aos/request/i_request.h"
+#include "aos/trading_pair/trading_pair.h"
 
 namespace aoe {
 namespace bybit {

@@ -1,10 +1,8 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/bybit/infrastructure/infrastructure.h"
 #include "aoe/bybit/order_book_sync/order_book_sync.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
-#include "aos/aos.h"
 #include "aos/common/exchange_id.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"

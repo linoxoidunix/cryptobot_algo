@@ -1,13 +1,11 @@
-#include <gtest/gtest.h>
-
 #include <memory>
 
 #include "aoe/bybit/execution_event/types.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
 #include "aoe/bybit/parser/json/ws/execution_response/execution_event_parser.h"
-#include "aos/aos.h"
-#include "aos/trading_pair/trading_pair.h"
 #include "aos/common/mem_pool.h"
+#include "aos/trading_pair/trading_pair.h"
+#include "gtest/gtest.h"
 
 using PositionT = int;  // Или ваша реальная структура позиции
 using Parser =

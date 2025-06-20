@@ -1,11 +1,14 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/binance/order_book_sync/order_book_sync.h"
 #include "aoe/binance/parser/json/ws/diff_response/parser.h"
-#include "aos/aos.h"
+#include "aoe/binance/response_queue_listener/json/ws/diff_response/listener.h"
+#include "aoe/binance/session/web_socket/web_socket.h"
+#include "aoe/binance/subscription_builder/subscription_builder.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
+#include "aos/order_book/order_book.h"
+#include "aos/order_book_level/order_book_level.h"
 
 int main() {
     {

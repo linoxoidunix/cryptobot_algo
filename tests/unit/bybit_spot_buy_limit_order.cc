@@ -1,10 +1,8 @@
-#include <gtest/gtest.h>
-
-#include "aoe/aoe.h"  // Ваш класс
-#include "aos/aos.h"  // Ваш класс
+#include "aoe/bybit/request/place_order/request.h"
 #include "aos/common/mem_pool.h"
 #include "aos/trading_pair/trading_pair.h"
 #include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include "nlohmann/json.hpp"
 // using ::testing::Return;
 

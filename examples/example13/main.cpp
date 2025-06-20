@@ -12,6 +12,7 @@
 #include "aos/position_tracker/position_tracker.h"
 #include "aos/trading_pair/trading_pair.h"
 #include "boost/intrusive_ptr.hpp"
+
 int main() {
     try {
         using Price = double;

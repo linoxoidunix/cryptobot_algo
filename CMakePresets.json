@@ -11,7 +11,8 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "BUILD_TESTS_AOS": "ON"
             }
         },
         {
@@ -24,7 +25,23 @@
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "BUILD_TESTS_AOS": "ON"
+            }
+        },
+        {
+            "name": "configure_release_tidy",
+            "displayName": "GCC Release with clang-tidy and tests",
+            "description": "Release build using clang-tidy and enabled tests",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_BUILD_TYPE": "Release",
+                "ENABLE_CLANG_TIDY": "ON",
+                "BUILD_TESTS_AOS": "ON"
             }
         }
     ],
@@ -36,6 +53,10 @@
         {
             "name": "build_release",
             "configurePreset": "configure_release"
+        },
+        {
+            "name": "build_release_tidy",
+            "configurePreset": "configure_release_tidy"
         }
     ],
     "testPresets": [

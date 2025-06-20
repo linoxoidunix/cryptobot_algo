@@ -9,13 +9,21 @@
 // #include "aos/multi_order_manager/multi_order_manager.h"
 #include <thread>
 
-#include "aoe/aoe.h"
+#include "aoe/bybit/api/external/web_socket/exchange_api_default.h"
+#include "aoe/bybit/credentials_loader/credentials_loader.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
+#include "aoe/bybit/order_manager/order_manager_default.h"
+#include "aoe/bybit/order_watcher/order_watcher.h"
+#include "aoe/bybit/ping_manager/for_private_channel/ping_manager.h"
 #include "aoe/bybit/response_queue_listener/json/ws/execution_response/listener_default.h"
 #include "aoe/bybit/response_queue_listener/json/ws/order_response/listener_default.h"
-#include "aos/aos.h"
+#include "aoe/bybit/session/web_socket/web_socket.h"
+#include "aoe/bybit/session_setup/web_socket/private/session_setup.h"
+#include "aoe/bybit/subscription_builder/subscription_builder.h"
+#include "aoe/session_provider/web_socket/web_socket_session_provider.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
+#include "aos/multi_order_manager/multi_order_manager.h"
 #include "aos/position/position.h"
 #include "aos/position_storage/position_storage_by_pair/position_storage_by_pair_default.h"
 

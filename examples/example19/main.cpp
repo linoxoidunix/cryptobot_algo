@@ -1,9 +1,12 @@
-#include <boost/asio.hpp>
-
 #include "aoe/bybit/execution_event/types.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
-#include "aos/aos.h"
 #include "aos/common/mem_pool.h"
+#include "aos/pnl/realized_calculator/pnl_realized_calculator.h"
+#include "aos/pnl/realized_storage/pnl_realized_storage.h"
+#include "aos/pnl/unrealized_calculator/pnl_unrealized_calculator.h"
+#include "aos/pnl/unrealized_storage/pnl_unrealized_storage.h"
+#include "aos/position_storage/position_storage_by_pair/position_storage_by_pair.h"
+#include "aos/position_strategy/position_strategy.h"
 
 int main() {
     {

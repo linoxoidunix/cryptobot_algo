@@ -1,10 +1,8 @@
-#include <gtest/gtest.h>
-
 #include <memory>
 
-#include "aoe/aoe.h"
-#include "aos/aos.h"
+#include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
 #include "aos/common/mem_pool.h"
+#include "gtest/gtest.h"
 
 TEST(OrderBookEventParserTest, ParsesBybitSnapshotCorrectly) {
     using Price = double;

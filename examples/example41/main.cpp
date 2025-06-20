@@ -1,16 +1,17 @@
 #include <thread>
 
-#include "aoe/aoe.h"
 #include "aoe/binance/hash_utils/hash_utils.h"
 #include "aoe/binance/infrastructure/infrastructure.h"
 #include "aoe/bybit/hash_utils/hash_utils.h"
 #include "aoe/bybit/infrastructure/infrastructure.h"
-#include "aos/aos.h"
 #include "aos/common/exchange_id.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
 #include "aos/logger/mylog.h"
+#include "aos/market_triplet_manager/market_triplet_manager.h"
 #include "aos/strategies/deviation_and_mutual_info/c_strategy.h"
+#include "aos/strategy_engine/i_strategy_engine.h"
+#include "aos/strategy_engine/strategy_engine.h"
 #include "aos/trading_pair/trading_pair.h"
 
 namespace str {

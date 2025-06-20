@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <sodium.h>
 
-#include "aoe/aoe.h"
 #include "aoe/credentials/secret_key/ed25519/url_safety_no_padding/secret_key.h"
+#include "aoe/credentials/secret_key/i_secret_key.h"
 #include "aoe/signer/ed25519/signer.h"
 
 // Заглушка для ApiKeyInterface

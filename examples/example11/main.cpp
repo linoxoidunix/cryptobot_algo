@@ -11,6 +11,7 @@
 #include "aos/position_strategy/position_strategy.h"
 #include "aos/trading_pair/trading_pair.h"
 #include "boost/intrusive_ptr.hpp"
+
 int main() {
     try {
         {

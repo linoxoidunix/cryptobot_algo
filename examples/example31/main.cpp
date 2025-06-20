@@ -1,11 +1,16 @@
 #include <thread>
+#include <vector>
 
-#include "aoe/aoe.h"
 #include "aoe/bybit/order_book_sync/order_book_sync.h"
 #include "aoe/bybit/parser/json/ws/order_book_response/parser.h"
-#include "aos/aos.h"
+#include "aoe/bybit/response_queue_listener/json/ws/order_book_response/listener.h"
+#include "aoe/bybit/session/web_socket/web_socket.h"
+#include "aoe/bybit/subscription_builder/subscription_builder.h"
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
+#include "aos/order_book/order_book.h"
+#include "aos/order_book_level/order_book_level.h"
+#include "concurrentqueue.h"
 
 int main() {
     try {

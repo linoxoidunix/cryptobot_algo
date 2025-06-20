@@ -1,9 +1,15 @@
 // Copyright 2025 Denis Evlanov
 
-#include <boost/asio.hpp>
-
-#include "aos/aos.h"
+#include "aos/avg_tracker/avg_tracker.h"
+#include "aos/deviation_tracker/deviation_tracker.h"
+#include "aos/histogram/histogram_calculator.h"
+#include "aos/joint_histogram/joint_histogram_calculator.h"
 #include "aos/logger/mylog.h"
+#include "aos/market_triplet_manager/market_triplet_manager.h"
+#include "aos/max_tracker/max_tracker.h"
+#include "aos/min_tracker/min_tracker.h"
+#include "aos/mutual_information/mutual_information_calculator.h"
+#include "aos/sliding_window_storage/sliding_window_storage.h"
 
 int main() {
     {
