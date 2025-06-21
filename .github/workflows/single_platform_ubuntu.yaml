@@ -57,7 +57,9 @@ jobs:
             librdkafka-dev \
             protobuf-compiler \
             libprotobuf-dev \
-            ninja-build
+            ninja-build \
+            lld \
+            libasan8
 
       - name: Download and install latest Boost
         run: |
