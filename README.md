@@ -1,4 +1,6 @@
 # cryptobot_algo
+High-performance, multi-threaded algorithmic trading engine for crypto exchanges, written in modern C++23
+
 ![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![CMake](https://img.shields.io/badge/CMake-3.28-informational)
 ![GCC](https://img.shields.io/badge/GCC-14.2.0-blue)
@@ -30,5 +32,5 @@
 
 ## 📁 Examples
 
-Usage examples can be found in the [examples/](./examples/) directory.
-Descriptions of all available examples and their functionality are provided in [examples/dsc.md](./examples/dsc.md).
+&nbsp;&nbsp;&nbsp;&nbsp;Usage examples can be found in the [examples/](./examples/) directory.  
+&nbsp;&nbsp;&nbsp;&nbsp;Descriptions of all available examples and their functionality are provided in [examples/dsc.md](./examples/dsc.md).
