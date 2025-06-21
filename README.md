@@ -1,7 +1,7 @@
 # cryptobot_algo
 ![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue)
 ![CMake](https://img.shields.io/badge/CMake-3.28-informational)
-![GCC](https://img.shields.io/badge/GCC-13.2.0-blue)
+![GCC](https://img.shields.io/badge/GCC-14.2.0-blue)
 ![G++](https://img.shields.io/badge/G++-14.2.0-blue)
 ![Build System](https://img.shields.io/badge/build%20system-ninja-blue?logo=ninja)
 ![License](https://img.shields.io/github/license/linoxoidunix/cryptobot_algo)
@@ -27,3 +27,8 @@
 | benchmark           | Microbenchmarking library by Google  | [benchmark](https://github.com/google/benchmark) |
 | googletest          | Testing framework (gtest/gmock)      | [googletest](https://github.com/google/googletest) |
 
+
+## 📁 Examples
+
+Usage examples can be found in the [examples/](./examples/) directory.
+Descriptions of all available examples and their functionality are provided in [examples/dsc.md](./examples/dsc.md).
