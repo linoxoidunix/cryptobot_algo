@@ -33,7 +33,7 @@ jobs:
             gcc gcc-c++ glibc-devel cmake ninja-build wget tar \
             openssl-devel libcurl-devel libuv-devel \
             python3-devel protobuf-compiler protobuf-devel \
-            xz-devel make which gawk lld
+            xz-devel make which gawk lld libasan
 
       - name: Download and install Boost 1.88.0
         run: |
