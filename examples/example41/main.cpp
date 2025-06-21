@@ -67,9 +67,6 @@ class StrategyWrapper {
                         strategy_engine_.AddData(
                             binance_futures_main_net_btc_usdt,
                             new_best_bid.bid_price);
-                        // strategy_engine_.AddData(
-                        //     binance_futures_main_net_btc_usdt,
-                        //     10);
                     });
         bool
             status_set_cb_on_best_ask_change_with_binance_futures_mainnet_infra =
@@ -88,9 +85,6 @@ class StrategyWrapper {
                         strategy_engine_.AddData(
                             binance_futures_main_net_btc_usdt,
                             new_best_ask.ask_price);
-                        //                     strategy_engine_.AddData(
-                        // binance_futures_main_net_btc_usdt,
-                        // 10);
                     });
         bool status_set_cb_on_best_bid_change_with_bybit_linear_mainnet_infra =
             bybit_linear_mainnet_infra_.SetCallbackOnBestBidChange(
@@ -106,9 +100,6 @@ class StrategyWrapper {
                                             config_.trading_pair);
                     strategy_engine_.AddData(bybit_linear_main_net_btc_usdt,
                                              new_best_bid.bid_price);
-                    //                 strategy_engine_.AddData(
-                    // bybit_linear_main_net_btc_usdt,
-                    // 10);
                 });
         bool status_set_cb_on_best_ask_change_with_bybit_linear_mainnet_infra =
             bybit_linear_mainnet_infra_.SetCallbackOnBestAskChange(
@@ -124,9 +115,6 @@ class StrategyWrapper {
                                             config_.trading_pair);
                     strategy_engine_.AddData(bybit_linear_main_net_btc_usdt,
                                              new_best_ask.ask_price);
-                    // strategy_engine_.AddData(
-                    // bybit_linear_main_net_btc_usdt,
-                    // 10);
                 });
         strategy_init_success_ =
             status_set_cb_on_best_bid_change_with_binance_futures_mainnet_infra &&
@@ -194,8 +182,6 @@ int main(int, char**) {
                 logi("Strategy not init successful");
                 return 0;
             }
-            int x = 0;
-            // std::this_thread::sleep_for(std::chrono::seconds(100));
         } catch (...) {
             loge("error occured");
         }
