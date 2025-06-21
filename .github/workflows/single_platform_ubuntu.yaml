@@ -70,7 +70,7 @@ jobs:
           BOOST_DIR="${BOOST_FILE%.tar.gz}"
           HASH=$(echo "$HTML" | tr '\n' ' ' | grep -oP "${BOOST_FILE}.*?title=\"\K[a-f0-9]{64}")
 
-          if [[ -z "$BOOST_URL" || -z "$HASH" ]]; then
+          if [ -z "$BOOST_URL" ] || [ -z "$HASH" ]; then
             echo "❌ Failed to find Boost archive or SHA256 hash"
             exit 1
           fi
@@ -80,7 +80,7 @@ jobs:
 
           echo "🔍 Verifying SHA256..."
           LOCAL_HASH=$(sha256sum "$BOOST_FILE" | awk '{print $1}')
-          if [[ "$HASH" != "$LOCAL_HASH" ]]; then
+          if [ "$HASH" != "$LOCAL_HASH" ]; then
             echo "❌ SHA256 mismatch: $LOCAL_HASH != $HASH"
             exit 1
           fi
