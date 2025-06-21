@@ -37,12 +37,3 @@ if (ENABLE_SANITIZERS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,leak -fno-omit-frame-pointer -g")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address,leak")
 endif()
-
-# 💡 Включение include-what-you-use только для example40
-option(ENABLE_IWYU "Enable include-what-you-use for example40" ON)
-
-if(ENABLE_IWYU)
-    find_program(IWYU_PATH NAMES include-what-you-use REQUIRED)
-    message(STATUS "IWYU enabled for ${PROJECT_NAME}: ${IWYU_PATH}")
-    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${IWYU_PATH})
-endif()

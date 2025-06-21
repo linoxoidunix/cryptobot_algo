@@ -1,0 +1,91 @@
+name: CMake on Fedora with Boost 1.88
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: fedora:latest
+
+    steps:
+      - name: Install Git
+        run: |
+          dnf install -y git
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      - name: Install Development Tools and Dependencies
+        run: |
+          dnf install -y \
+            gcc gcc-c++ glibc-devel cmake ninja-build wget tar \
+            openssl-devel libcurl-devel libuv-devel \
+            python3-devel protobuf-compiler protobuf-devel \
+            xz-devel make which gawk lld
+
+      - name: Download and install Boost 1.88.0
+        run: |
+          echo "⏳ Fetching latest Boost release info..."
+          HTML=$(curl -s https://www.boost.org/releases/latest/)
+          BOOST_URL=$(echo "$HTML" | grep -oP 'https://[^"]+boost_1_[0-9_]+\.tar\.gz' | head -n 1)
+          BOOST_FILE=$(basename "$BOOST_URL")
+          BOOST_DIR="${BOOST_FILE%.tar.gz}"
+          HASH=$(echo "$HTML" | tr '\n' ' ' | grep -oP "${BOOST_FILE}.*?title=\"\K[a-f0-9]{64}")
+
+          if [ -z "$BOOST_URL" ] || [ -z "$HASH" ]; then
+            echo "❌ Failed to find Boost archive or SHA256 hash"
+            exit 1
+          fi
+
+          echo "📥 Downloading Boost: $BOOST_FILE"
+          curl -LO "$BOOST_URL"
+
+          echo "🔍 Verifying SHA256..."
+          LOCAL_HASH=$(sha256sum "$BOOST_FILE" | awk '{print $1}')
+          if [ "$HASH" != "$LOCAL_HASH" ]; then
+            echo "❌ SHA256 mismatch: $LOCAL_HASH != $HASH"
+            exit 1
+          fi
+
+          echo "✅ SHA256 verified. Extracting..."
+          tar -xzf "$BOOST_FILE"
+
+          echo "🔧 Installing Boost..."
+          cd "$BOOST_DIR"
+          ./bootstrap.sh
+
+          # sudo для установки в /usr/local (можно убрать, если CI запускается с root)
+          ./b2 install
+
+          echo "✅ Boost installed to /usr/local"
+
+          # cleanup, если хочешь:
+          cd ..
+          rm -rf "$BOOST_DIR" "$BOOST_FILE"
+
+      - name: Configure CMake Debug
+        run: cmake --preset configure_dbg
+
+      - name: Configure CMake Release
+        run: cmake --preset configure_release
+
+      - name: Build Debug
+        run: cmake --build --preset build_dbg -- -j$(nproc)
+
+      - name: Build Release
+        run: cmake --build --preset build_release -- -j$(nproc)
+
+      - name: Run Tests
+        run: ctest --preset tests

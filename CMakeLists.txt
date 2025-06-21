@@ -4,9 +4,9 @@ project(${PROJECT_NAME} C CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(ENABLE_CLANG_TIDY "Enable clang-tidy static analysis" OFF)
+option(ENABLE_CLANG_TIDY "Enable clang-tidy checks" OFF)
 
-if (ENABLE_CLANG_TIDY)
+if(ENABLE_CLANG_TIDY)
     set(CMAKE_CXX_CLANG_TIDY
         clang-tidy
         -format-style=file
@@ -14,9 +14,6 @@ if (ENABLE_CLANG_TIDY)
         --extra-arg=-Wno-unused-command-line-argument
         -header-filter=aos.*\|aoe.*
     )
-    message(STATUS "Clang-Tidy enabled")
-else()
-    message(STATUS "Clang-Tidy disabled")
 endif()
 
 
@@ -29,10 +26,17 @@ endfunction()
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_CMAKE_API OFF)
 set(CMAKE_EXPERIMENTAL_CXX_MODULE_DYNDEP OFF)
 
-# Установка lld как линковщика по умолчанию
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
-set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -fuse-ld=lld")
+# set lld as default linker if exist
+find_program(LLD lld)
+if(LLD)
+    message(STATUS "Using lld linker: ${LLD}")
+    set(CMAKE_LINKER ${LLD})
+    # Также добавляем флаг для компилятора (если нужно)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld")
+else()
+    message(WARNING "lld linker not found")
+endif()
+
 
 # Включение профилирования времени
 set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time")
@@ -42,6 +46,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include(FetchContent)
 
+find_package(Threads REQUIRED)
 find_package(OpenSSL)
 find_package(Boost 1.87.0 REQUIRED)
 
@@ -86,15 +91,25 @@ FetchContent_Declare(gtest_main
 )
 FetchContent_MakeAvailable(gtest_main)
 
-set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing benchmark's tests" FORCE)#ignore tests for benchmark
-set(BENCHMARK_ENABLE_EXAMPLES OFF CACHE BOOL "Disable benchmark examples")
-FetchContent_Declare(
-    benchmark
-    GIT_REPOSITORY https://github.com/google/benchmark.git
-    GIT_TAG main
-)
 
-FetchContent_MakeAvailable(benchmark)
+option(USE_BENCHMARK_AOS "Enable Google Benchmark support" OFF)
+
+if(USE_BENCHMARK_AOS)
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing benchmark's tests" FORCE)
+    include(FetchContent)
+    FetchContent_Declare(
+        benchmark
+        GIT_REPOSITORY https://github.com/google/benchmark.git
+        GIT_TAG main
+    )
+    FetchContent_MakeAvailable(benchmark)
+    set_target_properties(benchmark PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
+    set_target_properties(benchmark PROPERTIES FOLDER "Hide3rdPartyLibrary")
+    set_target_properties(benchmark PROPERTIES EXCLUDE_FROM_ALL TRUE)
+    set_target_properties(benchmark_main PROPERTIES FOLDER "Hide3rdPartyLibrary")
+    set_target_properties(benchmark_main PROPERTIES EXCLUDE_FROM_ALL TRUE)
+endif()
+
 
 FetchContent_Declare(
     magic_enum
@@ -142,7 +157,6 @@ message(STATUS "simdjson FetchContent is available.")
 
 set_target_properties(fmt PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(fmtlog-static PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
-set_target_properties(benchmark PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(gtest_main PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(gtest PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
 set_target_properties(simdjson PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_FOR_3RD_PARTY}")
@@ -160,8 +174,6 @@ set_target_properties(fmt PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(fmtlog-static PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(fmtlog-shared PROPERTIES FOLDER "Hide3rdPartyLibrary")
 set_target_properties(simdjson PROPERTIES FOLDER "Hide3rdPartyLibrary")
-set_target_properties(benchmark PROPERTIES FOLDER "Hide3rdPartyLibrary")
-set_target_properties(benchmark_main PROPERTIES FOLDER "Hide3rdPartyLibrary")
 
 set_target_properties(magic_enum PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(tomlplusplus_tomlplusplus PROPERTIES EXCLUDE_FROM_ALL TRUE)
@@ -169,8 +181,6 @@ set_target_properties(fmt PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(fmtlog-static PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(fmtlog-shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(simdjson PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(benchmark PROPERTIES EXCLUDE_FROM_ALL TRUE)
-set_target_properties(benchmark_main PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
 file(GLOB LIST_H
      "aos/*h"
@@ -210,20 +220,16 @@ target_link_libraries(${PROJECT_NAME}
     fmt
 )
 
-option(BUILD_EXAMPLES_AOS "Build example applications" ON)
 
-if (BUILD_EXAMPLES)
-    add_subdirectory(examples)
-else()
-    message(STATUS "Examples are skipped.")
-endif()
+add_subdirectory(examples)
 
-# Disable C++20 modules support to avoid experimental behavior and improve compatibility
+
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_SCAN_FOR_MODULES OFF
     CXX_MODULE_STD_ONLY OFF
 )
+
 
 option(BUILD_TESTS_AOS "Build tests" ON)
 if(BUILD_TESTS_AOS)
