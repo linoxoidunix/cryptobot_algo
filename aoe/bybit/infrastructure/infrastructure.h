@@ -76,8 +76,8 @@ class Infrastructure
                                                                          Qty>,
       public PlaceOrderInterface<MemoryPoolThreadSafety>,
       public CancelOrderInterface<MemoryPoolThreadSafety> {
-    static constexpr bool kFoundInfrastructure_    = true;
-    static constexpr bool kNotFoundInfrastructure_ = false;
+    static constexpr bool kFoundInfrastructure    = true;
+    static constexpr bool kNotFoundInfrastructure = false;
 
     boost::asio::io_context ioc_trade_;  // may be need ioc_trade = ioc
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
@@ -169,10 +169,10 @@ class Infrastructure
         auto it = contexts_.find(trading_pair);
         if (it == contexts_.end() || !it->second ||
             !it->second->best_bid_notifier) {
-            return kNotFoundInfrastructure_;
+            return kNotFoundInfrastructure;
         }
         it->second->best_bid_notifier->SetCallback(cb);
-        return kFoundInfrastructure_;
+        return kFoundInfrastructure;
     }
 
     bool SetCallbackOnBestAskChange(
@@ -184,10 +184,10 @@ class Infrastructure
         auto it                                = contexts_.find(trading_pair);
         if (it == contexts_.end() || !it->second ||
             !it->second->best_ask_notifier) {
-            return kNotFoundInfrastructure_;
+            return kNotFoundInfrastructure;
         }
         it->second->best_ask_notifier->SetCallback(cb);
-        return kFoundInfrastructure_;
+        return kFoundInfrastructure;
     }
     void PlaceOrder(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPoolThreadSafety>>
@@ -257,8 +257,8 @@ class Infrastructure
           Price, Qty>,
       public PlaceOrderInterface<MemoryPoolThreadSafety>,
       public CancelOrderInterface<MemoryPoolThreadSafety> {
-    static constexpr bool kFoundInfrastructure_    = true;
-    static constexpr bool kNotFoundInfrastructure_ = false;
+    static constexpr bool kFoundInfrastructure    = true;
+    static constexpr bool kNotFoundInfrastructure = false;
 
     boost::asio::io_context ioc_trade_;  // may be need ioc_trade = ioc
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
@@ -359,10 +359,10 @@ class Infrastructure
         auto it = contexts_.find(trading_pair);
         if (it == contexts_.end() || !it->second ||
             !it->second->best_bid_notifier) {
-            return kNotFoundInfrastructure_;
+            return kNotFoundInfrastructure;
         }
         it->second->best_bid_notifier->SetCallback(cb);
-        return kFoundInfrastructure_;
+        return kFoundInfrastructure;
     }
 
     bool SetCallbackOnBestAskChange(
@@ -371,10 +371,10 @@ class Infrastructure
         auto it = contexts_.find(trading_pair);
         if (it == contexts_.end() || !it->second ||
             !it->second->best_ask_notifier) {
-            return kNotFoundInfrastructure_;
+            return kNotFoundInfrastructure;
         }
         it->second->best_ask_notifier->SetCallback(cb);
-        return kFoundInfrastructure_;
+        return kFoundInfrastructure;
     }
     void PlaceOrder(
         boost::intrusive_ptr<aos::RequestInterface<MemoryPoolThreadSafety>>
