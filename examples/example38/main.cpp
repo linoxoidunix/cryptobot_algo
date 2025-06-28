@@ -1,6 +1,8 @@
 #include <boost/asio.hpp>
 
+#include "aoe/api/exchange_api.h"
 #include "aoe/binance/hash_utils/hash_utils.h"
+#include "aos/common/mem_pool.h"
 #include "aos/market_triplet_manager/market_triplet_manager.h"
 #include "aos/mutual_information/c_mutual_information_calculator.h"
 #include "aos/sliding_window_storage/c_sliding_window_storage.h"
@@ -24,14 +26,20 @@ int main() {
             const auto binance_btc_usdt = aoe::binance::HashKey(
                 aoe::binance::Category::kFutures,
                 aos::NetworkEnvironment::kMainNet, aos::TradingPair::kBTCUSDT);
+
+            aoe::impl::PlaceOrderDummy<common::MemoryPoolThreadSafety>
+                place_order_dummy;
+
             constexpr aos::strategies::deviation_and_mutual_information::Config<
                 HashT>
                 kConfigStrategy{5, 10, binance_btc_usdt, 0.001, 2};
 
-            aos::strategies::deviation_and_mutual_information::Strategy<HashT,
-                                                                        Price>
-                strategy(market_triplet_manager, kConfigStrategy);
-
+            aos::strategies::deviation_and_mutual_information::Strategy<
+                HashT, Price, std::unordered_map<HashT, Price>,
+                common::MemoryPoolThreadSafety>
+                strategy(market_triplet_manager, kConfigStrategy,
+                         place_order_dummy);
+            strategy.Init();
             aos::impl::StrategyEngineDefault<HashT, Price> strategy_engine(
                 thread_pool, strategy);
             std::vector<std::pair<double, double>> incoming_data = {
