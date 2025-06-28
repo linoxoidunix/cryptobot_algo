@@ -32,6 +32,27 @@ class TradeAnalyserInterface {
 };
 
 template <typename HashT, typename T>
+class SetBidPriceInterface {
+  public:
+    virtual void SetBidPrice(const HashT& asset, const T& value) = 0;
+    virtual ~SetBidPriceInterface()                              = default;
+};
+
+template <typename HashT, typename T>
+class SetAskPriceInterface {
+  public:
+    virtual void SetAskPrice(const HashT& asset, const T& value) = 0;
+    virtual ~SetAskPriceInterface()                              = default;
+};
+
+template <typename HashT, typename T>
+class SetPriceWhenEnterInterface : public SetBidPriceInterface<HashT, T>,
+                                   public SetAskPriceInterface<HashT, T> {
+  public:
+    ~SetPriceWhenEnterInterface() override = default;
+};
+
+template <typename HashT, typename T>
 class CoreStrategyInterface : public AddActionsToBuyInteface<HashT, T>,
                               public AddActionsToSellInteface<HashT, T>,
                               TradeAnalyserInterface<HashT, T> {
@@ -40,7 +61,8 @@ class CoreStrategyInterface : public AddActionsToBuyInteface<HashT, T>,
 };
 
 template <typename HashT, typename T>
-class StrategyInterface : public TradeAnalyserInterface<HashT, T> {
+class StrategyInterface : public TradeAnalyserInterface<HashT, T>,
+                          public SetPriceWhenEnterInterface<HashT, T> {
   public:
     virtual void AddData(const HashT& has_asset, const T& value) = 0;
     ~StrategyInterface() override                                = default;

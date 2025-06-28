@@ -28,7 +28,7 @@ class RestSessionRW : public RestSessionRWInterface {
         override {
         return session_.GetResponseQueue();
     }
-
+    void Start() override { session_.Start(); }
     ~RestSessionRW() override = default;
 };
 };  // namespace spot
@@ -55,6 +55,7 @@ class RestSessionRW : public RestSessionRWInterface {
         override {
         return session_.GetResponseQueue();
     }
+    void Start() override { session_.Start(); }
 
     ~RestSessionRW() override = default;
 };

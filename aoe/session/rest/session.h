@@ -82,17 +82,6 @@ class RestSessionRW : public RestSessionWritableInterface,
         //         }
         //     },
         //     net::detached);
-        auto fut = net::co_spawn(
-            ioc,
-            [&]() -> net::awaitable<void> {
-                try {
-                    co_await Run(host.data(), port.data());
-                } catch (const std::exception& e) {
-                    loge("Error: {}", e.what());
-                }
-            },
-            net::use_future);
-        fut.get();  // блокирует, ждет завершения
     }
     void AsyncWrite(
         boost::beast::http::request<boost::beast::http::string_body>&& message)
@@ -101,13 +90,25 @@ class RestSessionRW : public RestSessionWritableInterface,
         net::dispatch(ioc_, [this, req = std::move(message)]() mutable {
             message_queue_.try_enqueue(std::move(req));
             logd("https3 enquee message");
-            StartProcessing();
+            // StartProcessing();
         });
     };
     ~RestSessionRW() override = default;
     moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
         override {
         return response_queue_;
+    }
+    void Start() {
+        net::co_spawn(
+            ioc_,
+            [&]() -> net::awaitable<void> {
+                try {
+                    co_await Run(host_.data(), port_.data());
+                } catch (const std::exception& e) {
+                    loge("Error: {}", e.what());
+                }
+            },
+            net::detached);
     }
 
   private:
@@ -123,10 +124,12 @@ class RestSessionRW : public RestSessionWritableInterface,
         http::request<http::string_body> req;
         message_queue_.try_dequeue(req);
         try {
+            logi("[https3] send request");
             // Отправляем запрос
             co_await http::async_write(stream_, req, net::use_awaitable);
             http::response<http::string_body> res;
             // Читаем ответ
+            logi("[https3] read response");
             co_await http::async_read(stream_, buffer_, res,
                                       net::use_awaitable);
             // Копируем body в вектор
@@ -145,15 +148,7 @@ class RestSessionRW : public RestSessionWritableInterface,
         CloseSessionFast();
         co_return;
     }
-    void StartProcessing() {
-        boost::asio::co_spawn(
-            strand_,
-            [this]() -> net::awaitable<void> {
-                if (!session_ready_) co_return;
-                co_await RequestLoop();
-            },
-            net::detached);
-    }
+
     net::awaitable<void> Run(const char* host, const char* port) {
         logi("try init https session");
         if (!SSL_set_tlsext_host_name(stream_.native_handle(), host)) {
@@ -183,7 +178,7 @@ class RestSessionRW : public RestSessionWritableInterface,
 
         timer_.cancel();
         session_ready_ = true;
-        net::co_spawn(strand_, RequestLoop(), net::detached);
+        co_await RequestLoop();
         co_return;
     }
     // Close the session gracefully

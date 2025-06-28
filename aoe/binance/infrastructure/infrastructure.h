@@ -57,7 +57,11 @@ struct OrderBookInfraContextDefault {
         session;
     std::unique_ptr<aoe::SubscriptionBuilderInterface>
         diff_subscription_builder;
+
     std::jthread thread;
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
+        work_guard_{boost::asio::make_work_guard(
+            ioc)};  // unlock ioc. it places in the last
 };
 
 template <typename Price, typename Qty,
@@ -105,6 +109,9 @@ class Infrastructure
             std::make_unique<aoe::binance::impl::diff_response::spot::Listener<
                 Price, Qty, MemoryPoolThreadSafety>>(pool_, queue,
                                                      *context.sync);
+        // run ioc before session
+        context.thread =
+            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
 
         context.session = std::make_unique<
             aoe::binance::impl::main_net::spot::order_book_channel::SessionRW>(
@@ -124,9 +131,6 @@ class Infrastructure
         notifier.AddSubscriber(*context.best_bid_notifier);
         notifier.AddSubscriber(*context.best_ask_notifier);
 
-        // run ioc
-        context.thread =
-            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
         // std::this_thread::sleep_for(
         //     std::chrono::seconds(100));  // спит 1 секунду
         contexts_.emplace(trading_pair, context_ptr);
@@ -204,6 +208,9 @@ struct OrderBookInfraContextDefault {
     std::unique_ptr<aoe::SubscriptionBuilderInterface>
         diff_subscription_builder;
     std::jthread thread;
+    boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
+        work_guard_{boost::asio::make_work_guard(
+            ioc)};  // unlock ioc. it places in the last
 };
 
 template <typename Price, typename Qty,
@@ -251,6 +258,9 @@ class Infrastructure
             std::make_unique<aoe::binance::impl::diff_response::futures::
                                  Listener<Price, Qty, MemoryPoolThreadSafety>>(
                 pool_, queue, *context.sync);
+        // run ioc before session
+        context.thread =
+            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
 
         context.session =
             std::make_unique<aoe::binance::impl::main_net::futures::

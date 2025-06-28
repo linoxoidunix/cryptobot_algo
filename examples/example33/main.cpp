@@ -16,6 +16,11 @@ int main() {
         try {
             boost::asio::thread_pool thread_pool;
             boost::asio::io_context ioc;
+
+            aoe::binance::impl::SnapshotEventParser<
+                double, double, common::MemoryPoolThreadSafety>
+                snapshot_parser(100);
+
             moodycamel::ConcurrentQueue<std::vector<char>> response_queue;
             aos::OrderBookEventListener<
                 double, double, common::MemoryPoolThreadSafety,
@@ -27,9 +32,7 @@ int main() {
                 std::unordered_map<double,
                                    aos::OrderBookLevel<double, double>*>>
                 order_book_sync{thread_pool, order_book};
-            aoe::binance::impl::SnapshotEventParser<
-                double, double, common::MemoryPoolThreadSafety>
-                snapshot_parser(100);
+
             aoe::binance::impl::snapshot::spot::Listener listener(
                 thread_pool, response_queue, snapshot_parser, order_book_sync);
             aoe::binance::impl::main_net::spot::RestSessionRW session(
@@ -42,9 +45,13 @@ int main() {
                 request;
             request.SetTradingPair(aos::TradingPair::kBTCUSDT);
             request.SetLimit(1);
-
             sender.Send(request);
-            auto thread = std::jthread([&ioc]() { ioc.run(); });
+            session.Start();
+            auto thread = std::jthread([&ioc]() {
+                ioc.run();
+                logi("ioc finished");
+            });
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         } catch (...) {
             loge("error occured");
         }

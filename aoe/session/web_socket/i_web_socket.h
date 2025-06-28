@@ -4,7 +4,6 @@
 #include "nlohmann/json.hpp"
 
 namespace aoe {
-
 class WebSocketSessionWritableInterface {
   public:
     virtual void AsyncWrite(nlohmann::json&&)    = 0;

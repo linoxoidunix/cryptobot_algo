@@ -289,6 +289,7 @@ class OrderBookSync
         request.SetTradingPair(pair);
         // default depth = 5000;
         sender.Send(request);
+        session.Start();
         auto thread = std::jthread([&ioc]() { ioc.run(); });
         co_return;
     }

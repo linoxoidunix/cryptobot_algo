@@ -9,7 +9,7 @@
 // #include "aos/multi_order_manager/multi_order_manager.h"
 #include <thread>
 
-#include "aoe/bybit/api/external/web_socket/exchange_api_default.h"
+#include "aoe/bybit/api/external/web_socket/c_exchange_api.h"
 #include "aoe/bybit/credentials_loader/credentials_loader.h"
 #include "aoe/bybit/execution_watcher/execution_watcher.h"
 #include "aoe/bybit/order_manager/order_manager_default.h"

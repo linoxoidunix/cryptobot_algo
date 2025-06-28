@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 
+#include "aoe/api/i_exchange_api.h"
 #include "aos/hash_utils/decompose_hash.h"
 #include "aos/logger/mylog.h"
 #include "aos/market_triplet_manager/i_market_triplet_manager.h"
@@ -16,14 +17,19 @@
 namespace aos {
 namespace strategies {
 namespace deviation_and_mutual_information {
-template <typename HashT, typename T>
+template <typename HashT, typename T, typename HashMap,
+          template <typename> typename MemoryPoolThreadSafety>
 class Strategy : public StrategyInterface<HashT, T> {
     impl::Strategy<HashT, T> core_strategy_;
     impl::SlidingWindowStorageAvgDevMinMax<HashT, T> sliding_window_;
     impl::MutualInformationCalculator<HashT, T> mi_calculator_;
     MarketTripletManagerInterface<HashT>& market_triplet_manager_;
     const Config<HashT>& config_;
-
+    aoe::PlaceOrderInterface<MemoryPoolThreadSafety>& exchange_api_;
+    HashMap bid_price_;
+    // ignore bid_qty //NOLINT
+    HashMap ask_price_;
+    // ignore ask_qty //NOLINT
   private:
     void InitBuyActions() {
         core_strategy_.AddActionsToBuy(
@@ -124,10 +130,12 @@ class Strategy : public StrategyInterface<HashT, T> {
 
   public:
     Strategy(MarketTripletManagerInterface<HashT>& market_triplet_manager,
-             const Config<HashT>& config)
+             const Config<HashT>& config,
+             aoe::PlaceOrderInterface<MemoryPoolThreadSafety>& exchange_api)
         : sliding_window_(config.window_size),
           market_triplet_manager_(market_triplet_manager),
-          config_(config) {}
+          config_(config),
+          exchange_api_(exchange_api) {}
     void Init() {
         InitBuyActions();
         InitSellActions();
@@ -143,6 +151,12 @@ class Strategy : public StrategyInterface<HashT, T> {
     void AddData(const HashT& hash_asset, const T& value) override {
         sliding_window_.AddData(hash_asset, value);
     };
+    void SetBidPrice(const HashT& hash_asset, const T& value) override {
+        bid_price_[hash_asset] = value;
+    }
+    void SetAskPrice(const HashT& hash_asset, const T& value) override {
+        ask_price_[hash_asset] = value;
+    }
     ~Strategy() override = default;
 };
 };  // namespace deviation_and_mutual_information

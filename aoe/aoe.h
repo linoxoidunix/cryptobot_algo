@@ -1,8 +1,10 @@
 #pragma once
 
+#include "aoe/api/exchange_api.h"
+#include "aoe/api/i_exchange_api.h"
 #include "aoe/auth/web_socket/i_auth.h"
 #include "aoe/binance/api/external/rest/exchange_api.h"
-#include "aoe/binance/api/external/web_socket/exchange_api_default.h"
+#include "aoe/binance/api/external/web_socket/c_exchange_api.h"
 #include "aoe/binance/api/external/web_socket/exchange_api.h"
 #include "aoe/binance/api/i_exchange_api.h"
 #include "aoe/binance/api/internal/exchange_api.h"
@@ -75,7 +77,7 @@
 #include "aoe/binance/subscription_builder/subscription_builder_default.h"
 #include "aoe/binance/subscription_builder/subscription_builder.h"
 #include "aoe/bybit/api/external/rest/exchange_api.h"
-#include "aoe/bybit/api/external/web_socket/exchange_api_default.h"
+#include "aoe/bybit/api/external/web_socket/c_exchange_api.h"
 #include "aoe/bybit/api/external/web_socket/exchange_api.h"
 #include "aoe/bybit/api/i_exchange_api.h"
 #include "aoe/bybit/api/internal/exchange_api.h"

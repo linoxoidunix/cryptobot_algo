@@ -28,8 +28,15 @@ class OrderMinQtyCalculatorInterface {
      * at the specified price, typically based on notional constraints such as
      * minimum order value (price * quantity).
      *
+     * If the price is aligned with the price step, the method calculates and
+     * returns the required quantity in the result with status `true`.
+     * Otherwise, if the price is not properly aligned, the method returns
+     * status `false` and an undefined quantity.
+     *
      * @param price The price at which the order would be placed.
-     * @return The minimum allowed quantity at the given price.
+     * @return A pair where the first value indicates success (true if price is
+     * aligned), and the second is the minimum allowed quantity at the given
+     * price.
      */
     virtual std::pair<bool, Qty> Calculate(Price price) = 0;
 };

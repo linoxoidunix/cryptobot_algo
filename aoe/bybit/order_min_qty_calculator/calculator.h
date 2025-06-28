@@ -18,8 +18,8 @@ class OrderMinQtyCalculator
     }
 
     static bool IsAligned(Price value, Price step, Price eps = 1e-12) {
-        Price mod = std::fmod(value, step);
-        return (std::fabs(mod) <= eps) || (std::fabs(step - mod) <= eps);
+        Price rounded = std::round(value / step) * step;
+        return std::fabs(value - rounded) < eps;
     }
 
   public:

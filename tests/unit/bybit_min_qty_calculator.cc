@@ -1,7 +1,12 @@
-#include <gtest/gtest.h>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
 
 #include "aoe/bybit/order_filter/trading_pair_order_filter.h"
 #include "aoe/bybit/order_min_qty_calculator/calculator.h"
+#include "fmt/core.h"    // NOLINT
+#include "fmt/format.h"  // NOLINT
+#include "gtest/gtest.h"
 
 namespace aoe {
 namespace bybit {
@@ -51,11 +56,9 @@ TEST(OrderMinQtyCalculatorTest, NotionalExceedsMaximum) {
     OrderFilterBTCUSDT filter;
     OrderMinQtyCalculator<double, double> calc(filter);
 
-    auto [ok, qty] =
-        calc.Calculate(100000.0);  // qty будет минимальное, но notional = qty *
-                                   // price слишком большое
-    EXPECT_FALSE(ok);
-    EXPECT_EQ(qty, 0.0);
+    auto [ok, qty] = calc.Calculate(100000.0);
+    EXPECT_TRUE(ok);
+    EXPECT_GE(qty * 100000, filter.min_order_amt);
 }
 
 }  // namespace spot

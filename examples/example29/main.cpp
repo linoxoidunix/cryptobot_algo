@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "aoe/bybit/api/external/web_socket/exchange_api_default.h"
+#include "aoe/bybit/api/external/web_socket/c_exchange_api.h"
 #include "aoe/bybit/credentials_loader/credentials_loader.h"
 #include "aoe/bybit/order_manager/order_manager.h"
 #include "aoe/bybit/order_storage/order_storage.h"

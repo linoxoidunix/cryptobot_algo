@@ -1,82 +1,20 @@
 #pragma once
-#include "aos/request/i_request.h"
-#include "boost/intrusive_ptr.hpp"
+#include "aoe/api/i_exchange_api.h"
+// #include "aos/request/i_request.h"
+// #include "boost/intrusive_ptr.hpp"
+
 namespace aoe {
 namespace binance {
 
-template <template <typename> typename MemoryPool>
-class PlaceOrderInterface {
-  public:
-    virtual ~PlaceOrderInterface() = default;
-    virtual void PlaceOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class AmendOrderInterface {
-  public:
-    virtual ~AmendOrderInterface() = default;
-    virtual void AmendOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class CancelOrderInterface {
-  public:
-    virtual ~CancelOrderInterface() = default;
-    virtual void CancelOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class CancelAllOrderInterface {
-  public:
-    virtual ~CancelAllOrderInterface() = default;
-    virtual void CancelAllOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class PlaceBacthOrderInterface {
-  public:
-    virtual ~PlaceBacthOrderInterface() = default;
-    virtual void PlaceBatchOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class AmendBatchOrderInterface {
-  public:
-    virtual ~AmendBatchOrderInterface() = default;
-    virtual void AmendBatchOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class CancelBatchOrderInterface {
-  public:
-    virtual ~CancelBatchOrderInterface() = default;
-    virtual void CancelBatchOrder(
-        boost::intrusive_ptr<aos::RequestInterface<MemoryPool>>) = 0;
-};
-
-template <template <typename> typename MemoryPool>
-class SingleOrderAPIInterface : public PlaceOrderInterface<MemoryPool>,
-                                public AmendOrderInterface<MemoryPool>,
-                                public CancelOrderInterface<MemoryPool>,
-                                public CancelAllOrderInterface<MemoryPool> {
-  public:
-    virtual ~SingleOrderAPIInterface() = default;
-};
-
-template <template <typename> typename MemoryPool>
-class BatchOrderAPIInterface : public PlaceBacthOrderInterface<MemoryPool>,
-                               public AmendBatchOrderInterface<MemoryPool>,
-                               public CancelBatchOrderInterface<MemoryPool> {
-  public:
-    virtual ~BatchOrderAPIInterface() = default;
-};
-
+using aoe::AmendBatchOrderInterface;
+using aoe::AmendOrderInterface;
+using aoe::BatchOrderAPIInterface;
+using aoe::CancelAllOrderInterface;
+using aoe::CancelBatchOrderInterface;
+using aoe::CancelOrderInterface;
+using aoe::PlaceBatchOrderInterface;
+using aoe::PlaceOrderInterface;
+using aoe::SingleOrderAPIInterface;
 //--------------------------------------------------------------------------
 template <template <typename> typename MemoryPool>
 class SnapshotRequesterInterface {

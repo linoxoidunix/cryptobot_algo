@@ -25,6 +25,7 @@ class RestSessionWInterface : public RestSessionWritableInterface {
 class RestSessionRWInterface : public RestSessionWritableInterface,
                                public RestSessionReadableInterface {
   public:
+    virtual void Start()               = 0;
     ~RestSessionRWInterface() override = default;
 };
 

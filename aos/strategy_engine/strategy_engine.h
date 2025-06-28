@@ -25,6 +25,19 @@ class StrategyEngineDefault : public StrategyEngineInterface<HashT, T> {
             strategy_.AddData(asset, value);
         });
     }
+    void SetBidPrice(const HashT& asset, const T& value) override {
+        logi("Add hash:{} value:{} to strand", asset, value);
+        boost::asio::post(strand_, [this, asset, value]() {
+            strategy_.SetBidPrice(asset, value);
+        });
+    }
+    void SetAskPrice(const HashT& asset, const T& value) override {
+        logi("Add hash:{} value:{} to strand", asset, value);
+        boost::asio::post(strand_, [this, asset, value]() {
+            strategy_.SetAskPrice(asset, value);
+        });
+    }
+
     void Wait() {
         std::promise<void> promise;
         std::future<void> future = promise.get_future();
