@@ -7,6 +7,7 @@
 #include "aos/common/mem_pool.h"
 #include "aos/logger/logger.h"
 #include "aos/logger/mylog.h"
+#include "aos/order_book_notifier_flags/flags.h"
 #include "aos/trading_pair/trading_pair.h"
 
 namespace str {
@@ -64,9 +65,15 @@ int main(int, char**) {
             LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
             using Price = double;
             using Qty   = double;
+            constexpr aos::NotifierFlags kNotifierOptions{
+                /*best_bid_enabled=*/true,
+                /*best_ask_enabled=*/true,
+                /*best_bid_price_enabled=*/false,
+                /*best_ask_price_enabled=*/false,
+            };
             aoe::binance::impl::main_net::spot::Infrastructure<
                 Price, Qty, common::MemoryPoolThreadSafety,
-                common::MemoryPoolNotThreadSafety>
+                common::MemoryPoolNotThreadSafety, kNotifierOptions>
                 infrastructure(thread_pool);
             infrastructure.Register(aos::TradingPair::kBTCUSDT);
             str::Config config;

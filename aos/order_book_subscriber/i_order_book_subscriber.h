@@ -45,4 +45,38 @@ class BestAskNotifierInterface
   public:
     ~BestAskNotifierInterface() override = default;
 };
+
+template <typename Price>
+class OrderBookSubscriberCallbackSetterOnBestBidPriceChangeInterface {
+  public:
+    virtual void SetCallback(std::function<void(Price& new_bid_price)> cb) = 0;
+    virtual ~OrderBookSubscriberCallbackSetterOnBestBidPriceChangeInterface() =
+        default;
+};
+
+template <typename Price>
+class OrderBookSubscriberCallbackSetterOnBestAskPriceChangeInterface {
+  public:
+    virtual void SetCallback(std::function<void(Price& new_ask_price)> cb) = 0;
+    virtual ~OrderBookSubscriberCallbackSetterOnBestAskPriceChangeInterface() =
+        default;
+};
+
+template <typename Price>
+class BestBidPriceNotifierInterface
+    : public OrderBookSubscriberInterface,
+      public OrderBookSubscriberCallbackSetterOnBestBidPriceChangeInterface<
+          Price> {
+  public:
+    ~BestBidPriceNotifierInterface() override = default;
+};
+
+template <typename Price>
+class BestAskPriceNotifierInterface
+    : public OrderBookSubscriberInterface,
+      public OrderBookSubscriberCallbackSetterOnBestAskPriceChangeInterface<
+          Price> {
+  public:
+    ~BestAskPriceNotifierInterface() override = default;
+};
 };  // namespace aos

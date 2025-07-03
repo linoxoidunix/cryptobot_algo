@@ -15,9 +15,10 @@
 
 struct LogPolling {
     std::shared_ptr<boost::asio::steady_timer> timer;
-    std::function<void(const boost::system::error_code&)> poll;
     boost::asio::cancellation_signal cancel_signal_;
-    bool run_ = true;
+    std::future<void> done_;  // используем future для ожидания завершения
+    std::atomic_bool run_ = true;
+
     LogPolling(boost::asio::thread_pool& pool,
                std::chrono::microseconds interval)
         : timer(std::make_shared<boost::asio::steady_timer>(pool)) {
@@ -25,44 +26,51 @@ struct LogPolling {
             run_ = false;
             timer->cancel();
         });
-        // boost::asio::co_spawn(pool, Run(interval), [](std::exception_ptr& e)
-        // {
-        //     if (e) std::rethrow_exception(e);
-        // });
-        boost::asio::co_spawn(
+
+        done_ = boost::asio::co_spawn(
             pool,
-            [&, interval]() -> boost::asio::awaitable<void> {
+            [this, interval]() -> boost::asio::awaitable<void> {
                 try {
                     co_await Run(interval);
                 } catch (const std::exception& e) {
-                    loge("Error: {}", e.what());
+                    loge("LogPolling error: {}", e.what());
                 }
             },
-            boost::asio::detached);
+            boost::asio::use_future  // Позволяет ожидать завершения
+        );
     }
 
     void Stop() { cancel_signal_.emit(boost::asio::cancellation_type::all); }
+
+    ~LogPolling() {
+        Stop();
+        // Ждём завершения корутины
+        if (done_.valid()) {
+            try {
+                done_.get();  // дождаться завершения или поймать ошибку
+            } catch (const std::exception& e) {
+                loge("LogPolling::~LogPolling error: {}", e.what());
+            }
+        }
+    }
 
   private:
     boost::asio::awaitable<void> Run(std::chrono::microseconds interval) {
         boost::system::error_code ec;
         while (run_) {
-            // Wait for the timer without throwing on error
             co_await timer->async_wait(
                 boost::asio::redirect_error(boost::asio::use_awaitable, ec));
 
             if (ec) {
                 if (ec == boost::asio::error::operation_aborted) {
-                    // Timer was cancelled; exit the coroutine gracefully
                     co_return;
                 } else {
-                    // Handle other errors if needed
-                    logi("Unexpected error: {}\n", ec.message());
+                    logi("LogPolling unexpected timer error: {}", ec.message());
                     co_return;
                 }
             }
 
-            fmtlog::poll();  // Perform log polling
+            fmtlog::poll();  // логгирование
             timer->expires_after(interval);
         }
     }

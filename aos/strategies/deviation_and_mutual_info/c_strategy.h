@@ -61,13 +61,13 @@ class Strategy : public StrategyInterface<HashT, T> {
                 logi("Buy status:{} mi:{}", status, mi);
                 if (status && mi > config_.mi_threshold) {
                     logi("Buy MI ({} <-> {}): {}", hash, pair, mi);
-                    queue.push(pair);
+                    queue.push(pair);  // push paired hash
                 }
             }
         });
 
-        core_strategy_.AddActionsToBuy([](std::queue<HashT>&, HashT hash,
-                                          const T& value) {
+        core_strategy_.AddActionsToBuy([this](std::queue<HashT>&, HashT hash,
+                                              const T& value) {
             common::ExchangeId exchange_id_1 = common::ExchangeId::kInvalid;
             aos::NetworkEnvironment network_environment_1;
             aos::CategoryRaw category_market_1;
@@ -77,6 +77,7 @@ class Strategy : public StrategyInterface<HashT, T> {
             logi("need buy with hash={} with value={} on {} category={} {} {}",
                  hash, value, exchange_id_1, category_market_1,
                  network_environment_1, trading_pair_1);
+            // exchange_api_.PlaceOrder();
         });
     };
     void InitSellActions() {

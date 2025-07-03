@@ -44,7 +44,16 @@ class TopLevelsExporterInterface {
      * @param bid Reference to a BestBid object to be updated.
      * @return true if the best bid was updated, false otherwise.
      */
-    virtual bool UpdateTopBid(BestBid<Price, Qty>& bid) const = 0;
+    virtual bool UpdateTopBid(BestBid<Price, Qty>& bid) const  = 0;
+
+    /**
+     * @brief Update only the best bid price.
+     *
+     * @param bid_price Reference to a Price variable to be updated with the
+     * best bid price.
+     * @return true if the bid price was updated, false otherwise.
+     */
+    virtual bool UpdateTopBidPrice(Price& bid_price_old) const = 0;
 
     /**
      * @brief Update the best ask level.
@@ -52,7 +61,16 @@ class TopLevelsExporterInterface {
      * @param ask Reference to a BestAsk object to be updated.
      * @return true if the best ask was updated, false otherwise.
      */
-    virtual bool UpdateTopAsk(BestAsk<Price, Qty>& ask) const = 0;
+    virtual bool UpdateTopAsk(BestAsk<Price, Qty>& ask) const  = 0;
+
+    /**
+     * @brief Update only the best ask price.
+     *
+     * @param ask_price Reference to a Price variable to be updated with the
+     * best ask price.
+     * @return true if the ask price was updated, false otherwise.
+     */
+    virtual bool UpdateTopAskPrice(Price& ask_price_old) const = 0;
 
     /**
      * @brief Update the top 5 bid levels.
@@ -146,8 +164,14 @@ class TopLevelsAsyncExporterInterface {
     virtual boost::asio::awaitable<bool> UpdateTopBid(
         BestBid<Price, Qty>& bid) const = 0;
 
+    virtual boost::asio::awaitable<bool> UpdateTopBidPrice(
+        Price& bid_price) const = 0;
+
     virtual boost::asio::awaitable<bool> UpdateTopAsk(
         BestAsk<Price, Qty>& ask) const = 0;
+
+    virtual boost::asio::awaitable<bool> UpdateTopAskPrice(
+        Price& ask_price) const = 0;
 
     virtual boost::asio::awaitable<bool> UpdateTop5Bids(
         std::array<BestBid<Price, Qty>, 5>& array_5_bids,

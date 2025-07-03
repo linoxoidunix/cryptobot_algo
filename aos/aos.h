@@ -54,6 +54,7 @@
 #include "aos/order_book/i_order_book.h"
 #include "aos/order_book_level/order_book_level.h"
 #include "aos/order_book_level_raw/order_book_level_raw.h"
+#include "aos/order_book_notifier_flags/flags.h"
 #include "aos/order_book/order_book.h"
 #include "aos/order_book_snapshot/i_order_book_snapshot.h"
 #include "aos/order_book_subscriber/i_order_book_subscriber.h"

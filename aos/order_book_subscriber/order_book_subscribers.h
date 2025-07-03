@@ -141,5 +141,86 @@ class BestAskNotifier : public BestAskNotifierInterface<Price, Qty> {
         co_return;
     }
 };
+
+template <typename Price, typename Qty>
+class BestBidPriceNotifier : public BestBidPriceNotifierInterface<Price> {
+    boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
+    TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter_;
+    Price best_bid_price_;
+    std::function<void(Price& new_bid_price)>
+        on_best_bid_price_update_callback_;
+
+  public:
+    BestBidPriceNotifier(
+        boost::asio::thread_pool& thread_pool,
+        TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter)
+        : strand_(boost::asio::make_strand(thread_pool)),
+          top_level_async_exporter_(top_level_async_exporter) {}
+    void OnOrderBookUpdate() override {
+        boost::asio::co_spawn(strand_, ProcessOnOrderBookUpdate(),
+                              boost::asio::detached);
+    }
+    void SetCallback(std::function<void(Price& new_bid_price)> cb) override {
+        on_best_bid_price_update_callback_ = cb;
+    }
+    ~BestBidPriceNotifier() override = default;
+
+  private:
+    boost::asio::awaitable<void> ProcessOnOrderBookUpdate() {
+        auto best_bid_price_old = best_bid_price_;
+        auto update_bid_price_exist =
+            co_await top_level_async_exporter_.UpdateTopBidPrice(
+                best_bid_price_);
+        if (update_bid_price_exist) {
+            logi("[BestBidPriceNotifier] Best bid price updated:");
+            logi("    Old: price={}", best_bid_price_old);
+            logi("    New: price={}", best_bid_price_);
+            logi("    Sending signal to strategy.");
+            logi("[BestBidPriceNotifier] invoke custom callback:");
+            on_best_bid_price_update_callback_(best_bid_price_);
+        }
+        co_return;
+    }
+};
+template <typename Price, typename Qty>
+class BestAskPriceNotifier : public BestAskPriceNotifierInterface<Price> {
+    boost::asio::strand<boost::asio::thread_pool::executor_type> strand_;
+    TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter_;
+    Price best_ask_price_;
+    std::function<void(Price& new_ask_price)>
+        on_best_ask_price_update_callback_;
+
+  public:
+    BestAskPriceNotifier(
+        boost::asio::thread_pool& thread_pool,
+        TopLevelsAsyncExporterInterface<Price, Qty>& top_level_async_exporter)
+        : strand_(boost::asio::make_strand(thread_pool)),
+          top_level_async_exporter_(top_level_async_exporter) {}
+    void OnOrderBookUpdate() override {
+        boost::asio::co_spawn(strand_, ProcessOnOrderBookUpdate(),
+                              boost::asio::detached);
+    }
+    void SetCallback(std::function<void(Price& new_ask_price)> cb) override {
+        on_best_ask_price_update_callback_ = cb;
+    };
+    ~BestAskPriceNotifier() override = default;
+
+  private:
+    boost::asio::awaitable<void> ProcessOnOrderBookUpdate() {
+        auto ask_price_old = best_ask_price_;
+        auto update_ask_price_exist =
+            co_await top_level_async_exporter_.UpdateTopAskPrice(
+                best_ask_price_);
+        if (update_ask_price_exist) {
+            logi("[BestAskPriceNotifier] Best ask price updated:");
+            logi("    Old: price={}", ask_price_old);
+            logi("    New: price={}", best_ask_price_);
+            logi("    Sending signal to strategy.");
+            logi("[BestAskPriceNotifier] invoke custom callback:");
+            on_best_ask_price_update_callback_(best_ask_price_);
+        }
+        co_return;
+    }
+};
 };  // namespace impl
 };  // namespace aos

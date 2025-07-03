@@ -74,19 +74,19 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
           timer_(ioc),  // Initialize the timer
           response_queue_(response_queue),
           listener_(listener) {
-        auto fut = net::co_spawn(
-            ioc,
-            [&]() -> net::awaitable<void> {
-                try {
-                    logi("run session");
-                    co_await Run(host.data(), port.data(),
-                                 default_endpoint.data());
-                } catch (const std::exception& e) {
-                    loge("Error: {}", e.what());
-                }
-            },
-            net::use_future);
-        fut.get();  // блокирует, ждет завершения
+        // auto fut = net::co_spawn(
+        //     ioc,
+        //     [&]() -> net::awaitable<void> {
+        //         try {
+        //             logi("run session");
+        //             co_await Run(host.data(), port.data(),
+        //                          default_endpoint.data());
+        //         } catch (const std::exception& e) {
+        //             loge("Error: {}", e.what());
+        //         }
+        //     },
+        //     net::use_future);
+        // fut.get();  // блокирует, ждет завершения
     }
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {
@@ -99,6 +99,22 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
         override {
         return response_queue_;
     }
+    void StartAsync() override {
+        logi("[WebSocket session] start");
+        net::co_spawn(
+            ioc_,
+            [&]() -> net::awaitable<void> {
+                try {
+                    logi("run session");
+                    co_await Run(host_.data(), port_.data(),
+                                 default_endpoint_.data());
+                } catch (const std::exception& e) {
+                    loge("Error: {}", e.what());
+                }
+            },
+            net::detached);
+    }
+    void StopAsync() override { logi("[WebSocket session] stop"); }
 
   private:
     net::awaitable<void> Run(const char* host, const char* port,
@@ -310,19 +326,19 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
         //         }
         //     },
         //     net::detached);
-        auto fut = net::co_spawn(
-            ioc,
-            [&]() -> net::awaitable<void> {
-                try {
-                    logi("run session");
-                    co_await Run(host.data(), port.data(),
-                                 default_endpoint.data());
-                } catch (const std::exception& e) {
-                    loge("Error: {}", e.what());
-                }
-            },
-            net::use_future);
-        fut.get();  // блокирует, ждет завершения
+        // auto fut = net::co_spawn(
+        //     ioc,
+        //     [&]() -> net::awaitable<void> {
+        //         try {
+        //             logi("run session");
+        //             co_await Run(host.data(), port.data(),
+        //                          default_endpoint.data());
+        //         } catch (const std::exception& e) {
+        //             loge("Error: {}", e.what());
+        //         }
+        //     },
+        //     net::use_future);
+        // fut.get();  // блокирует, ждет завершения
     }
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {
@@ -330,6 +346,22 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
             StartWrite();
         });
     };
+    void StartAsync() override {
+        logi("[WebSocket session] start");
+        net::co_spawn(
+            ioc_,
+            [&]() -> net::awaitable<void> {
+                try {
+                    logi("run session");
+                    co_await Run(host_.data(), port_.data(),
+                                 default_endpoint_.data());
+                } catch (const std::exception& e) {
+                    loge("Error: {}", e.what());
+                }
+            },
+            net::detached);
+    }
+    void StopAsync() override { logi("[WebSocket session] stop"); }
     ~WebSocketSessionW() override = default;
 
   private:
@@ -488,6 +520,8 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
 class WebSocketSessionDummy : public WebSocketSessionWritableInterface {
   public:
     void AsyncWrite(nlohmann::json&&) override {};
+    void StartAsync() override { logi("[WebSocketDummy session] start"); }
+    void StopAsync() override { logi("[WebSocketDummy session] stop"); }
     ~WebSocketSessionDummy() override = default;
 };
 };  // namespace impl

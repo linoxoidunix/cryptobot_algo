@@ -3,130 +3,84 @@
 #include "aos/best_bid/best_bid.h"
 #include "aos/trading_pair/trading_pair.h"
 
-namespace aoe::bybit::infrastructure {
+namespace aoe {
+namespace bybit {
 
+// Общий базовый интерфейс инфраструктуры
 class InfrastructureInterface {
   public:
     virtual ~InfrastructureInterface()                   = default;
     virtual void Register(aos::TradingPair trading_pair) = 0;
+    virtual void StartAsync()                            = 0;
+    virtual void StopAsync()                             = 0;
 };
 
+// Шаблонный интерфейс уведомлений по изменению best bid/ask
 template <typename Price, typename Qty>
-class NotifierOnBestBidChangeInterface {
+class InfrastructureNotifierOnBestBidChangeInterface {
   public:
-    virtual ~NotifierOnBestBidChangeInterface() = default;
-
+    virtual ~InfrastructureNotifierOnBestBidChangeInterface() = default;
     virtual bool SetCallbackOnBestBidChange(
         aos::TradingPair trading_pair,
         std::function<void(aos::BestBid<Price, Qty>& new_bid)> cb) = 0;
 };
 
 template <typename Price, typename Qty>
-class NotifierOnBestAskChangeInterface {
+class InfrastructureNotifierOnBestAskChangeInterface {
   public:
-    virtual ~NotifierOnBestAskChangeInterface() = default;
-
+    virtual ~InfrastructureNotifierOnBestAskChangeInterface() = default;
     virtual bool SetCallbackOnBestAskChange(
         aos::TradingPair trading_pair,
         std::function<void(aos::BestAsk<Price, Qty>& new_ask)> cb) = 0;
 };
 
-template <typename Price, typename Qty>
-class NotifierInterface : public NotifierOnBestBidChangeInterface<Price, Qty>,
-                          public NotifierOnBestAskChangeInterface<Price, Qty> {
+template <typename Price>
+class InfrastructureNotifierOnBestBidPriceChangeInterface {
   public:
-    ~NotifierInterface() override = default;
+    virtual ~InfrastructureNotifierOnBestBidPriceChangeInterface() = default;
+    virtual bool SetCallbackOnBestBidPriceChange(
+        aos::TradingPair trading_pair,
+        std::function<void(Price& new_bid_price)> cb) = 0;
 };
 
-template <template <typename> typename MemoryPoolThreadSafety>
-class OnPlaceOrderInterface {
+template <typename Price>
+class InfrastructureNotifierOnBestAskPriceChangeInterface {
   public:
-    virtual ~OnPlaceOrderInterface() = default;
-
-    /**
-     * @brief Places a new order.
-     *
-     * @param request A pointer to the place order request.
-     * @return `false` if no infrastructure exists for the specified trading
-     * pair; `true` if the order was successfully passed to the handler
-     *         (regardless of its eventual execution result).
-     */
-    virtual void PlaceOrder(
-        boost::intrusive_ptr<
-            aoe::bybit::place_order::RequestInterface<MemoryPoolThreadSafety>>
-            request) = 0;
+    virtual ~InfrastructureNotifierOnBestAskPriceChangeInterface() = default;
+    virtual bool SetCallbackOnBestAskPriceChange(
+        aos::TradingPair trading_pair,
+        std::function<void(Price& new_ask_price)> cb) = 0;
 };
 
-template <template <typename> typename MemoryPoolThreadSafety>
-class OnCancelOrderInterface {
+// Объединённый интерфейс уведомлений
+template <typename Price, typename Qty>
+class InfrastructureNotifierInterface
+    : public InfrastructureNotifierOnBestBidChangeInterface<Price, Qty>,
+      public InfrastructureNotifierOnBestAskChangeInterface<Price, Qty>,
+      public InfrastructureNotifierOnBestBidPriceChangeInterface<Price>,
+      public InfrastructureNotifierOnBestAskPriceChangeInterface<Price> {
   public:
-    virtual ~OnCancelOrderInterface() = default;
-
-    /**
-     * @brief Cancels an existing order.
-     *
-     * @param request A pointer to the cancel order request.
-     * @return `false` if no infrastructure exists for the specified trading
-     * pair; `true` if the cancel request was accepted for processing.
-     */
-    virtual void CancelOrder(
-        boost::intrusive_ptr<
-            aoe::bybit::cancel_order::RequestInterface<MemoryPoolThreadSafety>>
-            request) = 0;
+    ~InfrastructureNotifierInterface() override = default;
 };
 
-}  // namespace aoe::bybit::infrastructure
-
-namespace aoe::bybit::spot::main_net {
-
-using InfrastructureInterface =
-    aoe::bybit::infrastructure::InfrastructureInterface;
-
-template <typename Price, typename Qty>
-using InfrastructureNotifierOnBestBidChangeInterface =
-    aoe::bybit::infrastructure::NotifierOnBestBidChangeInterface<Price, Qty>;
-
-template <typename Price, typename Qty>
-using InfrastructureNotifierOnBestAskChangeInterface =
-    aoe::bybit::infrastructure::NotifierOnBestAskChangeInterface<Price, Qty>;
-
+// Пространство имён для Spot и Futures с alias-ами
+namespace spot {
+namespace main_net {
+using Infrastructure = InfrastructureInterface;
 template <typename Price, typename Qty>
 using InfrastructureNotifierInterface =
-    aoe::bybit::infrastructure::NotifierInterface<Price, Qty>;
+    InfrastructureNotifierInterface<Price, Qty>;
+}  // namespace main_net
+}  // namespace spot
 
-template <template <typename> typename MemoryPoolThreadSafety>
-using InfrastructurePlaceOrder =
-    aoe::bybit::infrastructure::OnPlaceOrderInterface<MemoryPoolThreadSafety>;
-
-template <template <typename> typename MemoryPoolThreadSafety>
-using InfrastructureCancelOrder =
-    aoe::bybit::infrastructure::OnCancelOrderInterface<MemoryPoolThreadSafety>;
-
-}  // namespace aoe::bybit::spot::main_net
-
-namespace aoe::bybit::linear::main_net {
-
-using InfrastructureInterface =
-    aoe::bybit::infrastructure::InfrastructureInterface;
-
-template <typename Price, typename Qty>
-using InfrastructureNotifierOnBestBidChangeInterface =
-    aoe::bybit::infrastructure::NotifierOnBestBidChangeInterface<Price, Qty>;
-
-template <typename Price, typename Qty>
-using InfrastructureNotifierOnBestAskChangeInterface =
-    aoe::bybit::infrastructure::NotifierOnBestAskChangeInterface<Price, Qty>;
-
+namespace linear {
+namespace main_net {
+using Infrastructure = InfrastructureInterface;
 template <typename Price, typename Qty>
 using InfrastructureNotifierInterface =
-    aoe::bybit::infrastructure::NotifierInterface<Price, Qty>;
+    InfrastructureNotifierInterface<Price, Qty>;
+}  // namespace main_net
+}  // namespace linear
 
-// template <template <typename> typename MemoryPoolThreadSafety>
-// using InfrastructurePlaceOrder =
-//     aoe::bybit::infrastructure::OnPlaceOrderInterface<MemoryPoolThreadSafety>;
-
-// template <template <typename> typename MemoryPoolThreadSafety>
-// using InfrastructureCancelOrder =
-//     aoe::bybit::infrastructure::OnCancelOrderInterface<MemoryPoolThreadSafety>;
-
-}  // namespace aoe::bybit::linear::main_net
+}  // namespace bybit
+}  // namespace aoe

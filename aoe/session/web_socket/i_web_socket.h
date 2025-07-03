@@ -4,16 +4,23 @@
 #include "nlohmann/json.hpp"
 
 namespace aoe {
-class WebSocketSessionWritableInterface {
+class SessionInterface {
   public:
-    virtual void AsyncWrite(nlohmann::json&&)    = 0;
-    virtual ~WebSocketSessionWritableInterface() = default;
+    virtual void StartAsync()   = 0;
+    virtual void StopAsync()    = 0;
+    virtual ~SessionInterface() = default;
 };
 
-class WebSocketSessionReadableInterface {
+class WebSocketSessionWritableInterface : public SessionInterface {
+  public:
+    virtual void AsyncWrite(nlohmann::json&&)     = 0;
+    ~WebSocketSessionWritableInterface() override = default;
+};
+
+class WebSocketSessionReadableInterface : public SessionInterface {
   public:
     virtual moodycamel::ConcurrentQueue<std::vector<char>>&
-    GetResponseQueue()                           = 0;
-    virtual ~WebSocketSessionReadableInterface() = default;
+    GetResponseQueue()                            = 0;
+    ~WebSocketSessionReadableInterface() override = default;
 };
 };  // namespace aoe

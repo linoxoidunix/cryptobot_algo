@@ -138,6 +138,17 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         }
         return update_exist;
     };
+    bool UpdateTopBidPrice(Price& bid_price_old) const override {
+        bool update_exist = false;
+        if (bid_levels_.empty()) return update_exist;
+        auto first_bid = bid_levels_.begin();
+        auto bid_price = first_bid->price;
+        if (bid_price_old != bid_price) {
+            bid_price_old = bid_price;
+            update_exist  = true;
+        }
+        return update_exist;
+    };
     bool UpdateTopAsk(BestAsk<Price, Qty>& ask) const override {
         bool update_exist = false;
         if (ask_levels_.empty()) return update_exist;
@@ -147,6 +158,17 @@ class OrderBookInner : public OrderBookInnerInterface<Price, Qty>,
         if (ask.ask_price != ask_price || ask.ask_qty != ask_qty) {
             ask.ask_price = ask_price;
             ask.ask_qty   = ask_qty;
+            update_exist  = true;
+        }
+        return update_exist;
+    };
+    bool UpdateTopAskPrice(Price& ask_price_old) const override {
+        bool update_exist = false;
+        if (ask_levels_.empty()) return update_exist;
+        auto first_ask = ask_levels_.begin();
+        auto ask_price = first_ask->price;
+        if (ask_price_old != ask_price) {
+            ask_price_old = ask_price;
             update_exist  = true;
         }
         return update_exist;
@@ -255,8 +277,14 @@ class OrderBook : public OrderBookInterface<Price, Qty>,
     bool UpdateTopBid(BestBid<Price, Qty>& bid) const override {
         return inner_order_book_.UpdateTopBid(bid);
     };
-    bool UpdateTopAsk(BestAsk<Price, Qty>& bid) const override {
-        return inner_order_book_.UpdateTopAsk(bid);
+    bool UpdateTopBidPrice(Price& bid_price) const override {
+        return inner_order_book_.UpdateTopBidPrice(bid_price);
+    };
+    bool UpdateTopAsk(BestAsk<Price, Qty>& ask) const override {
+        return inner_order_book_.UpdateTopAsk(ask);
+    };
+    bool UpdateTopAskPrice(Price& ask_price_old) const override {
+        return inner_order_book_.UpdateTopAskPrice(ask_price_old);
     };
     bool UpdateTop5Bids(std::array<BestBid<Price, Qty>, 5>& array_5_bids,
                         std::size_t& max_valid_lvl) const override {
@@ -311,10 +339,20 @@ class OrderBookEventListener
         co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
         co_return order_book_.UpdateTopBid(bid);
     };
+    boost::asio::awaitable<bool> UpdateTopBidPrice(
+        Price& bid_price_old) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopBidPrice(bid_price_old);
+    };
     boost::asio::awaitable<bool> UpdateTopAsk(
         BestAsk<Price, Qty>& bid) const override {
         co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
         co_return order_book_.UpdateTopAsk(bid);
+    };
+    boost::asio::awaitable<bool> UpdateTopAskPrice(
+        Price& ask_price_old) const override {
+        co_await boost::asio::dispatch(strand_, boost::asio::use_awaitable);
+        co_return order_book_.UpdateTopAskPrice(ask_price_old);
     };
     boost::asio::awaitable<bool> UpdateTop5Bids(
         std::array<BestBid<Price, Qty>, 5>& array_5_bids,

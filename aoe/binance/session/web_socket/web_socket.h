@@ -26,7 +26,8 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace private_channel
@@ -44,6 +45,8 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionW() override = default;
 };
 
@@ -64,7 +67,8 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace trade_channel
@@ -89,7 +93,8 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace private_channel
@@ -106,6 +111,8 @@ class SessionW : public WebSocketPrivateSessionWInterface {
     void AsyncWrite(nlohmann::json&& j) override {
         ws_.AsyncWrite(std::move(j));
     };
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionW() override = default;
 };
 
@@ -127,7 +134,8 @@ class SessionRW : public WebSocketPrivateSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace trade_channel
@@ -153,6 +161,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
         override {
         return unused_queue_;
     }
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
 };
 };  // namespace order_book_channel
 };  // namespace spot
@@ -178,7 +188,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace order_book_channel
@@ -205,7 +216,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace order_book_channel
@@ -232,7 +244,8 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
         override {
         return ws_.GetResponseQueue();
     }
-
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
     ~SessionRW() override = default;
 };
 };  // namespace order_book_channel

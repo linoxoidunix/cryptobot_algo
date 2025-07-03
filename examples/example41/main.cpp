@@ -1,7 +1,6 @@
-#include <optional>
 #include <thread>
-#include <unordered_map>
 
+#include "aoe/api/exchange_api.h"
 #include "aoe/binance/hash_utils/hash_utils.h"
 #include "aoe/binance/infrastructure/infrastructure.h"
 #include "aoe/bybit/hash_utils/hash_utils.h"
@@ -11,6 +10,7 @@
 #include "aos/logger/logger.h"
 #include "aos/logger/mylog.h"
 #include "aos/market_triplet_manager/market_triplet_manager.h"
+#include "aos/order_book_notifier_flags/flags.h"
 #include "aos/strategies/deviation_and_mutual_info/c_strategy.h"
 #include "aos/strategy_engine/i_strategy_engine.h"
 #include "aos/strategy_engine/strategy_engine.h"
@@ -21,24 +21,28 @@ struct Config {
   public:
     aos::TradingPair trading_pair = aos::TradingPair::kBTCUSDT;
 };
-template <typename Price, typename Qty, typename HashT>
+
+template <typename Price, typename Qty, typename HashT,
+          template <typename> typename MemoryPoolThreadSafety,
+          template <typename> typename MemoryPool, auto NotifierFlagsT>
 class StrategyWrapper {
     Config config_;
-    aoe::binance::futures::main_net::InfrastructureNotifierInterface<
-        Price, Qty>& binance_futures_mainnet_infra_;
-    aoe::bybit::linear::main_net::InfrastructureNotifierInterface<Price, Qty>&
+    aoe::binance::InfrastructureNotifierInterface<Price, Qty>&
+        binance_futures_mainnet_infra_;
+    aoe::bybit::impl::main_net::linear::Infrastructure<
+        Price, Qty, MemoryPoolThreadSafety, MemoryPool, NotifierFlagsT>&
         bybit_linear_mainnet_infra_;
     aos::StrategyEngineInterface<HashT, Price>& strategy_engine_;
     bool strategy_init_success_ = false;
 
   public:
-    StrategyWrapper(
-        Config config,
-        aoe::binance::futures::main_net::InfrastructureNotifierInterface<
-            Price, Qty>& binance_futures_mainnet_infra,
-        aoe::bybit::linear::main_net::InfrastructureNotifierInterface<
-            Price, Qty>& bybit_linear_mainnet_infra,
-        aos::StrategyEngineInterface<HashT, Price>& strategy_engine)
+    StrategyWrapper(Config config,
+                    aoe::binance::InfrastructureNotifierInterface<Price, Qty>&
+                        binance_futures_mainnet_infra,
+                    aoe::bybit::impl::main_net::linear::Infrastructure<
+                        Price, Qty, MemoryPoolThreadSafety, MemoryPool,
+                        NotifierFlagsT>& bybit_linear_mainnet_infra,
+                    aos::StrategyEngineInterface<HashT, Price>& strategy_engine)
         : config_(config),
           binance_futures_mainnet_infra_(binance_futures_mainnet_infra),
           bybit_linear_mainnet_infra_(bybit_linear_mainnet_infra),
@@ -100,10 +104,8 @@ class StrategyWrapper {
                         aoe::bybit::HashKey(aoe::bybit::Category::kLinear,
                                             aos::NetworkEnvironment::kMainNet,
                                             config_.trading_pair);
-                    // strategy_engine_.AddData(bybit_linear_main_net_btc_usdt,
-                    //                          new_best_bid.bid_price);
-                    strategy_engine_.SetBidPrice(bybit_linear_main_net_btc_usdt,
-                                                 new_best_bid.bid_price);
+                    strategy_engine_.AddData(bybit_linear_main_net_btc_usdt,
+                                             new_best_bid.bid_price);
                 });
         bool status_set_cb_on_best_ask_change_with_bybit_linear_mainnet_infra =
             bybit_linear_mainnet_infra_.SetCallbackOnBestAskChange(
@@ -117,8 +119,8 @@ class StrategyWrapper {
                         aoe::bybit::HashKey(aoe::bybit::Category::kLinear,
                                             aos::NetworkEnvironment::kMainNet,
                                             config_.trading_pair);
-                    strategy_engine_.SetAskPrice(bybit_linear_main_net_btc_usdt,
-                                                 new_best_ask.ask_price);
+                    strategy_engine_.AddData(bybit_linear_main_net_btc_usdt,
+                                             new_best_ask.ask_price);
                 });
         strategy_init_success_ =
             status_set_cb_on_best_bid_change_with_binance_futures_mainnet_infra &&
@@ -150,22 +152,8 @@ int main(int, char**) {
                 aos::NetworkEnvironment::kMainNet, aos::TradingPair::kBTCUSDT);
             market_triplet_manager.Connect(binance_btc_usdt, bybit_btc_usdt);
 
-            std::optional<aoe::binance::impl::main_net::futures::Infrastructure<
-                Price, Qty, common::MemoryPoolThreadSafety,
-                common::MemoryPoolNotThreadSafety>>
-                binance_futures_main_net_infrastructure;
-            binance_futures_main_net_infrastructure.emplace(thread_pool);
-            binance_futures_main_net_infrastructure->Register(
-                aos::TradingPair::kBTCUSDT);
-
-            std::optional<aoe::bybit::impl::main_net::linear::Infrastructure<
-                Price, Qty, common::MemoryPoolThreadSafety,
-                common::MemoryPoolNotThreadSafety>>
-                bybit_linear_mainnet_infrastructure;
-            bybit_linear_mainnet_infrastructure.emplace(thread_pool);
-            bybit_linear_mainnet_infrastructure->Register(
-                aos::TradingPair::kBTCUSDT);
-
+            aoe::impl::PlaceOrderDummy<common::MemoryPoolThreadSafety>
+                place_order_dummy;
             constexpr aos::strategies::deviation_and_mutual_information::Config<
                 HashT>
                 kConfigStrategy{5, 10, binance_btc_usdt, 0.00000001, 1};
@@ -173,22 +161,47 @@ int main(int, char**) {
                 HashT, Price, std::unordered_map<HashT, Price>,
                 common::MemoryPoolThreadSafety>
                 strategy(market_triplet_manager, kConfigStrategy,
-                         *bybit_linear_mainnet_infrastructure);
+                         place_order_dummy);
 
             strategy.Init();
             aos::impl::StrategyEngineDefault<HashT, Price> strategy_engine(
                 thread_pool, strategy);
+            // infra
+            constexpr aos::NotifierFlags kNotifierOptions{
+                /*best_bid_enabled=*/true,
+                /*best_ask_enabled=*/true,
+                /*best_bid_price_enabled=*/false,
+                /*best_ask_price_enabled=*/false,
+            };
+            aoe::binance::impl::main_net::futures::Infrastructure<
+                Price, Qty, common::MemoryPoolThreadSafety,
+                common::MemoryPoolNotThreadSafety, kNotifierOptions>
+                binance_futures_main_net_infrastructure(thread_pool);
+            binance_futures_main_net_infrastructure.Register(
+                aos::TradingPair::kBTCUSDT);
+
+            aoe::bybit::impl::main_net::linear::Infrastructure<
+                Price, Qty, common::MemoryPoolThreadSafety,
+                common::MemoryPoolNotThreadSafety, kNotifierOptions>
+                bybit_linear_mainnet_infrastructure(thread_pool);
+            bybit_linear_mainnet_infrastructure.Register(
+                aos::TradingPair::kBTCUSDT);
             // init strategy
 
             str::Config config;
-            str::StrategyWrapper<Price, Qty, HashT> strategy_wrapper(
-                config, *binance_futures_main_net_infrastructure,
-                *bybit_linear_mainnet_infrastructure, strategy_engine);
+            str::StrategyWrapper<
+                Price, Qty, HashT, common::MemoryPoolThreadSafety,
+                common::MemoryPoolNotThreadSafety, kNotifierOptions>
+                strategy_wrapper(
+                    config, binance_futures_main_net_infrastructure,
+                    bybit_linear_mainnet_infrastructure, strategy_engine);
             auto status = strategy_wrapper.Run();
             if (!status) {
                 logi("Strategy not init successful");
                 return 0;
             }
+            binance_futures_main_net_infrastructure.StartAsync();
+            bybit_linear_mainnet_infrastructure.StartAsync();
         } catch (...) {
             loge("error occured");
         }
