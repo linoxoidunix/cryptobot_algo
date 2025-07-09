@@ -33,7 +33,12 @@ namespace aoe {
 namespace impl {
 class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                            public WebSocketSessionReadableInterface {
-    bool session_ready_ = false;
+    std::promise<void> read_done_promise_;
+    std::future<void> read_done_future_ = read_done_promise_.get_future();
+
+    std::promise<void> write_done_promise_;
+    std::future<void> write_done_future_ = write_done_promise_.get_future();
+    bool session_ready_                  = false;
     /**
      * @brief req variable must manage only via SetRequest() method
      *
@@ -73,28 +78,21 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
           default_endpoint_(default_endpoint),
           timer_(ioc),  // Initialize the timer
           response_queue_(response_queue),
-          listener_(listener) {
-        // auto fut = net::co_spawn(
-        //     ioc,
-        //     [&]() -> net::awaitable<void> {
-        //         try {
-        //             logi("run session");
-        //             co_await Run(host.data(), port.data(),
-        //                          default_endpoint.data());
-        //         } catch (const std::exception& e) {
-        //             loge("Error: {}", e.what());
-        //         }
-        //     },
-        //     net::use_future);
-        // fut.get();  // блокирует, ждет завершения
-    }
+          listener_(listener) {}
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {
             message_queue_.enqueue(message);
             StartWrite();
         });
     };
-    ~WebSocketSessionRW() override = default;
+    ~WebSocketSessionRW() override {
+        logi("~WebSocketSessionRW: Stopping...");
+
+        read_done_future_.wait();
+        write_done_future_.wait();
+
+        logi("~WebSocketSessionRW: Done");
+    };
     moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
         override {
         return response_queue_;
@@ -114,7 +112,16 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
             },
             net::detached);
     }
-    void StopAsync() override { logi("[WebSocket session] stop"); }
+    void StopAsync() override {
+        logi("[WebSocket session] stop");
+        net::co_spawn(
+            ioc_,
+            [&]() -> net::awaitable<void> {
+                cancel_signal_.emit(boost::asio::cancellation_type_t::all);
+                co_return;
+            },
+            net::detached);
+    }
 
   private:
     net::awaitable<void> Run(const char* host, const char* port,
@@ -177,8 +184,14 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
         co_return;
     }
     net::awaitable<void> ReadLoop() {
-        // beast::flat_buffer buffer;
+        bool cancelled = false;
+        cancel_signal_.slot().assign([&cancelled](auto) { cancelled = true; });
+
         while (true) {
+            if (cancelled) {
+                // Пришёл сигнал отмены — выходим из цикла
+                break;
+            }
             logi("start async read");
 
             boost::system::error_code read_ec;
@@ -200,12 +213,12 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
             // Обрабатываем результат чтения
             if (read_ec) {
                 if (read_ec == boost::asio::error::operation_aborted) {
-                    CloseSessionFast();
-                    co_return;
+                    // CloseSessionFast();
+                    break;
                 } else {
                     loge("Read error: {}", read_ec.message());
-                    CloseSessionFast();
-                    co_return;
+                    // CloseSessionFast();
+                    break;
                 }
             }
 
@@ -232,14 +245,22 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
 
         logi("finished read");
         CloseSessionFast();
-        logd("start execute cb when close session");
+        read_done_promise_.set_value();  // сигнал, что ReadLoop завершен
+        co_return;
     }
     net::awaitable<void> WriteLoop() {
+        bool cancelled = false;
+        cancel_signal_.slot().assign([&cancelled](auto) { cancelled = true; });
+
         while (true) {
+            if (cancelled) {
+                // Пришёл сигнал отмены — выходим из цикла
+                break;
+            }
             if (!message_queue_.size_approx()) {
                 // Если очередь пуста, приостанавливаем выполнение
                 // is_writing_ = false;
-                co_return;
+                break;
             }
 
             // Берем следующее сообщение из очереди
@@ -264,6 +285,8 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
                 break;
             }
         }
+        write_done_promise_.set_value();  // сигнал, что WriteLoop завершен
+        co_return;
     }
     void StartWrite() {
         boost::asio::co_spawn(
@@ -275,11 +298,20 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
             net::detached);
     }
     // Close the session gracefully
-    void CloseSessionFast() { beast::get_lowest_layer(stream_).close(); }
+    void CloseSessionFast() {
+        cancel_signal_.emit(boost::asio::cancellation_type_t::all);
+        beast::get_lowest_layer(stream_).close();
+    }
 };
 
 class WebSocketSessionW : public WebSocketSessionWritableInterface {
-    bool session_ready_ = false;
+    std::promise<void> read_done_promise_;
+    std::future<void> read_done_future_ = read_done_promise_.get_future();
+
+    std::promise<void> write_done_promise_;
+    std::future<void> write_done_future_ = write_done_promise_.get_future();
+
+    bool session_ready_                  = false;
     /**
      * @brief req variable must manage only via SetRequest() method
      *
@@ -313,33 +345,7 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
           host_(host),
           port_(port),
           default_endpoint_(default_endpoint),
-          timer_(ioc)  // Initialize the timer
-    {
-        // net::co_spawn(
-        //     ioc,
-        //     [&]() -> net::awaitable<void> {
-        //         try {
-        //             co_await Run(host.data(), port.data(),
-        //                          default_endpoint.data());
-        //         } catch (const std::exception& e) {
-        //             loge("Error: {}", e.what());
-        //         }
-        //     },
-        //     net::detached);
-        // auto fut = net::co_spawn(
-        //     ioc,
-        //     [&]() -> net::awaitable<void> {
-        //         try {
-        //             logi("run session");
-        //             co_await Run(host.data(), port.data(),
-        //                          default_endpoint.data());
-        //         } catch (const std::exception& e) {
-        //             loge("Error: {}", e.what());
-        //         }
-        //     },
-        //     net::use_future);
-        // fut.get();  // блокирует, ждет завершения
-    }
+          timer_(ioc) {}
     void AsyncWrite(nlohmann::json&& message) override {
         net::dispatch(strand_, [this, message = std::move(message)]() {
             message_queue_.enqueue(message);
@@ -362,7 +368,14 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
             net::detached);
     }
     void StopAsync() override { logi("[WebSocket session] stop"); }
-    ~WebSocketSessionW() override = default;
+    ~WebSocketSessionW() override {
+        logi("~WebSocketSessionR: Stopping...");
+
+        read_done_future_.wait();
+        write_done_future_.wait();
+
+        logi("~WebSocketSessionR: Done");
+    };
 
   private:
     net::awaitable<void> Run(const char* host, const char* port,
@@ -426,7 +439,14 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
     }
     net::awaitable<void> ReadLoop() {
         // beast::flat_buffer buffer;
+        bool cancelled = false;
+        cancel_signal_.slot().assign([&cancelled](auto) { cancelled = true; });
+
         while (true) {
+            if (cancelled) {
+                // Пришёл сигнал отмены — выходим из цикла
+                break;
+            }
             logi("start async read");
 
             boost::system::error_code read_ec;
@@ -448,12 +468,10 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
             // Обрабатываем результат чтения
             if (read_ec) {
                 if (read_ec == boost::asio::error::operation_aborted) {
-                    CloseSessionFast();
-                    co_return;
+                    break;
                 } else {
                     loge("Read error: {}", read_ec.message());
-                    CloseSessionFast();
-                    co_return;
+                    break;
                 }
             }
 
@@ -472,10 +490,16 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
 
         logi("finished read");
         CloseSessionFast();
-        logd("start execute cb when close session");
+        read_done_promise_.set_value();  // сигнал, что ReadLoop завершен
     }
     net::awaitable<void> WriteLoop() {
+        bool cancelled = false;
+        cancel_signal_.slot().assign([&cancelled](auto) { cancelled = true; });
         while (true) {
+            if (cancelled) {
+                // Пришёл сигнал отмены — выходим из цикла
+                break;
+            }
             if (!message_queue_.size_approx()) {
                 // Если очередь пуста, приостанавливаем выполнение
                 // is_writing_ = false;
@@ -504,6 +528,8 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
                 break;
             }
         }
+        write_done_promise_.set_value();  // сигнал, что WriteLoop завершен
+        co_return;
     }
     void StartWrite() {
         boost::asio::co_spawn(
@@ -515,7 +541,10 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
             net::detached);
     }
     // Close the session gracefully
-    void CloseSessionFast() { beast::get_lowest_layer(stream_).close(); }
+    void CloseSessionFast() {
+        cancel_signal_.emit(boost::asio::cancellation_type_t::all);
+        beast::get_lowest_layer(stream_).close();
+    }
 };
 class WebSocketSessionDummy : public WebSocketSessionWritableInterface {
   public:

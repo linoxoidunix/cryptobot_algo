@@ -18,6 +18,7 @@ class Listener : public ResponseQueueListenerInterface {
     moodycamel::ConcurrentQueue<std::vector<char>>& queue_;
     SnapshotEventParserInterface<Price, Qty, MemoryPool>& parser_;
     aoe::binance::spot::OrderBookSyncInterface<Price, Qty, MemoryPool>& sync_;
+    aos::TradingPair trading_pair_ = aos::TradingPair::kCount;
 
   public:
     Listener(boost::asio::thread_pool& thread_pool,
@@ -33,6 +34,9 @@ class Listener : public ResponseQueueListenerInterface {
         boost::asio::co_spawn(strand_, ProcessQueue(), boost::asio::detached);
     }
     ~Listener() override = default;
+    void SetTradingPair(aos::TradingPair trading_pair) {
+        trading_pair_ = trading_pair;
+    }
 
   private:
     boost::asio::awaitable<void> ProcessQueue() {
@@ -53,6 +57,7 @@ class Listener : public ResponseQueueListenerInterface {
             logd("status_parsed_snapshot:{}", status);
             if (!status) co_return;
             logd("send snapshot to sync");
+            ptr->SetTradingPair(trading_pair_);
             sync_.AcceptSnapshot(ptr);
         }
         co_return;
@@ -67,6 +72,7 @@ class Listener : public ResponseQueueListenerInterface {
     SnapshotEventParserInterface<Price, Qty, MemoryPool>& parser_;
     aoe::binance::futures::OrderBookSyncInterface<Price, Qty, MemoryPool>&
         sync_;
+    aos::TradingPair trading_pair_ = aos::TradingPair::kCount;
 
   public:
     Listener(boost::asio::thread_pool& thread_pool,
@@ -80,6 +86,9 @@ class Listener : public ResponseQueueListenerInterface {
           sync_(sync) {}
     void OnDataEnqueued() override {
         boost::asio::co_spawn(strand_, ProcessQueue(), boost::asio::detached);
+    }
+    void SetTradingPair(aos::TradingPair trading_pair) {
+        trading_pair_ = trading_pair;
     }
     ~Listener() override = default;
 
@@ -102,6 +111,7 @@ class Listener : public ResponseQueueListenerInterface {
             logd("status_parsed_snapshot:{}", status);
             if (!status) co_return;
             logd("send snapshot to sync");
+            ptr->SetTradingPair(trading_pair_);
             sync_.AcceptSnapshot(ptr);
         }
         co_return;

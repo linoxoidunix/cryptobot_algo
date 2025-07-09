@@ -33,8 +33,8 @@ class ResponseQueueListener : public ResponseQueueListenerInterface {
                 logi("parsing error: {}", simdjson::error_message(error));
                 co_return;
             }
-            std::string str(msg.data(), msg.size());
-            logi("parsed JSON: {}", str);
+            // std::string str(msg.data(), msg.size());
+            // logi("parsed JSON: {}", str);
         }
         co_return;
     }

@@ -13,7 +13,14 @@ class TradingPairToBigStringView {
         kDictionary = {{
             {TradingPair::kBTCUSDT, "BTCUSDT"},
             {TradingPair::kETHUSDT, "ETHUSDT"},
+            {TradingPair::kETHBTC, "ETHBTC"},
+            {TradingPair::kBNBUSDT, "BNBUSDT"},
+            {TradingPair::kBNBETH, "BNBETH"},
             {TradingPair::kSOLUSDT, "SOLUSDT"},
+            {TradingPair::kSOLBNB, "SOLBNB"},
+            {TradingPair::kXRPUSDT, "XRPUSDT"},
+            {TradingPair::kADAUSDT, "ADAUSDT"},
+            {TradingPair::kADAXRP, "ADAXRP"},
         }};
 
   public:

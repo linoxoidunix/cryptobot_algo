@@ -9,11 +9,16 @@ namespace impl {
 // Хэш-таблица для конвертации торговой пары в строку
 class BigStringViewToTradingPair {
     static const inline std::unordered_map<std::string_view, TradingPair>
-        kDictionary = {
-            {"BTCUSDT", TradingPair::kBTCUSDT},
-            {"ETHUSDT", TradingPair::kETHUSDT},
-            {"SOLUSDT", TradingPair::kSOLUSDT},
-    };
+        kDictionary = {{"BTCUSDT", aos::TradingPair::kBTCUSDT},
+                       {"ETHUSDT", aos::TradingPair::kETHUSDT},
+                       {"ETHBTC", aos::TradingPair::kETHBTC},
+                       {"BNBUSDT", aos::TradingPair::kBNBUSDT},
+                       {"BNBETH", aos::TradingPair::kBNBETH},
+                       {"SOLUSDT", aos::TradingPair::kSOLUSDT},
+                       {"SOLBNB", aos::TradingPair::kSOLBNB},
+                       {"XRPUSDT", aos::TradingPair::kXRPUSDT},
+                       {"ADAUSDT", aos::TradingPair::kADAUSDT},
+                       {"ADAXRP", aos::TradingPair::kADAXRP}};
 
   public:
     virtual ~BigStringViewToTradingPair() = default;

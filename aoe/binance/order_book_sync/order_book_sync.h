@@ -92,6 +92,9 @@ class OrderBookSync
     }
     boost::asio::awaitable<void> RequestNewSnapshot(aos::TradingPair pair) {
         boost::asio::io_context ioc;
+        // response from binance not provide trading pair.
+        // i need set it in manual mode
+        listener_.SetTradingPair(pair);
 
         aoe::binance::impl::main_net::spot::RestSessionRW session(
             ioc, response_queue_, listener_);
@@ -128,6 +131,16 @@ class OrderBookSync
                 last_snapshot_update_id_);
             SetLastDiffUpdateId(diff.FinalUpdateId());
             diffs_.pop();
+        }
+        // verified snapshot
+        if (ptr->TradingPair() == aos::TradingPair::kCount) {
+            loge(
+                "[PARSER SNAPSHOT] trading pair is not init. current "
+                "trading_pair={}",
+                ptr->TradingPair());
+            need_process_current_snapshot_ = false;
+            need_make_snapshot_            = true;
+            co_return;
         }
         need_process_current_snapshot_ = true;
         co_return;
@@ -279,7 +292,9 @@ class OrderBookSync
     }
     boost::asio::awaitable<void> RequestNewSnapshot(aos::TradingPair pair) {
         boost::asio::io_context ioc;
-
+        // response from binance not provide trading pair.
+        // i need set it in manual mode
+        listener_.SetTradingPair(pair);
         aoe::binance::impl::main_net::futures::RestSessionRW session(
             ioc, response_queue_, listener_);
         aoe::binance::snapshot::impl::SnapshotRequestSender<MemoryPool> sender(
@@ -300,7 +315,8 @@ class OrderBookSync
         last_snapshot_update_id_    = ptr->UpdateId();
         last_snapshot_              = ptr;
         snapshot_request_in_flight_ = false;
-        logd("Snapshot received, clearing in-flight flag");
+        logd("Snapshot received for {}, clearing in-flight flag",
+             ptr->TradingPair());
         // skip earlier diffs as soon as possible
         while (!diffs_.empty()) {
             auto ptr         = diffs_.front();
@@ -316,6 +332,16 @@ class OrderBookSync
                 last_snapshot_update_id_);
             SetLastDiffUpdateId(diff.FinalUpdateId());
             diffs_.pop();
+        }
+        // verified snapshot
+        if (ptr->TradingPair() == aos::TradingPair::kCount) {
+            loge(
+                "[PARSER SNAPSHOT] trading pair is not init. current "
+                "trading_pair={}",
+                ptr->TradingPair());
+            need_process_current_snapshot_ = false;
+            need_make_snapshot_            = true;
+            co_return;
         }
         need_process_current_snapshot_ = true;
         co_return;

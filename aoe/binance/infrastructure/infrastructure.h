@@ -46,13 +46,13 @@ struct OrderBookInfraContext {
         best_ask_price_notifier;
 
     std::unique_ptr<ListenerT> listener;
-    std::unique_ptr<SessionRWType> session;
     std::unique_ptr<aoe::SubscriptionBuilderInterface>
         diff_subscription_builder;
+    std::unique_ptr<SessionRWType> session;  // it is last
 
-    std::jthread thread;
-    boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
-        work_guard_{boost::asio::make_work_guard(ioc)};
+    // std::jthread thread;
+    // boost::asio::executor_work_guard<boost::asio::io_context::executor_type>
+    //     work_guard_{boost::asio::make_work_guard(ioc)};
 };
 
 template <typename Price, typename Qty,
@@ -116,8 +116,10 @@ class InfrastructureImpl : public InfrastructureInterface,
         context.listener =
             std::make_unique<ListenerT>(pool_, queue, *context.sync);
 
-        context.thread =
-            std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
+        // context.thread =
+        //     std::jthread([ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
+        // boost::asio::post(pool_,
+        //                   [ioc_ptr = &context.ioc]() { ioc_ptr->run(); });
 
         context.session = std::make_unique<SessionRWType>(context.ioc, queue,
                                                           *context.listener);
@@ -193,11 +195,22 @@ class InfrastructureImpl : public InfrastructureInterface,
         for (auto& [pair, context] : contexts_) {
             if (context) {
                 context->session->StartAsync();
+                // context->thread = std::jthread(
+                //     [ioc_ptr = &context->ioc]() { ioc_ptr->run(); });
+                boost::asio::post(
+                    pool_, [ioc_ptr = &context->ioc]() { ioc_ptr->run(); });
             }
         }
     }
 
-    void StopAsync() override { logi("[BINANCE INFRASTRUCTURE] async stop"); }
+    void StopAsync() override {
+        logi("[BINANCE INFRASTRUCTURE] async stop");
+        for (auto& [pair, context] : contexts_) {
+            if (context) {
+                context->session->StopAsync();
+            }
+        }
+    }
 
   private:
     boost::asio::thread_pool& pool_;

@@ -250,6 +250,34 @@ class SessionRW : public WebSocketPublicSessionRWInterface {
 };  // namespace linear
 };  // namespace main_net
 
+namespace main_net {
+namespace linear {
+namespace tickers_channel {
+class SessionRW : public WebSocketPublicSessionRWInterface {
+    boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12_client};
+    aoe::impl::WebSocketSessionRW ws_;
+
+  public:
+    SessionRW(boost::asio::io_context& ioc,
+              moodycamel::ConcurrentQueue<std::vector<char>>& response_queue,
+              ResponseQueueListenerInterface& listener)
+        : ws_(ioc, ctx_, "stream-testnet.bybit.com", "443", "/v5/public/linear",
+              response_queue, listener) {}
+    void AsyncWrite(nlohmann::json&& j) override {
+        ws_.AsyncWrite(std::move(j));
+    };
+    moodycamel::ConcurrentQueue<std::vector<char>>& GetResponseQueue()
+        override {
+        return ws_.GetResponseQueue();
+    }
+    void StartAsync() override { ws_.StartAsync(); }
+    void StopAsync() override { ws_.StopAsync(); }
+    ~SessionRW() override = default;
+};
+};  // namespace tickers_channel
+};  // namespace linear
+};  // namespace main_net
+
 };  // namespace impl
 };  // namespace bybit
 };  // namespace aoe

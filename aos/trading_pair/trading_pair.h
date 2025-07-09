@@ -7,7 +7,16 @@ namespace aos {
 enum class TradingPair : uint32_t {  // NOLINT
     kBTCUSDT,
     kETHUSDT,
+    kETHBTC,
+    kBTCETH,
+    kBNBUSDT,
+    kBNBETH,
+    kETHBNB,
     kSOLUSDT,
+    kSOLBNB,
+    kXRPUSDT,
+    kADAUSDT,
+    kADAXRP,
     kCount  // для удобства
 };
 };

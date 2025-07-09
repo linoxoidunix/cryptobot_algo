@@ -50,6 +50,23 @@ class OrderBookEventParser
         if (data_obj_result.error() != simdjson::SUCCESS)
             return {false, nullptr};
 
+        // --- 🔽 Парсим поле "ts" (event time)
+        // uint64_t event_time = 0;
+        // if (doc["ts"].get_uint64().get(event_time) != simdjson::SUCCESS) {
+        //     return {false, nullptr};
+        // }
+        // // --- 🔽 Получаем текущее время (в мс с эпохи)
+        // uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+        //                    std::chrono::system_clock::now().time_since_epoch())
+        //                    .count();
+
+        // // --- 🔽 Вычисляем задержку
+        // int64_t delay_ms =
+        //     static_cast<int64_t>(now) - static_cast<int64_t>(event_time);
+
+        // // --- 🔽 Логгируем
+        // logi("[depthUpdate bybit] Delay: {}", delay_ms);
+
         simdjson::ondemand::object data_obj = data_obj_result.value();
 
         auto it_factory                     = factory_map_.find(event_type);

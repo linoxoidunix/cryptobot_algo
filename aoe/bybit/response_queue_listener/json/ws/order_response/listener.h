@@ -40,8 +40,8 @@ class Listener : public ResponseQueueListenerInterface {
         while (queue_.try_dequeue(msg)) {
             // Обработка данных (например, parse via simdjson)
             logi("process message of size {}", msg.size());
-            std::string str(msg.data(), msg.size());
-            logi("parsed JSON: {}", str);
+            // std::string str(msg.data(), msg.size());
+            // logi("parsed JSON: {}", str);
             simdjson::padded_string padded_json(msg.data(), msg.size());
             simdjson::ondemand::document doc;
             simdjson::error_code error = parser.iterate(padded_json).get(doc);

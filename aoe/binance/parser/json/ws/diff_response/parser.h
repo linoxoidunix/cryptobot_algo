@@ -43,6 +43,23 @@ class DiffEventParserBase
             event_type != "depthUpdate") {
             return {false, nullptr};
         }
+        // // NEED PARSE E
+        // --- 🔽 Парсим поле "E" (event time)
+        uint64_t event_time = 0;
+        if (doc["E"].get_uint64().get(event_time) != simdjson::SUCCESS) {
+            return {false, nullptr};
+        }
+        // --- 🔽 Получаем текущее время (в мс с эпохи)
+        uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
+
+        // --- 🔽 Вычисляем задержку
+        int64_t delay_ms =
+            static_cast<int64_t>(now) - static_cast<int64_t>(event_time);
+
+        // --- 🔽 Логгируем
+        logi("[depthUpdate binance] Delay: {}", delay_ms);
 
         EventPtr ptr = factory_event_();
 

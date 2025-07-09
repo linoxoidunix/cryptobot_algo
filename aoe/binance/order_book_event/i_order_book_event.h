@@ -45,7 +45,7 @@ class OrderBookEventInterface
 
   protected:
     common::ExchangeId exchange_id_ = common::ExchangeId::kBinance;
-    aos::TradingPair trading_pair_;
+    aos::TradingPair trading_pair_  = aos::TradingPair::kCount;
     std::vector<aos::OrderBookLevelRaw<Price, Qty>> bids_;
     std::vector<aos::OrderBookLevelRaw<Price, Qty>> asks_;
 };

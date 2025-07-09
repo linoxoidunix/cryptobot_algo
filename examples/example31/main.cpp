@@ -43,8 +43,11 @@ int main() {
             session_trade_channel, aoe::bybit::spot::Depth::k50,
             aos::TradingPair::kBTCUSDT};
         sub_builder.Subscribe();
-        auto thread = std::jthread(
-            [&ioc_order_book_channel]() { ioc_order_book_channel.run(); });
+        // auto thread = std::jthread(
+        //     [&ioc_order_book_channel]() { ioc_order_book_channel.run(); });
+        boost::asio::post(thread_pool, [ioc_ptr = &ioc_order_book_channel]() {
+            ioc_ptr->run();
+        });
     } catch (...) {
         loge("error occured");
     }

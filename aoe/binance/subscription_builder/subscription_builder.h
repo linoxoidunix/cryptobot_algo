@@ -46,63 +46,87 @@ class OrderSubscriptionBuilder : public SubscriptionBuilderInterface {
     void Subscribe() override { user_data_subscription_builder_.Subscribe(); }
 };
 
+namespace internal {
+
+template <typename UpdateSpeedType>
+class DiffSubscriptionBuilderBase : public SubscriptionBuilderInterface {
+  protected:
+    WebSocketPublicSessionRWInterface& ws_;
+    UpdateSpeedType update_speed_;
+    aos::TradingPair trading_pair_;
+
+  public:
+    DiffSubscriptionBuilderBase(WebSocketPublicSessionRWInterface& ws,
+                                UpdateSpeedType update_speed,
+                                aos::TradingPair trading_pair)
+        : ws_(ws), update_speed_(update_speed), trading_pair_(trading_pair) {}
+
+    ~DiffSubscriptionBuilderBase() override = default;
+
+    void Subscribe() override {
+        nlohmann::json request_json;
+        request_json["id"]     = nullptr;
+        request_json["method"] = "SUBSCRIBE";
+
+        auto [status_trading_pair, result_trading_pair] =
+            aos::impl::TradingPairToSmallStringView::Convert(trading_pair_);
+        if (!status_trading_pair) return;
+
+        auto [status_depth, result_speed_update] =
+            DiffUpdateSpeed_ms_ToString(update_speed_);
+        if (!status_depth) return;
+
+        request_json["params"] = {fmt::format(
+            "{}@depth@{}", result_trading_pair, result_speed_update)};
+        ws_.AsyncWrite(std::move(request_json));
+    }
+};
+
+}  // namespace internal
+
 namespace spot {
-class DiffSubscriptionBuilder : public SubscriptionBuilderInterface {
-    WebSocketPublicSessionRWInterface& ws_;
-    aoe::binance::spot::DiffUpdateSpeed_ms update_speed_;
-    aos::TradingPair trading_pair_;
+using DiffSubscriptionBuilder = internal::DiffSubscriptionBuilderBase<
+    aoe::binance::spot::DiffUpdateSpeed_ms>;
+}  // namespace spot
 
-  public:
-    DiffSubscriptionBuilder(WebSocketPublicSessionRWInterface& ws,
-                            aoe::binance::spot::DiffUpdateSpeed_ms update_speed,
-                            aos::TradingPair trading_pair)
-        : ws_(ws), update_speed_(update_speed), trading_pair_(trading_pair) {}
-    ~DiffSubscriptionBuilder() override = default;
-    void Subscribe() override {
-        nlohmann::json request_json;
-        request_json["id"]     = nullptr;
-        request_json["method"] = "SUBSCRIBE";
-        auto [status_trading_pair, result_trading_pair] =
-            aos::impl::TradingPairToSmallStringView::Convert(trading_pair_);
-        if (!status_trading_pair) return;
-        auto [status_depth, result_speed_update] =
-            DiffUpdateSpeed_ms_ToString(update_speed_);
-        if (!status_depth) return;
-        request_json["params"] = {fmt::format(
-            "{}@depth@{}", result_trading_pair, result_speed_update)};
-        ws_.AsyncWrite(std::move(request_json));
-    }
-};
-};  // namespace spot
 namespace futures {
-class DiffSubscriptionBuilder : public SubscriptionBuilderInterface {
+using DiffSubscriptionBuilder = internal::DiffSubscriptionBuilderBase<
+    aoe::binance::futures::DiffUpdateSpeed_ms>;
+}  // namespace futures
+
+class TradeSubscriptionBuilderBase : public SubscriptionBuilderInterface {
+  protected:
     WebSocketPublicSessionRWInterface& ws_;
-    aoe::binance::futures::DiffUpdateSpeed_ms update_speed_;
     aos::TradingPair trading_pair_;
 
   public:
-    DiffSubscriptionBuilder(
-        WebSocketPublicSessionRWInterface& ws,
-        aoe::binance::futures::DiffUpdateSpeed_ms update_speed,
-        aos::TradingPair trading_pair)
-        : ws_(ws), update_speed_(update_speed), trading_pair_(trading_pair) {}
-    ~DiffSubscriptionBuilder() override = default;
+    TradeSubscriptionBuilderBase(WebSocketPublicSessionRWInterface& ws,
+                                 aos::TradingPair trading_pair)
+        : ws_(ws), trading_pair_(trading_pair) {}
+
+    ~TradeSubscriptionBuilderBase() override = default;
+
     void Subscribe() override {
         nlohmann::json request_json;
         request_json["id"]     = nullptr;
         request_json["method"] = "SUBSCRIBE";
+
         auto [status_trading_pair, result_trading_pair] =
             aos::impl::TradingPairToSmallStringView::Convert(trading_pair_);
         if (!status_trading_pair) return;
-        auto [status_depth, result_speed_update] =
-            DiffUpdateSpeed_ms_ToString(update_speed_);
-        if (!status_depth) return;
-        request_json["params"] = {fmt::format(
-            "{}@depth@{}", result_trading_pair, result_speed_update)};
+
+        request_json["params"] = {fmt::format("{}@trade", result_trading_pair)};
         ws_.AsyncWrite(std::move(request_json));
     }
 };
-};  // namespace futures
-};  // namespace impl
+
+namespace spot {
+using TradeSubscriptionBuilder = TradeSubscriptionBuilderBase;
+}  // namespace spot
+
+namespace futures {
+using TradeSubscriptionBuilder = TradeSubscriptionBuilderBase;
+}  // namespace futures
+}  // namespace impl
 };  // namespace binance
 };  // namespace aoe

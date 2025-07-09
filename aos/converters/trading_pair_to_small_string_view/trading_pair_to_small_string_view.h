@@ -15,7 +15,14 @@ class TradingPairToSmallStringView {
         kDictionary = {{
             {TradingPair::kBTCUSDT, "btcusdt"},
             {TradingPair::kETHUSDT, "ethusdt"},
+            {TradingPair::kETHBTC, "ethbtc"},
+            {TradingPair::kBNBUSDT, "bnbusdt"},
+            {TradingPair::kBNBETH, "bnbeth"},
             {TradingPair::kSOLUSDT, "solusdt"},
+            {TradingPair::kSOLBNB, "solbnb"},
+            {TradingPair::kXRPUSDT, "xrpusdt"},
+            {TradingPair::kADAUSDT, "adausdt"},
+            {TradingPair::kADAXRP, "adaxrp"},
         }};
 
   public:

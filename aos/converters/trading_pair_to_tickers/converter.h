@@ -1,41 +1,37 @@
 #pragma once
-
 #include <array>
 #include <cstddef>
 
 #include "aos/ticker/ticker.h"
 #include "aos/trading_pair/trading_pair.h"
+namespace aos {
+constexpr std::array<std::pair<Ticker, Ticker>,
+                     static_cast<size_t>(TradingPair::kCount)>
+    kTradingPairMap = {{
+        {Ticker::kBTC, Ticker::kUSDT},  // BTCUSDT
+        {Ticker::kETH, Ticker::kUSDT},  // ETHUSDT
+        {Ticker::kETH, Ticker::kBTC},   // ETHBTC
+        {Ticker::kBNB, Ticker::kUSDT},  // BNBUSDT
+        {Ticker::kBNB, Ticker::kETH},   // BNBETH
+        {Ticker::kSOL, Ticker::kUSDT},  // SOLUSDT
+        {Ticker::kSOL, Ticker::kBNB},   // SOLBNB
+        {Ticker::kXRP, Ticker::kUSDT},  // XRPUSDT
+        {Ticker::kADA, Ticker::kUSDT},  // ADAUSDT
+        {Ticker::kADA, Ticker::kXRP},   // ADAXRP
+    }};
+};
 
 namespace aos {
-// Таблица соответствия: [base][quote] -> TradingPair
-constexpr std::size_t kTickerCount = static_cast<std::size_t>(Ticker::kCount);
+constexpr std::pair<bool, std::pair<Ticker, Ticker>> TradingPairToTickers(
+    TradingPair id) {
+    using T = std::underlying_type_t<TradingPair>;
+    constexpr std::pair<Ticker, Ticker> kInvalidPair{Ticker::kCount,
+                                                     Ticker::kCount};
+    const auto index = static_cast<T>(id);
 
-// Прямое преобразование двумерного индекса [base][quote] в одномерный индекс
-constexpr std::size_t FlatIndex(Ticker base, Ticker quote) {
-    return static_cast<std::size_t>(base) * kTickerCount +
-           static_cast<std::size_t>(quote);
-}
-
-// Плоский массив размером COUNT * COUNT
-constexpr std::array<TradingPair, kTickerCount * kTickerCount> kReverseMapFlat =
-    [] {
-        std::array<TradingPair, kTickerCount * kTickerCount> map{};
-
-        for (auto& e : map) {
-            e = TradingPair::kCount;  // По умолчанию — "неизвестная пара"
-        }
-
-        // Заполняем существующие пары
-        map[FlatIndex(Ticker::kBTC, Ticker::kUSDT)] = TradingPair::kBTCUSDT;
-        map[FlatIndex(Ticker::kETH, Ticker::kUSDT)] = TradingPair::kETHUSDT;
-
-        return map;
-    }();
-
-// Возвращает найденную пару, если существует
-constexpr std::pair<bool, TradingPair> TickersToTradingPair(Ticker base,
-                                                            Ticker quote) {
-    TradingPair pair = kReverseMapFlat[FlatIndex(base, quote)];
-    return {pair != TradingPair::kCount, pair};
+    if (index < static_cast<T>(TradingPair::kCount)) {
+        return {true, kTradingPairMap[index]};
+    }
+    return {false, kInvalidPair};
 }
 };  // namespace aos
