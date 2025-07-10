@@ -212,14 +212,10 @@ class WebSocketSessionRW : public WebSocketSessionWritableInterface,
 
             // Обрабатываем результат чтения
             if (read_ec) {
-                if (read_ec == boost::asio::error::operation_aborted) {
-                    // CloseSessionFast();
-                    break;
-                } else {
+                if (read_ec != boost::asio::error::operation_aborted) {
                     loge("Read error: {}", read_ec.message());
-                    // CloseSessionFast();
-                    break;
                 }
+                break;
             }
 
             logi("invoke callback received_bytes:{}", n);
@@ -467,12 +463,10 @@ class WebSocketSessionW : public WebSocketSessionWritableInterface {
 
             // Обрабатываем результат чтения
             if (read_ec) {
-                if (read_ec == boost::asio::error::operation_aborted) {
-                    break;
-                } else {
+                if (read_ec != boost::asio::error::operation_aborted) {
                     loge("Read error: {}", read_ec.message());
-                    break;
                 }
+                break;
             }
 
             logi("invoke callback received_bytes:{}", n);

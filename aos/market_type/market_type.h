@@ -3,9 +3,9 @@
 
 namespace aos {
 enum class MarketType : uint8_t {
-    Spot,
-    Margin,  // Cross
-    IsolatedMargin
+    kSpot,
+    kMargin,  // Cross
+    kIsolatedMargin
 };
 };
 

@@ -136,8 +136,8 @@ void wait_for_user_input(std::promise<void>& exit_signal) {
 
 int main(int, char**) {
     {
-        boost::asio::thread_pool thread_pool;
         try {
+            boost::asio::thread_pool thread_pool;
             using HashT = uint64_t;
             using Price = double;
             fmtlog::setLogLevel(fmtlog::LogLevel::DBG);

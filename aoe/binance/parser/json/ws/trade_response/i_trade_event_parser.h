@@ -6,9 +6,9 @@
 namespace aoe {
 namespace binance {
 template <template <typename> typename MemoryPool, typename PositionT>
-class ExecutionEventParserInterface {
+class TradeEventParserInterface {
   public:
-    virtual ~ExecutionEventParserInterface() = default;
+    virtual ~TradeEventParserInterface() = default;
     using EventPtr =
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>;
     virtual std::pair<bool, EventPtr> ParseAndCreate(

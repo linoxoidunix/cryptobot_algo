@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cstdint>
 
 #include "aos/converters/tickers_to_trading_pair/converter.h"
 #include "aos/market_type/market_type.h"
@@ -7,7 +8,7 @@
 
 namespace aos {
 
-enum class ActionType { Buy, Sell };
+enum class ActionType : uint8_t { kBuy, kSell };
 
 struct Action {
     ActionType action_type;
@@ -17,11 +18,11 @@ struct Action {
 
 namespace spot {
 inline Action Buy(TradingPair trading_pair) {
-    return Action{ActionType::Buy, MarketType::Spot, trading_pair};
+    return Action{ActionType::kBuy, MarketType::kSpot, trading_pair};
 }
 
 inline Action Sell(TradingPair trading_pair) {
-    return Action{ActionType::Sell, MarketType::Spot, trading_pair};
+    return Action{ActionType::kSell, MarketType::kSpot, trading_pair};
 }
 }  // namespace spot
 
@@ -49,9 +50,9 @@ class fmt::formatter<aos::Action> {
     template <typename Context>
     constexpr auto format(const aos::Action& foo, Context& ctx) const {
         auto action_type = foo.action_type;
-        std::string actionStr =
-            (action_type == aos::ActionType::Buy ? "BUY" : "SELL");
-        return fmt::format_to(ctx.out(), "{} {} on {}", actionStr,
+        std::string action_str =
+            (action_type == aos::ActionType::kBuy ? "BUY" : "SELL");
+        return fmt::format_to(ctx.out(), "{} {} on {}", action_str,
                               foo.trading_pair, foo.market_type);
     }
 };

@@ -16,7 +16,7 @@ namespace spot {
 namespace impl {
 template <template <typename> typename MemoryPool, typename PositionT>
 class TradeEventParser
-    : public ExecutionEventParserInterface<MemoryPool, PositionT> {
+    : public TradeEventParserInterface<MemoryPool, PositionT> {
     using EventPtr =
         boost::intrusive_ptr<ExecutionEventInterface<MemoryPool, PositionT>>;
     using Key       = std::string_view;

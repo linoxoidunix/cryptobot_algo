@@ -4,7 +4,7 @@
 #include "aos/logger/mylog.h"
 #include "aos/trading_pair_triangle/trading_pair_triangle.h"
 
-int main(int, char** argv) {
+int main() {
     {
         auto t = aos::MakeTriangle(aos::spot::Buy(aos::TradingPair::kETHUSDT),
                                    aos::spot::Sell(aos::TradingPair::kETHBTC),

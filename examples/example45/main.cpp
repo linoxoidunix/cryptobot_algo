@@ -10,7 +10,7 @@
 #include "aos/order_book_level/order_book_level.h"
 #include "concurrentqueue.h"
 
-int main(int, char** argv) {
+int main(int, char**) {
     try {
         boost::asio::thread_pool thread_pool;
         LogPolling log_polling(thread_pool, std::chrono::microseconds(1));

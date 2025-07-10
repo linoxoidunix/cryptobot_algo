@@ -21,8 +21,8 @@ class Acceptor
     bool received_snapshot_success_ = false;
 
   public:
-    Acceptor(boost::asio::thread_pool& thread_pool
-             /*need pass entity to process funding rate event*/)
+    explicit Acceptor(boost::asio::thread_pool& thread_pool
+                      /*need pass entity to process funding rate event*/)
         : strand_(boost::asio::make_strand(thread_pool)) {}
     ~Acceptor() override = default;
     void OnEvent(
