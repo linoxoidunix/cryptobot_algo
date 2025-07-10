@@ -16,6 +16,7 @@
 #include "aos/strategy_engine/i_strategy_engine.h"
 #include "aos/strategy_engine/strategy_engine.h"
 #include "aos/trading_pair/trading_pair.h"
+#include "aos/exit_waiter/user_exit_on_signal/waiter.h"
 
 namespace str {
 struct Config {
@@ -128,26 +129,39 @@ class StrategyWrapper {
 };
 };  // namespace str
 
-void wait_for_user_input(std::promise<void>& exit_signal) {
-    std::cout << "Press ENTER to exit...\n";
-    std::cin.get();           // ждём нажатия Enter
-    exit_signal.set_value();  // снимаем блокировку
-}
+// class UserExitWaiter {
+//   public:
+//     explicit UserExitWaiter(boost::asio::thread_pool& pool)
+//         : exit_future_(exit_promise_.get_future()) {
+//         boost::asio::post(pool, [this] {
+//             std::cout << "Press ENTER to exit...\n";
+//             std::cin.get();
+//             exit_promise_.set_value();
+//         });
+//     }
+
+//     void Wait() { exit_future_.wait(); }
+
+//   private:
+//     std::promise<void> exit_promise_;
+//     std::future<void> exit_future_;
+// };
 
 int main(int, char**) {
     {
         try {
             boost::asio::thread_pool thread_pool;
+            aos::impl::UserExitOnSignalWaiter user_waiter(thread_pool);
             using HashT = uint64_t;
             using Price = double;
             fmtlog::setLogLevel(fmtlog::LogLevel::DBG);
             // --- механизм блокировки через future ---
-            std::promise<void> exit_promise;
-            std::future<void> exit_future = exit_promise.get_future();
+            // std::promise<void> exit_promise;
+            // std::future<void> exit_future = exit_promise.get_future();
 
             // Поток, ожидающий пользовательский ввод
-            std::jthread input_thread(wait_for_user_input,
-                                      std::ref(exit_promise));
+            // std::jthread input_thread(wait_for_user_input,
+            //                          std::ref(exit_promise));
             // boost::asio::thread_pool thread_pool;
             LogPolling log_polling(thread_pool, std::chrono::microseconds(1));
             using Price = double;
@@ -190,7 +204,8 @@ int main(int, char**) {
                 aos::TradingPair::kETHUSDT);
 
             binance_futures_main_net_infrastructure->StartAsync();
-            exit_future.get();  // блокирующий вызов — будет ждать ENTER
+            // exit_future.get();  // блокирующий вызов — будет ждать ENTER
+            user_waiter.Wait();
             binance_futures_main_net_infrastructure->StopAsync();
         } catch (...) {
             loge("error occured");
