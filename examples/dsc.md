@@ -2,7 +2,7 @@
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [example47](./example43/main.cpp) | subscribe to three Binance trading pairs that form a triangular arbitrage loop                                                                                                 |
 | [example46](./example43/main.cpp) | configure triangular arbitrage loop                                                                                                                                            |
-| [example45](./example43/main.cpp) | Prototype to extract the current funding rate for a ticker on Binance                                                                                                          |
+| [example45](./example43/main.cpp) | prototype to extract the current funding rate for a ticker on Binance                                                                                                          |
 | [example44](./example43/main.cpp) | improve deviation_and_mutual_information strategy                                                                                                                              |
 | [example43](./example43/main.cpp) | bybit mainnet spot infrastructure                                                                                                                                              |
 | [example42](./example42/main.cpp) | bybit mainnet linear infrastructure                                                                                                                                            |

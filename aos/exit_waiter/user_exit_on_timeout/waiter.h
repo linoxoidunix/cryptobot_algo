@@ -1,18 +1,20 @@
 #pragma once
 #include <atomic>
-#include <future>
 #include <csignal>
+#include <future>
 
 #include "aos/exit_waiter/i_exit_waiter.h"
+#include "aos/logger/mylog.h"
 #include "boost/asio/io_context.hpp"
 #include "boost/asio/signal_set.hpp"
+#include "boost/asio/steady_timer.hpp"
 #include "boost/asio/this_coro.hpp"
-#include "aos/logger/my_logger.h"
+#include "boost/asio/thread_pool.hpp"
 
 namespace aos {
 namespace impl {
 class UserExitOnTimeoutWaiter : public IExitWaiterInterface {
-public:
+  public:
     UserExitOnTimeoutWaiter(boost::asio::thread_pool& pool,
                             std::chrono::steady_clock::duration timeout)
         : timer_(pool.get_executor(), timeout) {}
@@ -33,7 +35,7 @@ public:
         future.wait();  // блокируемся здесь
     }
 
-private:
+  private:
     boost::asio::steady_timer timer_;
 };
 

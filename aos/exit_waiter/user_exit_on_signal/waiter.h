@@ -8,6 +8,7 @@
 #include "boost/asio/io_context.hpp"
 #include "boost/asio/signal_set.hpp"
 #include "boost/asio/this_coro.hpp"
+#include "boost/asio/thread_pool.hpp"
 
 namespace aos {
 namespace impl {

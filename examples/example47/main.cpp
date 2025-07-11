@@ -129,24 +129,6 @@ class StrategyWrapper {
 };
 };  // namespace str
 
-// class UserExitWaiter {
-//   public:
-//     explicit UserExitWaiter(boost::asio::thread_pool& pool)
-//         : exit_future_(exit_promise_.get_future()) {
-//         boost::asio::post(pool, [this] {
-//             std::cout << "Press ENTER to exit...\n";
-//             std::cin.get();
-//             exit_promise_.set_value();
-//         });
-//     }
-
-//     void Wait() { exit_future_.wait(); }
-
-//   private:
-//     std::promise<void> exit_promise_;
-//     std::future<void> exit_future_;
-// };
-
 int main(int, char**) {
     {
         try {
